@@ -13,6 +13,7 @@ langchain-community>=0.3.0
 langchain-core>=0.3.0
 langchain-groq>=0.2.0
 langchain-openai>=0.2.0
+langchain-huggingface>=0.1.0
 
 # Vector Database & Retrieval
 chromadb>=0.5.0
@@ -20,7 +21,10 @@ rank_bm25>=0.2.2
 flashrank>=0.2.9
 sentence-transformers>=3.0.0
 
-# Document Extractors
+# Document Extractors & Web Scrapers
 pypdf>=4.3.0
 python-docx>=1.1.2
 openpyxl>=3.1.5
+beautifulsoup4>=4.12.0
+requests>=2.31.0
+

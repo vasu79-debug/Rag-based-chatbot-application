@@ -41,6 +41,9 @@ class Settings(BaseSettings):
     RAG_TOP_N_RERANK: int = 5
     RAG_SIMILARITY_THRESHOLD: float = 0.25
 
+    # Multi-Turn Memory Window (Number of past message turns to retain)
+    MAX_HISTORY_TURNS: int = 8
+
     model_config = SettingsConfigDict(
         env_file=str(Path(__file__).resolve().parent / ".env"),
         env_file_encoding="utf-8",

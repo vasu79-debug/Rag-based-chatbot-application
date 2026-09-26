@@ -141,6 +141,37 @@ async def list_documents():
     return docs
 
 
+@app.get("/api/admin/chunks")
+async def list_all_stored_chunks(doc_id: Optional[str] = None):
+    """
+    Inspects raw chunk text, metadata, and chunk IDs stored inside ChromaDB.
+    Optional query parameter `doc_id` to filter chunks for a specific document.
+    """
+    all_chunks = document_service.vector_store.get_all_chunks()
+    
+    if doc_id:
+        all_chunks = [c for c in all_chunks if c.metadata.get("doc_id") == doc_id]
+
+    chunks_data = []
+    for i, c in enumerate(all_chunks, 1):
+        chunks_data.append({
+            "index": i,
+            "chunk_id": c.metadata.get("chunk_id", f"chunk_{i}"),
+            "doc_id": c.metadata.get("doc_id", "unknown"),
+            "source": c.metadata.get("source", "unknown"),
+            "page": c.metadata.get("page", 1),
+            "format": c.metadata.get("format", "text"),
+            "char_length": len(c.page_content),
+            "content": c.page_content,
+        })
+
+    return {
+        "total_chunks": len(chunks_data),
+        "chunks": chunks_data,
+    }
+
+
+
 @app.post("/api/admin/documents", response_model=DocumentItem, status_code=status.HTTP_201_CREATED)
 async def upload_document(file: UploadFile = File(...)):
     """
@@ -173,6 +204,39 @@ async def upload_document(file: UploadFile = File(...)):
     finally:
         if tmp_path.exists():
             tmp_path.unlink()
+
+
+class UrlIngestRequest(BaseModel):
+    url: str = Field(..., min_length=4, description="Public HTTP/HTTPS URL of webpage to index")
+
+
+@app.post("/api/admin/url", response_model=DocumentItem, status_code=status.HTTP_201_CREATED)
+async def ingest_url_endpoint(request: UrlIngestRequest):
+    """
+    Admin URL Ingest Endpoint:
+    Safely fetches webpage with SSRF & malware protection, strips harmful scripts/payloads,
+    chunks, embeds into ChromaDB, and syncs BM25 index.
+    """
+    if not request.url.strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="URL cannot be empty.",
+        )
+
+    try:
+        result = document_service.ingest_url(request.url.strip())
+        return DocumentItem(**result)
+    except ValueError as ve:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(ve),
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to index website content: {str(e)}",
+        )
+
 
 
 @app.delete("/api/admin/documents/{doc_id}")

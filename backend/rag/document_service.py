@@ -72,6 +72,45 @@ class DocumentService:
             "status": "indexed",
         }
 
+    def ingest_url(self, url: str) -> Dict[str, Any]:
+        """
+        Safely fetches, sanitizes, and indexes a website webpage:
+        1. Validates SSRF and safe IP resolution
+        2. Strips scripts, styles, malware vectors, and hidden prompt injections
+        3. Splits into semantic chunks
+        4. Indexes into ChromaDB vector store
+        5. Syncs BM25 lexical search index
+        """
+        from rag.loaders import load_url
+
+        doc_id = f"web_{uuid.uuid4().hex[:12]}"
+
+        # 1. Fetch & sanitize web content
+        raw_docs = load_url(url, doc_id=doc_id)
+        if not raw_docs:
+            raise ValueError(f"No usable content could be extracted from '{url}'.")
+
+        title = raw_docs[0].metadata.get("source", url)
+
+        # 2. Chunk text
+        chunks = create_chunks(raw_docs)
+
+        # 3. Add to ChromaDB
+        added_count = self.vector_store.add_chunks(chunks)
+
+        # 4. Refresh BM25
+        self.sync_bm25_index()
+
+        return {
+            "doc_id": doc_id,
+            "filename": title,
+            "format": "web",
+            "chunks_count": added_count,
+            "pages_count": 1,
+            "status": "indexed",
+        }
+
+
     def list_documents(self) -> List[Dict[str, Any]]:
         """Returns the list of all currently indexed documents."""
         return self.vector_store.list_indexed_documents()

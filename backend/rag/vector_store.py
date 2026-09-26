@@ -7,7 +7,13 @@ from typing import List, Dict, Any, Optional
 from pathlib import Path
 import chromadb
 from langchain_core.documents import Document
-from langchain_huggingface import HuggingFaceEmbeddings
+try:
+    from langchain_huggingface import HuggingFaceEmbeddings
+except ImportError:
+    try:
+        from langchain_community.embeddings import HuggingFaceEmbeddings
+    except ImportError:
+        from langchain_community.embeddings.huggingface import HuggingFaceEmbeddings
 from config import settings
 
 
@@ -31,13 +37,17 @@ class VectorStoreManager:
         )
 
     def add_chunks(self, chunks: List[Document]) -> int:
-        """Adds text chunks with embeddings and metadata into ChromaDB."""
+        """Adds text chunks with embeddings and metadata into ChromaDB with logging."""
         if not chunks:
             return 0
 
         texts = [c.page_content for c in chunks]
         metadatas = [c.metadata for c in chunks]
         ids = [c.metadata.get("chunk_id", str(i)) for i, c in enumerate(chunks)]
+
+        import logging
+        logger = logging.getLogger("demo4.rag.vector_store")
+        logger.info(f"💾 [ChromaDB] Generating dense embeddings for {len(chunks)} chunks using {settings.EMBEDDING_MODEL}...")
 
         # Generate embeddings
         embeddings_list = self.embeddings.embed_documents(texts)
@@ -49,6 +59,10 @@ class VectorStoreManager:
             documents=texts,
             metadatas=metadatas,
         )
+
+        total_stored = self.collection.count()
+        logger.info(f"✅ [ChromaDB] Upserted {len(chunks)} chunks into vector store.")
+        logger.info(f"📊 [ChromaDB Status] Total vectors currently stored in collection: {total_stored} chunks")
         return len(chunks)
 
     def similarity_search(self, query: str, k: int = 20) -> List[Document]:

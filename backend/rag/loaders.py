@@ -140,3 +140,32 @@ def extract_document(file_path: Path, doc_id: str = None) -> List[Document]:
     else:
         # Fallback to plain text read
         return load_text(file_path, doc_id)
+
+
+def load_url(url: str, doc_id: str = None) -> List[Document]:
+    """
+    Safely fetches and extracts clean content from a website URL.
+    Applies SSRF prevention, HTML sanitization, script/malware stripping.
+    """
+    from rag.web_scraper import fetch_and_sanitize_url
+
+    if not doc_id:
+        doc_id = str(uuid.uuid4())
+
+    extracted = fetch_and_sanitize_url(url)
+    title = extracted["title"]
+    content = extracted["content"]
+
+    return [
+        Document(
+            page_content=content,
+            metadata={
+                "doc_id": doc_id,
+                "source": title if title and title != url else url,
+                "url": url,
+                "page": 1,
+                "format": "web",
+            },
+        )
+    ]
+

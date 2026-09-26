@@ -51,6 +51,23 @@ export async function uploadDocument(file) {
   return res.json();
 }
 
+export async function ingestUrl(url) {
+  const res = await fetch(`${BASE_URL}/admin/url`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ url }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to index website URL");
+  }
+
+  return res.json();
+}
+
 export async function deleteDocument(docId) {
   const res = await fetch(`${BASE_URL}/admin/documents/${docId}`, {
     method: "DELETE",
@@ -63,3 +80,4 @@ export async function deleteDocument(docId) {
 
   return res.json();
 }
+

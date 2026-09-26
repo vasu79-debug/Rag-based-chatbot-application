@@ -8,6 +8,7 @@ import {
   fetchDocuments,
   sendChatMessage,
   uploadDocument,
+  ingestUrl,
   deleteDocument,
 } from "./api";
 
@@ -46,10 +47,23 @@ export default function App() {
     setLoading(true);
 
     try {
-      const historyPayload = messages.map((m) => ({
-        role: m.role,
-        content: m.content || "",
-      }));
+      const historyPayload = messages.map((m) => {
+        let textContent = m.content || "";
+        if (m.role === "assistant" && m.payload) {
+          const parts = [];
+          if (m.payload.org_section?.content) {
+            parts.push(`[Internal Knowledge]: ${m.payload.org_section.content}`);
+          }
+          if (m.payload.general_section?.content) {
+            parts.push(`[General AI]: ${m.payload.general_section.content}`);
+          }
+          textContent = parts.join("\n\n");
+        }
+        return {
+          role: m.role,
+          content: textContent,
+        };
+      });
 
       const res = await sendChatMessage(text, historyPayload);
 
@@ -79,6 +93,16 @@ export default function App() {
     setUploading(true);
     try {
       await uploadDocument(file);
+      await loadData();
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleIngestUrl = async (url) => {
+    setUploading(true);
+    try {
+      await ingestUrl(url);
       await loadData();
     } finally {
       setUploading(false);
@@ -117,6 +141,7 @@ export default function App() {
           <AdminPortal
             documents={documents}
             onUpload={handleUpload}
+            onIngestUrl={handleIngestUrl}
             onDelete={handleDelete}
             uploading={uploading}
           />

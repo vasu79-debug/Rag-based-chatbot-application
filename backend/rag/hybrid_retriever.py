@@ -1,14 +1,13 @@
-"""
-Unified Hybrid Retriever with Reciprocal Rank Fusion (RRF) & Cross-Encoder Reranking.
-Combines ChromaDB vector search + BM25 keyword search + FlashRank reranker.
-"""
-
+import logging
 from typing import List, Dict, Any, Tuple
 from langchain_core.documents import Document
 from config import settings
 from rag.vector_store import vector_store_manager
 from rag.keyword_search import bm25_search_manager
 from rag.reranker import reranker_manager
+
+logger = logging.getLogger("demo4.rag.retriever")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 
 def reciprocal_rank_fusion(
@@ -63,7 +62,7 @@ class HybridRetriever:
         threshold: float = None,
     ) -> List[Document]:
         """
-        Executes the full hybrid pipeline:
+        Executes the full hybrid pipeline with comprehensive logging:
         1. Dense Vector Search (ChromaDB)
         2. Sparse Lexical Search (BM25)
         3. Reciprocal Rank Fusion (RRF)
@@ -75,18 +74,33 @@ class HybridRetriever:
         n_rerank = top_n_rerank or settings.RAG_TOP_N_RERANK
         min_thresh = threshold if threshold is not None else settings.RAG_SIMILARITY_THRESHOLD
 
+        logger.info("  🔍 [Hybrid Retriever] Querying knowledge base...")
+        logger.info(f"     Search Target: \"{query}\"")
+
         # 1. Parallel / Sequential Retrieval from both stores
         vec_docs = self.vector_store.similarity_search(query, k=k_vec)
         bm25_docs = self.bm25.search(query, k=k_bm25)
+
+        logger.info(f"     ├─ [ChromaDB Vector] Found {len(vec_docs)} semantic candidates (Top score: {vec_docs[0].metadata.get('score', 0) if vec_docs else 0.0})")
+        logger.info(f"     ├─ [BM25 Keyword]    Found {len(bm25_docs)} lexical candidates (Top score: {round(bm25_docs[0].metadata.get('bm25_score', 0), 2) if bm25_docs else 0.0})")
 
         # 2. Fuse candidate pools with RRF
         fused_candidates = reciprocal_rank_fusion(vec_docs, bm25_docs)
 
         if not fused_candidates:
+            logger.warning("     └─ ❌ [Hybrid Retriever] No matching candidates found in any index.")
             return []
+
+        logger.info(f"     ├─ [RRF Fusion] Merged {len(fused_candidates)} unique candidates from vector + lexical pools")
 
         # 3. Neural Reranking
         reranked_docs = self.reranker.rerank(query, fused_candidates, top_n=n_rerank)
+        logger.info(f"     ├─ [FlashRank Rerank] Re-scored top {len(reranked_docs)} passages with cross-encoder:")
+        for idx, rdoc in enumerate(reranked_docs, 1):
+            source = rdoc.metadata.get("source", "doc")
+            cid = rdoc.metadata.get("chunk_id", "chunk")
+            score = rdoc.metadata.get("rerank_score", 0.0)
+            logger.info(f"     │  [{idx}] Score: {round(score*100, 1)}% | ID: {cid} | Source: {source}")
 
         # 4. Filter by confidence threshold if rerank score exists
         filtered_docs = []
@@ -95,8 +109,12 @@ class HybridRetriever:
             if score >= min_thresh:
                 filtered_docs.append(doc)
 
-        return filtered_docs if filtered_docs else reranked_docs[:2]
+        final_docs = filtered_docs if filtered_docs else reranked_docs[:2]
+        logger.info(f"     └─ ✅ [Hybrid Retriever] Selected {len(final_docs)} final context passages (Threshold: {min_thresh})")
+
+        return final_docs
 
 
 # Global singleton instance
 hybrid_retriever = HybridRetriever()
+

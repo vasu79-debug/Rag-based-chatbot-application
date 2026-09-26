@@ -1,13 +1,12 @@
-"""
-Organisational Knowledge (RAG) Node for Demo 4 LangGraph.
-Executes Hybrid Search + Reranking and generates grounded company responses with citations.
-"""
-
+import logging
 from typing import Dict, Any, List
 from langchain_core.messages import SystemMessage, HumanMessage
 from graph.state import AgentState, Citation
 from graph.llm_factory import get_chat_model
 from rag.hybrid_retriever import hybrid_retriever
+
+logger = logging.getLogger("demo4.graph.rag")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 
 RAG_PROMPT = """You are the Organisational Knowledge specialist for this enterprise assistant.
@@ -26,14 +25,20 @@ CONTEXT DOCUMENTS:
 
 
 def rag_node(state: AgentState) -> Dict[str, Any]:
-    """Retrieves company documents and generates the organizational knowledge stream."""
+    """Retrieves company documents and generates the organizational knowledge stream with step logs."""
     sub_questions = state.get("sub_questions", {})
     query = sub_questions.get("rag") or state["question"]
+
+    logger.info("━" * 60)
+    logger.info(f"🏢 [Step 2/4: RAG STREAM] Running Retrieval on Internal Knowledge Base")
+    logger.info(f"   Query: \"{query}\"")
 
     # 1. Hybrid Retrieval + Rerank
     retrieved_chunks = hybrid_retriever.retrieve(query)
 
     if not retrieved_chunks:
+        logger.info("   ⚠️  [RAG Stream] No matching internal documents found in vector/lexical index.")
+        logger.info("━" * 60)
         return {
             "rag_chunks": [],
             "citations": [],
@@ -65,6 +70,9 @@ def rag_node(state: AgentState) -> Dict[str, Any]:
         )
 
     context_str = "\n\n".join(context_blocks)
+    logger.info(f"   📑 [RAG Stream] Grounding LLM with {len(citations)} verified citations:")
+    for cit in citations:
+        logger.info(f"      • {cit['source']} (Page {cit['page']}) - Relevance: {round(cit['score']*100, 1)}%")
 
     # 3. Generate grounded organizational response
     llm = get_chat_model(temperature=0.1, max_tokens=800)
@@ -76,8 +84,12 @@ def rag_node(state: AgentState) -> Dict[str, Any]:
             HumanMessage(content=f"Question: {query}"),
         ])
         rag_answer = response.content.strip()
+        logger.info(f"   ✅ [RAG Stream] Grounded Answer Generated ({len(rag_answer)} chars)")
     except Exception as e:
+        logger.error(f"   ❌ [RAG Stream] Error generating RAG response: {str(e)}")
         rag_answer = f"Error generating internal document response: {str(e)}"
+
+    logger.info("━" * 60)
 
     return {
         "rag_chunks": retrieved_chunks,
@@ -85,3 +97,4 @@ def rag_node(state: AgentState) -> Dict[str, Any]:
         "rag_answer": rag_answer,
         "rag_available": True,
     }
+

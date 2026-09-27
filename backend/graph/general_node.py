@@ -9,14 +9,15 @@ logger = logging.getLogger("demo4.graph.general")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 
-GENERAL_PROMPT = """You are the General Intelligence and Reasoning specialist for an enterprise AI assistant.
-Your task is to provide helpful, comprehensive, and intelligent responses using general knowledge, reasoning, industry best practices, external comparisons, or creative drafting (e.g. drafting emails, writing code, explaining laws).
+GENERAL_PROMPT = """You are the Enterprise AI Reasoning specialist for Krify Software Technologies.
+Your task is to provide intelligent, structured, and helpful responses by applying reasoning, professional drafting, workflow explanations, business comparisons, and summarization to assist with company-related topics, documents, and workplace tasks.
 
 GUIDELINES:
-- Provide high-quality, practical, and clear insights.
-- If asked to draft an email, document, or code, provide a ready-to-use template.
-- If asked for comparison or general background (e.g., industry standards, statutory regulations), explain clearly.
-- Maintain a professional, polite, and engaging tone.
+- Provide high-quality, practical, and clear insights for company operations and workplace tasks.
+- If asked to draft an email, memo, report, or business template, provide a polished, ready-to-use draft.
+- If asked for comparisons, best practices, or explaining complex clauses simply, explain clearly and objectively.
+- If a query is completely unrelated to company operations, documents, or workplace tasks, politely steer the user back to company-related topics.
+- Maintain a professional, polite, and executive tone.
 - Take into account the conversation history when answering follow-up questions.
 """
 
@@ -31,13 +32,20 @@ def general_node(state: AgentState) -> Dict[str, Any]:
     logger.info(f"🌐 [Step 3/4: GENERAL LLM STREAM] Generating World Knowledge / Reasoning / Actions")
     logger.info(f"   Mode: {route} | Memory Context: {len(history)} turns")
 
-    llm = get_chat_model(temperature=0.3, max_tokens=1000)
+    llm = get_chat_model(temperature=0.3, max_tokens=1500)
 
     # Construct conversation history window
     messages: List[BaseMessage] = [SystemMessage(content=GENERAL_PROMPT)]
 
-    max_turns = getattr(settings, "MAX_HISTORY_TURNS", 8)
+    max_turns = getattr(settings, "MAX_HISTORY_TURNS", 10)
     recent_history = history[-max_turns:] if len(history) > max_turns else history
+
+    for i, turn in enumerate(recent_history):
+        role = turn.get("role", "unknown")
+        # Truncate content for clean logging if it's too long
+        content = turn.get("content", "").replace("\n", " ")
+        log_content = content[:100] + "..." if len(content) > 100 else content
+        logger.info(f"   [History Turn {i+1}] {role}: {log_content}")
 
     for turn in recent_history:
         role = turn.get("role", "").lower()
@@ -54,8 +62,9 @@ def general_node(state: AgentState) -> Dict[str, Any]:
 
     try:
         response = llm.invoke(messages)
-        general_answer = response.content.strip()
+        general_answer = response.content.strip() if response and response.content else ""
         logger.info(f"   ✅ [General LLM Stream] Reasoning Output Generated ({len(general_answer)} chars)")
+        logger.info(f"   [General Output]: {general_answer}")
     except Exception as e:
         logger.error(f"   ❌ [General LLM Stream] Error: {str(e)}")
         general_answer = f"Error generating general reasoning: {str(e)}"

@@ -12,11 +12,11 @@ from graph.general_node import general_node
 from graph.synthesizer import synthesizer_node
 
 
-def route_decision(state: AgentState) -> Literal["general_path", "rag_path", "hybrid_path"]:
+def route_decision(state: AgentState) -> Literal["out_of_scope_path", "rag_path", "hybrid_path"]:
     """Determines next node path based on router classification."""
     route = state.get("route", "HYBRID")
-    if route == "GENERAL":
-        return "general_path"
+    if route == "OUT_OF_SCOPE":
+        return "out_of_scope_path"
     elif route == "RAG":
         return "rag_path"
     else:
@@ -51,11 +51,12 @@ def build_workflow():
         "router",
         route_decision,
         {
-            "general_path": "general_node",
+            "out_of_scope_path": "synthesizer",  # Directly to synthesizer to produce clean refusal
             "rag_path": "rag_node",
             "hybrid_path": "rag_node",  # Hybrid runs RAG first, then General
         },
     )
+
 
     # In hybrid mode: rag_node proceeds to general_node
     # In single modes: rag_node proceeds directly to synthesizer

@@ -28,6 +28,63 @@ export async function sendChatMessage(question, history = []) {
   return res.json();
 }
 
+export async function streamChatMessage(question, history = [], onStage) {
+  try {
+    const res = await fetch(`${BASE_URL}/chat/stream`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ question, history }),
+    });
+
+    if (!res.ok || !res.body) {
+      return sendChatMessage(question, history);
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let finalResult = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith("data: ")) {
+          try {
+            const payload = JSON.parse(trimmed.slice(6));
+            if (payload.type === "stage" && onStage) {
+              onStage(payload);
+            } else if (payload.type === "complete") {
+              finalResult = payload.result;
+            } else if (payload.type === "error") {
+              throw new Error(payload.error || "Processing failed");
+            }
+          } catch (e) {
+            if (e.message !== "Unexpected end of JSON input") {
+              console.warn("SSE parse error:", e);
+            }
+          }
+        }
+      }
+    }
+
+    if (finalResult) {
+      return finalResult;
+    }
+    return sendChatMessage(question, history);
+  } catch (err) {
+    return sendChatMessage(question, history);
+  }
+}
+
 export async function fetchDocuments() {
   const res = await fetch(`${BASE_URL}/admin/documents`);
   if (!res.ok) throw new Error("Failed to fetch indexed documents");

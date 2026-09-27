@@ -61,6 +61,8 @@ class KnowledgeSection(BaseModel):
 
 class ChatResponse(BaseModel):
     route: str
+    content: Optional[str] = None
+    answer: Optional[str] = None
     org_section: Optional[KnowledgeSection] = None
     general_section: Optional[KnowledgeSection] = None
     citations: List[CitationItem] = []
@@ -94,6 +96,10 @@ async def health_check():
     }
 
 
+import json
+import asyncio
+from fastapi.responses import StreamingResponse
+
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
     """
@@ -122,6 +128,8 @@ async def chat_endpoint(request: ChatRequest):
 
         return ChatResponse(
             route=final_out.get("route", "HYBRID"),
+            content=final_out.get("content") or final_out.get("answer"),
+            answer=final_out.get("answer") or final_out.get("content"),
             org_section=final_out.get("org_section"),
             general_section=final_out.get("general_section"),
             citations=final_out.get("citations", []),
@@ -132,6 +140,79 @@ async def chat_endpoint(request: ChatRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred while processing the request: {str(e)}",
         )
+
+
+@app.post("/api/chat/stream")
+async def chat_stream_endpoint(request: ChatRequest):
+    """
+    Real-Time SSE Streaming Chat Interface:
+    Streams ChatGPT-style inline search & thinking progress and delivers the synthesized response.
+    """
+    if not request.question.strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Question cannot be empty.",
+        )
+
+    q = request.question.strip()
+    formatted_history = [{"role": h.role, "content": h.content} for h in request.history]
+    state_input = {
+        "question": q,
+        "history": formatted_history,
+    }
+
+    async def event_generator():
+        try:
+            # 1. Initial ChatGPT-style search status
+            yield f"data: {json.dumps({'type': 'stage', 'stage': 'retrieving', 'label': f'Searching Krify knowledge base for \"{q}\"'})}\n\n"
+            await asyncio.sleep(0.01)
+
+            final_out = None
+            for event in hybrid_graph_app.stream(state_input, stream_mode="updates"):
+                for node_name, node_output in event.items():
+                    if node_name == "router":
+                        route = node_output.get("route", "HYBRID")
+                        rag_sub = node_output.get("sub_questions", {}).get("rag") or q
+                        if route in ("RAG", "HYBRID"):
+                            yield f"data: {json.dumps({'type': 'stage', 'stage': 'retrieving', 'label': f'Searching Krify documents for \"{rag_sub}\"'})}\n\n"
+                        else:
+                            yield f"data: {json.dumps({'type': 'stage', 'stage': 'reasoning', 'label': 'Thinking...'})}\n\n"
+                    elif node_name == "rag_node":
+                        citations = node_output.get("citations", [])
+                        count = len(citations)
+                        if count > 0:
+                            yield f"data: {json.dumps({'type': 'stage', 'stage': 'retrieved', 'label': f'Found {count} relevant passages in Krify documents · Synthesizing...'})}\n\n"
+                        else:
+                            yield f"data: {json.dumps({'type': 'stage', 'stage': 'reasoning', 'label': 'Thinking...'})}\n\n"
+                    elif node_name == "general_node":
+                        yield f"data: {json.dumps({'type': 'stage', 'stage': 'reasoning', 'label': 'Thinking...'})}\n\n"
+                    elif node_name == "synthesizer":
+                        final_out = node_output.get("final_output", {})
+
+                await asyncio.sleep(0.01)
+
+            if not final_out:
+                final_out = {
+                    "route": "HYBRID",
+                    "org_section": None,
+                    "general_section": {"label": "Response", "content": "Completed."}
+                }
+
+            yield f"data: {json.dumps({'type': 'complete', 'result': final_out})}\n\n"
+
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
 
 
 @app.get("/api/admin/documents", response_model=List[DocumentItem])

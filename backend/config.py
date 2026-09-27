@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     RAG_SIMILARITY_THRESHOLD: float = 0.25
 
     # Multi-Turn Memory Window (Number of past message turns to retain)
-    MAX_HISTORY_TURNS: int = 8
+    MAX_HISTORY_TURNS: int = 10
 
     model_config = SettingsConfigDict(
         env_file=str(Path(__file__).resolve().parent / ".env"),

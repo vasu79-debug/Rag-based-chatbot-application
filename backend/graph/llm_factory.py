@@ -1,6 +1,6 @@
 """
 LLM Factory for Demo 4.
-Instantiates chat model instances based on settings (Groq, OpenAI, OpenRouter, Ollama).
+Instantiates chat model instances based on settings (Groq, OpenAI, OpenRouter, Ollama, Custom OpenAI-Compatible).
 """
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -61,6 +61,27 @@ def get_chat_model(temperature: float = None, max_tokens: int = 1500) -> BaseCha
             model=settings.AI_DEFAULT_MODEL,
             openai_api_key=settings.OPENROUTER_API_KEY,
             openai_api_base="https://openrouter.ai/api/v1",
+            temperature=temp,
+            max_tokens=max_tokens,
+        )
+
+    elif provider == "custom_openai":
+        # Any OpenAI-compatible server: Kaggle-hosted Ollama via Cloudflare tunnel,
+        # LM Studio, vLLM, llama.cpp --server, Tabby ML, etc.
+        from langchain_openai import ChatOpenAI
+        base_url = settings.CUSTOM_OPENAI_BASE_URL
+        if not base_url:
+            raise ValueError(
+                "CUSTOM_OPENAI_BASE_URL is not set. "
+                "Add it to your .env file, e.g.:\n"
+                "  CUSTOM_OPENAI_BASE_URL=https://cyber-legendary-steal-christopher.trycloudflare.com/v1"
+            )
+        api_key = settings.CUSTOM_OPENAI_API_KEY or "dummy"
+        model = settings.AI_DEFAULT_MODEL or "qwen3.8-27b-uncensored-mtp"
+        return ChatOpenAI(
+            model=model,
+            openai_api_key=api_key,
+            openai_api_base=base_url,
             temperature=temp,
             max_tokens=max_tokens,
         )

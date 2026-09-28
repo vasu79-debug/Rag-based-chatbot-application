@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:5174,http://localhost:5177,http://127.0.0.1:5173,http://127.0.0.1:5177"
 
     # AI Model Provider
-    AI_PROVIDER: str = "groq"  # groq, openai, openrouter, ollama
+    AI_PROVIDER: str = "groq"  # groq, openai, openrouter, ollama, custom_openai
     AI_DEFAULT_MODEL: str = "openai/gpt-oss-20b"
     AI_TEMPERATURE: float = 0.2
 
@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     GROQ_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
     OPENROUTER_API_KEY: Optional[str] = None
+
+    # Custom OpenAI-Compatible Endpoint (e.g. Kaggle/Cloudflare Ollama tunnel)
+    CUSTOM_OPENAI_BASE_URL: Optional[str] = None
+    CUSTOM_OPENAI_API_KEY: str = "dummy"  # most self-hosted servers accept any key
 
     # Storage Paths
     BASE_DIR: Path = Path(__file__).resolve().parent

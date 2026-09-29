@@ -201,6 +201,24 @@ async def chat_stream_endpoint(request: ChatRequest):
 
 
 
+@app.get("/api/chat/history/{session_id}")
+async def get_chat_history(session_id: str):
+    """Retrieve chat history for a given session."""
+    history = mcp_graph_app.get_history(session_id)
+    formatted_messages = []
+    for msg in history.messages:
+        if msg.type == "human":
+            formatted_messages.append({"role": "user", "content": msg.content})
+        elif msg.type == "ai" and msg.content:
+            formatted_messages.append({
+                "role": "assistant",
+                "payload": {
+                    "answer": msg.content,
+                    "general_section": {"label": "AI Agent Response", "content": msg.content}
+                }
+            })
+    return {"messages": formatted_messages}
+
 @app.get("/api/admin/documents", response_model=List[DocumentItem])
 async def list_documents():
     """Lists all documents currently indexed in ChromaDB."""

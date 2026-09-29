@@ -138,3 +138,10 @@ export async function deleteDocument(docId) {
   return res.json();
 }
 
+export async function fetchChatHistory(sessionId) {
+  const res = await fetch(`${BASE_URL}/chat/history/${sessionId}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch history for session ${sessionId}`);
+  }
+  return res.json();
+}

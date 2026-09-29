@@ -1,110 +1,169 @@
-from mcp.server.fastmcp import FastMCP
 import json
-from rag.hybrid_retriever import hybrid_retriever
+import logging
+from datetime import datetime, date
+from mcp.server.fastmcp import FastMCP
 
-# Initialize FastMCP Server
-mcp = FastMCP("krify_demo5_tools_server")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# --- Dummy APIs wrapped as MCP tools ---
+mcp = FastMCP("Subzillo CRUD Server")
+
+db_available = False
+try:
+    from database import SessionLocal, Subscription
+    db_available = True
+    logger.info("Successfully connected to Postgres 'mcpchat' database.")
+except Exception as e:
+    logger.error(f"Failed to connect to Database: {e}")
 
 @mcp.tool()
-def get_appointment_details(date: str) -> str:
-    """Get the appointment details for a specific date in YYYY-MM-DD or 'tomorrow', 'today' formats."""
-    # Simulate a missing record
-    if date.lower() == "yesterday":
-        return json.dumps({"error": "No records found for yesterday."})
+def get_subscriptions() -> str:
+    """Retrieve all current user subscriptions."""
+    if not db_available:
+        return json.dumps({"error": "Database not available."})
     
-    # Simulate an API error / malformed data
-    if date == "error":
-        return "<html><body>500 Internal Server Error</body></html>"
-        
-    return json.dumps({
-        "status": "success",
-        "data": {
-            "date": date,
-            "time": "11:30 AM",
-            "doctor": "Dr. Menon",
-            "department": "Oncology",
-            "location": "2nd floor"
-        }
-    })
-
-@mcp.tool()
-def get_leave_balance(employee_id: str) -> str:
-    """Get the leave balance for an employee. Pass the employee ID."""
-    # Simulate permission enforcement based on dummy token checking
-    if employee_id != "EMP123":
-        return json.dumps({"error": "Permission denied: You can only access your own leave balance."})
-        
-    return json.dumps({
-        "status": "success",
-        "data": {
-            "employee_id": employee_id,
-            "annual_leave": 14,
-            "sick_leave": 5
-        }
-    })
-
-import requests
-
-@mcp.tool()
-def get_weather(location: str) -> str:
-    """Get the current weather for a specific city location (e.g., 'London', 'New York', 'Hyderabad')."""
+    db = SessionLocal()
     try:
-        # 1. Geocoding: Get latitude and longitude for the location
-        geocode_url = f"https://geocoding-api.open-meteo.com/v1/search?name={location}&count=1&language=en&format=json"
-        geo_response = requests.get(geocode_url)
-        geo_response.raise_for_status()
-        geo_data = geo_response.json()
-        
-        if not geo_data.get("results"):
-            return json.dumps({"error": f"Could not find coordinates for location: {location}"})
-            
-        lat = geo_data["results"][0]["latitude"]
-        lon = geo_data["results"][0]["longitude"]
-        resolved_name = geo_data["results"][0]["name"]
-        country = geo_data["results"][0].get("country", "")
-        
-        # 2. Fetch current weather
-        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
-        weather_response = requests.get(weather_url)
-        weather_response.raise_for_status()
-        weather_data = weather_response.json()
-        
-        current = weather_data.get("current_weather", {})
-        
-        return json.dumps({
-            "status": "success",
-            "data": {
-                "location_requested": location,
-                "location_resolved": f"{resolved_name}, {country}",
-                "temperature": f"{current.get('temperature')}°C",
-                "windspeed": f"{current.get('windspeed')} km/h",
-                "is_day": bool(current.get('is_day'))
-            }
-        })
-    except Exception as e:
-        return json.dumps({"error": f"Failed to fetch weather data: {str(e)}"})
+        subs = db.query(Subscription).all()
+        results = []
+        for s in subs:
+            results.append({
+                "id": s.id,
+                "service_name": s.service_name,
+                "cost": s.cost,
+                "billing_cycle": s.billing_cycle,
+                "next_payment_date": str(s.next_payment_date),
+                "category": s.category,
+                "notes": s.notes
+            })
+        return json.dumps({"status": "success", "data": results})
+    finally:
+        db.close()
 
 @mcp.tool()
-def search_krify_knowledge(query: str) -> str:
-    """Search the Krify organizational knowledge base for information about Krify, company policies, and services. Use this when the user asks questions related to Krify."""
+def create_subscription(
+    service_name: str, 
+    cost: float, 
+    billing_cycle: str, 
+    next_payment_date: str, 
+    category: str = "", 
+    notes: str = ""
+) -> str:
+    """Create a new subscription."""
+    if not db_available:
+        return json.dumps({"error": "Database not available."})
+    
+    db = SessionLocal()
     try:
-        # We use the hybrid retriever to fetch chunks from ChromaDB & BM25
-        results = hybrid_retriever.retrieve(query)
-        if not results:
-            return "No information found in the Krify knowledge base."
-            
-        formatted_results = []
-        for i, chunk in enumerate(results[:3], start=1):
-            source = chunk.metadata.get("source", "Document")
-            page = chunk.metadata.get("page", 1)
-            formatted_results.append(f"Source [{i}]: {source} (Page {page})\n{chunk.page_content}\n")
-            
-        return "\n\n".join(formatted_results)
+        date_obj = datetime.strptime(next_payment_date, "%Y-%m-%d").date()
+        new_sub = Subscription(
+            service_name=service_name,
+            cost=cost,
+            billing_cycle=billing_cycle,
+            next_payment_date=date_obj,
+            category=category,
+            notes=notes
+        )
+        db.add(new_sub)
+        db.commit()
+        db.refresh(new_sub)
+        return json.dumps({"status": "success", "message": f"Added {service_name}", "id": new_sub.id})
     except Exception as e:
-        return f"Error searching knowledge base: {str(e)}"
+        db.rollback()
+        return json.dumps({"error": str(e)})
+    finally:
+        db.close()
+
+@mcp.tool()
+def delete_subscription(service_name: str) -> str:
+    """Cancel or delete a subscription by its service name."""
+    if not db_available:
+        return json.dumps({"error": "Database not available."})
+    
+    db = SessionLocal()
+    try:
+        sub = db.query(Subscription).filter(Subscription.service_name.ilike(f"%{service_name}%")).first()
+        if not sub:
+            return json.dumps({"error": f"Subscription for {service_name} not found."})
+        db.delete(sub)
+        db.commit()
+        return json.dumps({"status": "success", "message": f"Successfully cancelled {service_name}."})
+    finally:
+        db.close()
+
+@mcp.tool()
+def get_alternative_plans(service_name: str) -> str:
+    """Retrieve cheaper alternative plans or competitors for a given subscription service to save money."""
+    service = service_name.lower()
+    
+    alternatives = {
+        "netflix": [
+            {"plan": "Basic with Ads", "cost": 99, "billing_cycle": "monthly", "features": "720p, Ad-supported"},
+            {"plan": "Mobile Only", "cost": 149, "billing_cycle": "monthly", "features": "480p, Mobile/Tablet only"}
+        ],
+        "spotify": [
+            {"plan": "Spotify Student", "cost": 59, "billing_cycle": "monthly", "features": "Ad-free, Student ID required"},
+            {"plan": "Spotify Mini", "cost": 25, "billing_cycle": "weekly", "features": "Mobile only, Ad-free"}
+        ],
+        "adobe creative cloud": [
+            {"plan": "Photography Plan", "cost": 799, "billing_cycle": "monthly", "features": "Photoshop & Lightroom only"},
+            {"plan": "Canva Pro (Competitor)", "cost": 399, "billing_cycle": "monthly", "features": "Graphic design alternative"}
+        ],
+        "amazon prime": [
+            {"plan": "Prime Lite", "cost": 799, "billing_cycle": "yearly", "features": "SD Video, 2-day delivery"}
+        ]
+    }
+    
+    for key in alternatives:
+        if key in service:
+            return json.dumps({"status": "success", "service": service_name, "alternatives": alternatives[key]})
+            
+    return json.dumps({"status": "success", "service": service_name, "alternatives": [], "message": "No cheaper alternatives found."})
+
+@mcp.tool()
+def get_usage_statistics(service_name: str) -> str:
+    """Check how often the user has actually used a subscription service in the last 30 days."""
+    service = service_name.lower()
+    
+    # Mock data showing high, medium, and low usage
+    if "netflix" in service:
+        return json.dumps({"service": service_name, "usage_last_30_days": "45 hours", "status": "Active (High Usage)"})
+    elif "spotify" in service:
+        return json.dumps({"service": service_name, "usage_last_30_days": "120 hours", "status": "Active (High Usage)"})
+    elif "adobe" in service:
+        return json.dumps({"service": service_name, "usage_last_30_days": "0 hours", "status": "Inactive (Not used in 3 months)"})
+    elif "gym" in service or "fitness" in service:
+        return json.dumps({"service": service_name, "usage_last_30_days": "1 visit", "status": "Low Usage (Wasted money)"})
+    
+    return json.dumps({"service": service_name, "usage_last_30_days": "Unknown", "status": "Moderate Usage"})
+
+@mcp.tool()
+def search_public_subscription_data(query: str) -> str:
+    """Use this tool to search the live internet for public pricing, plans, and features of a subscription service."""
+    try:
+        # pyrefly: ignore [missing-import]
+        from ddgs import DDGS
+        with DDGS() as ddgs:
+            results = list(ddgs.text(query + " subscription pricing plans India rupees", max_results=3))
+            
+            if not results:
+                return json.dumps({"status": "error", "message": f"No public data found for '{query}'."})
+                
+            formatted_results = []
+            for r in results:
+                formatted_results.append({
+                    "title": r.get("title", ""),
+                    "snippet": r.get("body", ""),
+                    "source": r.get("href", "")
+                })
+                
+            return json.dumps({
+                "status": "success", 
+                "query": query,
+                "search_results": formatted_results
+            })
+    except Exception as e:
+        return json.dumps({"status": "error", "message": f"Failed to search the web: {str(e)}"})
 
 if __name__ == "__main__":
-    # Start the server using stdio transport
-    mcp.run()
+    mcp.run(transport="stdio")

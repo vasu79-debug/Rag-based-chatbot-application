@@ -5,7 +5,7 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "=========================================================="
-echo "⚡ Starting Demo 4: Hybrid General + Organisational Knowledge"
+echo "⚡ Starting Demo 6: Multi-Intent Chatbot API"
 echo "=========================================================="
 
 # 1. Start Python FastAPI Backend (Port 8000)

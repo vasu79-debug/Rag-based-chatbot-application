@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import ChatView from "./components/ChatView";
 import AdminPortal from "./components/AdminPortal";
 import CitationsDrawer from "./components/CitationsDrawer";
+import Sidebar from "./components/Sidebar";
 import {
   fetchHealth,
   fetchDocuments,
@@ -10,6 +11,7 @@ import {
   uploadDocument,
   ingestUrl,
   deleteDocument,
+  fetchChatHistory,
 } from "./api";
 
 const getInitialTab = () => {
@@ -39,7 +41,20 @@ export default function App() {
   const [currentStage, setCurrentStage] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [selectedCitation, setSelectedCitation] = useState(null);
-  const [sessionId, setSessionId] = useState(() => "session_" + Math.random().toString(36).substring(2, 9));
+  const [sessions, setSessions] = useState(() => {
+    const saved = localStorage.getItem("chat_sessions");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [sessionId, setSessionId] = useState(() => {
+    if (typeof window !== "undefined" && window.location.hash.includes("session=")) {
+      return window.location.hash.split("session=")[1];
+    }
+    return "session_" + Math.random().toString(36).substring(2, 9);
+  });
+
+  useEffect(() => {
+    localStorage.setItem("chat_sessions", JSON.stringify(sessions));
+  }, [sessions]);
 
   // Sync route on popstate and hashchange
   useEffect(() => {
@@ -94,7 +109,24 @@ export default function App() {
     setMessages([]);
     setCurrentStage(null);
     setLoading(false);
-    setSessionId("session_" + Math.random().toString(36).substring(2, 9));
+    const newId = "session_" + Math.random().toString(36).substring(2, 9);
+    setSessionId(newId);
+    window.history.pushState(null, "", `#/chat?session=${newId}`);
+  }, []);
+
+  const handleSelectSession = useCallback(async (id) => {
+    setSessionId(id);
+    window.history.pushState(null, "", `#/chat?session=${id}`);
+    setMessages([]);
+    setLoading(true);
+    try {
+      const data = await fetchChatHistory(id);
+      setMessages(data.messages || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   // Load initial health & indexed documents
@@ -113,7 +145,20 @@ export default function App() {
 
   useEffect(() => {
     loadData();
+    
+    // If there is a session in the URL on initial load, fetch its history
+    if (typeof window !== "undefined" && window.location.hash.includes("session=")) {
+      const id = window.location.hash.split("session=")[1];
+      handleSelectSession(id);
+    }
   }, []);
+
+  const handleDeleteSession = useCallback((id) => {
+    setSessions((prev) => prev.filter(s => s.id !== id));
+    if (sessionId === id) {
+      handleNewChat();
+    }
+  }, [sessionId, handleNewChat]);
 
   const handleSendMessage = async (text) => {
     if (!text.trim() || loading) return;
@@ -134,6 +179,14 @@ export default function App() {
       };
 
       setMessages((prev) => [...prev, botMsg]);
+
+      // Update sessions list if it's the first message
+      setSessions((prev) => {
+        if (!prev.find(s => s.id === sessionId)) {
+          return [{ id: sessionId, title: text.slice(0, 30) + (text.length > 30 ? "..." : "") }, ...prev];
+        }
+        return prev;
+      });
     } catch (err) {
       const errorMsg = {
         role: "assistant",
@@ -202,13 +255,22 @@ export default function App() {
             uploading={uploading}
           />
         ) : (
-          <ChatView
-            messages={messages}
-            onSendMessage={handleSendMessage}
-            loading={loading}
-            currentStage={currentStage}
-            onSelectCitation={setSelectedCitation}
-          />
+          <>
+            <Sidebar 
+              sessions={sessions} 
+              activeSessionId={sessionId} 
+              onSelectSession={handleSelectSession} 
+              onNewSession={handleNewChat}
+              onDeleteSession={handleDeleteSession}
+            />
+            <ChatView
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              loading={loading}
+              currentStage={currentStage}
+              onSelectCitation={setSelectedCitation}
+            />
+          </>
         )}
       </main>
 

@@ -48,15 +48,18 @@ class Settings(BaseSettings):
     # Multi-Turn Memory Window (Number of past message turns to retain)
     MAX_HISTORY_TURNS: int = 10
 
+    # Multi-Intent Configuration
+    ALLOW_PARTIAL_SUCCESS: bool = True
+
     # ==========================================
     # Assistant Persona & Behavior Configuration
     # ==========================================
-    ASSISTANT_NAME: str = "Krify AI Assistant"
-    COMPANY_NAME: str = "Krify Software Technologies"
-    ASSISTANT_ROLE_DESCRIPTION: str = "an enterprise AI assistant dedicated to helping with company services, software solutions, documents, and workplace operations"
-    ASSISTANT_TONE: str = "professional, executive, clear, and helpful"
-    CUSTOM_SYSTEM_INSTRUCTIONS: str = "Provide clean, well-structured answers using bullet points and formatting where helpful."
-    OUT_OF_SCOPE_MESSAGE: str = "I am an enterprise AI assistant dedicated to helping with company knowledge, documents, services, and workplace operations. I cannot answer unrelated outside topics like entertainment, sports, or general trivia."
+    ASSISTANT_NAME: str = "Subscription Assistant"
+    COMPANY_NAME: str = "Subzillo"
+    ASSISTANT_ROLE_DESCRIPTION: str = "a financial AI assistant helping users manage, optimize, and review their software subscriptions to save money"
+    ASSISTANT_TONE: str = "financially-savvy, helpful, concise, and smart"
+    CUSTOM_SYSTEM_INSTRUCTIONS: str = "If asked to review spending, analyze the total cost across subscriptions. Suggest removing duplicate or expensive services."
+    OUT_OF_SCOPE_MESSAGE: str = "I am a financial AI assistant focused on subscription management. I cannot answer unrelated outside topics."
 
     # ASSISTANT_NAME: str = "Krify Sales Specialist"
     # COMPANY_NAME: str = "Krify Software Technologies"

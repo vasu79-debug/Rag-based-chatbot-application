@@ -1,63 +1,47 @@
-# Demo 5: Single-Step API-Enabled MCP Agent
+# Subscription Assistant (Demo 6C - Agentic Multi-Tool Chatbot)
 
-A highly scalable, production-grade AI Agent that implements the **Model Context Protocol (MCP)** to autonomously execute tools (API calls, RAG search) while maintaining persistent database-backed session memory.
+This project demonstrates an **Autonomous Agentic Workflow** using LangGraph and the Model Context Protocol (MCP). Unlike rigid rule-based workflows (e.g., Demo 5), this agent autonomously parses goals, dynamically selects tools, evaluates responses, and performs multi-step reasoning.
 
----
+## Features
 
-## 🌟 Key Features
+- **Agentic ReAct Loop**: The AI doesn't follow a hardcoded script. Given a goal like "reduce my spending", it decides which tools to call, observes the results, and acts again.
+- **MCP Tool Integration**: 
+  - **Database Tools**: `get_subscriptions`, `create_subscription`, `delete_subscription` interact safely with a PostgreSQL database.
+  - **Logic Tools**: `get_alternative_plans` and `get_usage_statistics`.
+  - **Web Search Tool**: `search_public_subscription_data` uses DuckDuckGo (`ddgs`) to scrape real-time pricing off the live internet.
+- **Persistent Chat History**: Session histories are stored locally using SQLite, and a ChatGPT-style sidebar allows users to revisit and delete old sessions.
+- **Modern UI**: A responsive, premium Light Theme interface built with React.
 
-1. **Model Context Protocol (MCP)**:
-   - Complete decoupling of AI reasoning and tool execution.
-   - External MCP Server (`mcp_server.py`) hosts tools like `get_weather` (Open-Meteo API) and `search_krify_knowledge` (Hybrid RAG).
-   - Fast initialization via Persistent `stdio_client` and FastAPI Lifespan management.
+## Getting Started
 
-2. **Autonomous Tool-Calling Agent**:
-   - Zero hardcoded routing. The LLM acts autonomously as an agent, deciding when to chat normally and when to request tools via native Pydantic-validated function calling.
+### 1. Prerequisites
+- Python 3.12+
+- Node.js & npm
+- PostgreSQL running locally (Database name: `subscriptions`)
 
-3. **Stateless UI & Stateful Database**:
-   - The React frontend is completely stateless, sending only the user's `question` and a `session_id`.
-   - The backend handles all multi-turn memory via SQLite (`SQLChatMessageHistory`), representing a true enterprise microservice architecture.
-
-4. **Live SSE Streaming**:
-   - Real-time insight into the Agent's reasoning loop.
-   - Asynchronous Python generators (`astream`) pipe live tool-calling stages (e.g., *"Running tool: get_weather..."*) directly to the frontend UI via Server-Sent Events (SSE).
-
-5. **Configurable Persona**:
-   - Fully customizable AI name, role, and tone driven entirely by the `config.py` / `.env` variables.
-
----
-
-## 🚀 Quick Start
-
+### 2. Backend Setup
 ```bash
-# In demo5-single-step-api/
-./start.sh
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pip install psycopg[binary] langchain-mcp-adapters ddgs
 ```
 
-- **Frontend UI:** [http://localhost:5177](http://localhost:5177)
-- **FastAPI Backend:** [http://localhost:8000/docs](http://localhost:8000/docs)
-- **Database Location:** `backend/data/chat_history.db`
-
----
-
-## 📂 Project Structure
-
+Ensure your `.env` file contains your LLM API keys (e.g., `GROQ_API_KEY`) and your database URL:
 ```
-demo5-single-step-api/
-├── start.sh                  # Single-command launcher for backend + frontend
-├── backend/
-│   ├── main.py               # FastAPI application (SSE, DB hooks, Lifespan)
-│   ├── mcp_server.py         # The MCP Server hosting tools (Weather, RAG)
-│   ├── config.py             # Persona configuration
-│   ├── data/
-│   │   └── chat_history.db   # SQLite DB storing persistent conversation threads
-│   └── graph/
-│       ├── mcp_graph.py      # The MCP Client & Agent Execution Loop
-│       └── llm_factory.py    # LLM Initialization
-└── frontend/
-    └── src/
-        ├── App.jsx           # Stateless React UI generating session_id
-        ├── api.js            # Fetch calls for SSE streaming
-        └── components/
-            └── ChatView.jsx  # UI displaying live AI reasoning steps
+DATABASE_URL="postgresql://postgres:password@localhost:5432/subscriptions"
 ```
+
+Start the backend:
+```bash
+uvicorn main:app --reload --port 8000
+```
+
+### 3. Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Navigate to `http://localhost:5173` to interact with your Agent!

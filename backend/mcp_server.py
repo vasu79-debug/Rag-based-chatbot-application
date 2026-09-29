@@ -1,109 +1,132 @@
-from mcp.server.fastmcp import FastMCP
 import json
-from rag.hybrid_retriever import hybrid_retriever
+import os
+import requests
+from mcp.server.fastmcp import FastMCP
+from datetime import datetime
 
 # Initialize FastMCP Server
-mcp = FastMCP("krify_demo5_tools_server")
+mcp = FastMCP("subzillo_mcp_server")
 
-# --- Dummy APIs wrapped as MCP tools ---
+# Try to import DB components
+try:
+    from database import SessionLocal, Subscription
+    db_available = True
+except Exception as e:
+    db_available = False
+    print(f"Database not configured properly: {e}")
+
+# --- Subzillo Subscription CRUD Tools ---
 
 @mcp.tool()
-def get_appointment_details(date: str) -> str:
-    """Get the appointment details for a specific date in YYYY-MM-DD or 'tomorrow', 'today' formats."""
-    # Simulate a missing record
-    if date.lower() == "yesterday":
-        return json.dumps({"error": "No records found for yesterday."})
-    
-    # Simulate an API error / malformed data
-    if date == "error":
-        return "<html><body>500 Internal Server Error</body></html>"
+def get_subscriptions() -> str:
+    """Retrieve all active subscriptions for the user."""
+    if not db_available:
+        return json.dumps({"error": "Database connection failed. Please ensure PostgreSQL is running and DATABASE_URL is set."})
         
-    return json.dumps({
-        "status": "success",
-        "data": {
-            "date": date,
-            "time": "11:30 AM",
-            "doctor": "Dr. Menon",
-            "department": "Oncology",
-            "location": "2nd floor"
-        }
-    })
-
-@mcp.tool()
-def get_leave_balance(employee_id: str) -> str:
-    """Get the leave balance for an employee. Pass the employee ID."""
-    # Simulate permission enforcement based on dummy token checking
-    if employee_id != "EMP123":
-        return json.dumps({"error": "Permission denied: You can only access your own leave balance."})
-        
-    return json.dumps({
-        "status": "success",
-        "data": {
-            "employee_id": employee_id,
-            "annual_leave": 14,
-            "sick_leave": 5
-        }
-    })
-
-import requests
-
-@mcp.tool()
-def get_weather(location: str) -> str:
-    """Get the current weather for a specific city location (e.g., 'London', 'New York', 'Hyderabad')."""
+    db = SessionLocal()
     try:
-        # 1. Geocoding: Get latitude and longitude for the location
-        geocode_url = f"https://geocoding-api.open-meteo.com/v1/search?name={location}&count=1&language=en&format=json"
-        geo_response = requests.get(geocode_url)
-        geo_response.raise_for_status()
-        geo_data = geo_response.json()
-        
-        if not geo_data.get("results"):
-            return json.dumps({"error": f"Could not find coordinates for location: {location}"})
-            
-        lat = geo_data["results"][0]["latitude"]
-        lon = geo_data["results"][0]["longitude"]
-        resolved_name = geo_data["results"][0]["name"]
-        country = geo_data["results"][0].get("country", "")
-        
-        # 2. Fetch current weather
-        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
-        weather_response = requests.get(weather_url)
-        weather_response.raise_for_status()
-        weather_data = weather_response.json()
-        
-        current = weather_data.get("current_weather", {})
-        
-        return json.dumps({
-            "status": "success",
-            "data": {
-                "location_requested": location,
-                "location_resolved": f"{resolved_name}, {country}",
-                "temperature": f"{current.get('temperature')}°C",
-                "windspeed": f"{current.get('windspeed')} km/h",
-                "is_day": bool(current.get('is_day'))
-            }
-        })
+        subs = db.query(Subscription).all()
+        results = []
+        for s in subs:
+            results.append({
+                "id": s.id,
+                "service_name": s.service_name,
+                "cost": s.cost,
+                "billing_cycle": s.billing_cycle,
+                "next_payment_date": str(s.next_payment_date),
+                "category": s.category,
+                "notes": s.notes
+            })
+        return json.dumps({"status": "success", "data": results})
     except Exception as e:
-        return json.dumps({"error": f"Failed to fetch weather data: {str(e)}"})
+        return json.dumps({"error": str(e)})
+    finally:
+        db.close()
 
 @mcp.tool()
-def search_krify_knowledge(query: str) -> str:
-    """Search the Krify organizational knowledge base for information about Krify, company policies, and services. Use this when the user asks questions related to Krify."""
+def create_subscription(service_name: str, cost: float, billing_cycle: str, next_payment_date: str, category: str = None, notes: str = None) -> str:
+    """Add a new subscription. Cost must be > 0. Cycle must be monthly, yearly, or weekly. Date format: YYYY-MM-DD."""
+    if cost <= 0:
+        return json.dumps({"error": "Cost must be greater than 0."})
+    if billing_cycle.lower() not in ["monthly", "yearly", "weekly"]:
+        return json.dumps({"error": "Billing cycle must be monthly, yearly, or weekly."})
+        
+    db = SessionLocal()
     try:
-        # We use the hybrid retriever to fetch chunks from ChromaDB & BM25
-        results = hybrid_retriever.retrieve(query)
-        if not results:
-            return "No information found in the Krify knowledge base."
-            
-        formatted_results = []
-        for i, chunk in enumerate(results[:3], start=1):
-            source = chunk.metadata.get("source", "Document")
-            page = chunk.metadata.get("page", 1)
-            formatted_results.append(f"Source [{i}]: {source} (Page {page})\n{chunk.page_content}\n")
-            
-        return "\n\n".join(formatted_results)
+        payment_date = datetime.strptime(next_payment_date, "%Y-%m-%d").date()
+        new_sub = Subscription(
+            service_name=service_name,
+            cost=cost,
+            billing_cycle=billing_cycle.lower(),
+            next_payment_date=payment_date,
+            category=category,
+            notes=notes
+        )
+        db.add(new_sub)
+        db.commit()
+        db.refresh(new_sub)
+        return json.dumps({"status": "success", "message": f"Created subscription {service_name} with ID {new_sub.id}"})
+    except ValueError:
+        return json.dumps({"error": "Invalid date format. Please use YYYY-MM-DD."})
     except Exception as e:
-        return f"Error searching knowledge base: {str(e)}"
+        db.rollback()
+        return json.dumps({"error": str(e)})
+    finally:
+        db.close()
+
+@mcp.tool()
+def update_subscription(sub_id: int, service_name: str = None, cost: float = None, billing_cycle: str = None, next_payment_date: str = None, category: str = None, notes: str = None) -> str:
+    """Update an existing subscription by ID. Only provided fields will be updated."""
+    db = SessionLocal()
+    try:
+        sub = db.query(Subscription).filter(Subscription.id == sub_id).first()
+        if not sub:
+            return json.dumps({"error": f"Subscription with ID {sub_id} not found."})
+            
+        if service_name:
+            sub.service_name = service_name
+        if cost is not None:
+            if cost <= 0:
+                return json.dumps({"error": "Cost must be greater than 0."})
+            sub.cost = cost
+        if billing_cycle:
+            if billing_cycle.lower() not in ["monthly", "yearly", "weekly"]:
+                return json.dumps({"error": "Billing cycle must be monthly, yearly, or weekly."})
+            sub.billing_cycle = billing_cycle.lower()
+        if next_payment_date:
+            sub.next_payment_date = datetime.strptime(next_payment_date, "%Y-%m-%d").date()
+        if category is not None:
+            sub.category = category
+        if notes is not None:
+            sub.notes = notes
+            
+        db.commit()
+        return json.dumps({"status": "success", "message": f"Updated subscription {sub_id}"})
+    except ValueError:
+        return json.dumps({"error": "Invalid date format. Please use YYYY-MM-DD."})
+    except Exception as e:
+        db.rollback()
+        return json.dumps({"error": str(e)})
+    finally:
+        db.close()
+
+@mcp.tool()
+def delete_subscription(sub_id: int) -> str:
+    """Delete a subscription permanently by ID."""
+    db = SessionLocal()
+    try:
+        sub = db.query(Subscription).filter(Subscription.id == sub_id).first()
+        if not sub:
+            return json.dumps({"error": f"Subscription with ID {sub_id} not found."})
+            
+        db.delete(sub)
+        db.commit()
+        return json.dumps({"status": "success", "message": f"Deleted subscription {sub_id}"})
+    except Exception as e:
+        db.rollback()
+        return json.dumps({"error": str(e)})
+    finally:
+        db.close()
 
 if __name__ == "__main__":
     # Start the server using stdio transport

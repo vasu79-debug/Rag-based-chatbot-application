@@ -19,10 +19,10 @@ export default function Header({ activeTab, onNavigate, onNewChat, healthData })
         <div>
           <h1 className="brand-title">
             {isAdmin ? (
-              "Krify Knowledge Administration"
+              "Subzillo Administration"
             ) : (
               <>
-                Krify Assistant
+                Subzillo Assistant
                 <span className="brand-subtitle">
                   · Hybrid General + Organisational Knowledge AI Assistant
                 </span>

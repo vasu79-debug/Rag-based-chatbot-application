@@ -1,6 +1,6 @@
-# System Architecture: Demo 5 - Single-Step API-Enabled MCP Agent
+# System Architecture: Demo 6b - Multi-Step Workflow Chatbot
 
-An end-to-end architecture specification for Demo 5, demonstrating how an AI Agent leverages the Model Context Protocol (MCP) to autonomously execute tools (live APIs and RAG) with a stateless frontend and a stateful SQLite database backend.
+An end-to-end architecture specification for Demo 6b, demonstrating how an AI Agent leverages a deterministic LangGraph Workflow and the Model Context Protocol (MCP) to extract intent, fetch subscription data, analyze it in Python, and synthesize a final response.
 
 ---
 
@@ -20,16 +20,21 @@ flowchart TD
         DB[(SQLite DB\ndata/chat_history.db)]
     end
 
-    subgraph MCPClient ["MCP Client & Agent Engine"]
-        Graph["Agent Loop (astream)"]
+    subgraph MCPClient ["LangGraph Workflow (mcp_graph.py)"]
+        Graph["StateGraph Workflow"]
         SQLStore["SQLChatMessageHistory"]
         LLM["LLM (Groq/OpenAI)"]
+        
+        ExtractorNode["Node: Extractor"]
+        FetchNode["Node: Fetch Data"]
+        AnalyzeNode["Node: Analyze (Python)"]
+        SynthNode["Node: Synthesize"]
+        ChatNode["Node: Chat"]
     end
 
     subgraph MCPServer ["MCP Server (mcp_server.py)"]
-        Tools["Exposed FastMCP Tools"]
-        WeatherAPI["get_weather\n(Open-Meteo)"]
-        RAGAPI["search_krify_knowledge\n(ChromaDB + BM25)"]
+        Tools["FastMCP Subzillo Tools"]
+        GetSubs["get_subscriptions"]
     end
 
     UI --> Session
@@ -40,11 +45,18 @@ flowchart TD
     Graph <--> SQLStore
     SQLStore <--> DB
     
-    Graph -->|1. Request Action| LLM
-    LLM -->|2. Function Call| Graph
-    Graph -->|3. Trigger Tool| MCPServer
-    MCPServer --> WeatherAPI
-    MCPServer --> RAGAPI
+    Graph --> ExtractorNode
+    ExtractorNode -->|Intent: analyze_cost| FetchNode
+    ExtractorNode -->|Intent: chat| ChatNode
+    FetchNode --> AnalyzeNode
+    AnalyzeNode --> SynthNode
+    
+    ExtractorNode --> LLM
+    SynthNode --> LLM
+    ChatNode --> LLM
+    
+    FetchNode -->|Execute Tool| MCPServer
+    MCPServer --> GetSubs
     
     Graph -->|Yields Live Status| ChatEP
     ChatEP -->|SSE Updates| SSE
@@ -61,36 +73,31 @@ sequenceDiagram
     actor User as User
     participant Frontend as React Frontend
     participant FastAPI as FastAPI Server
-    participant SQLite as Database
-    participant Agent as MCP Client Loop (mcp_graph.py)
+    participant Agent as LangGraph Workflow
     participant LLM as LLM API
-    participant MCPSrv as MCP Server Subprocess
+    participant MCPSrv as MCP Server
+    participant DB as SQLite Database
 
-    User->>Frontend: Enters query ("What is the weather in London?")
-    Frontend->>FastAPI: POST /api/chat/stream (question, session_id)
+    User->>Frontend: Enters query ("How much am I spending?")
+    Frontend->>FastAPI: POST /api/chat/stream
     
     FastAPI->>Agent: astream(question, session_id)
-    Agent->>SQLite: Fetch past messages for session_id
     
-    Agent-->>FastAPI: yield stage: "Analyzing intent..."
-    FastAPI-->>Frontend: SSE data (Analyzing intent)
+    Agent->>LLM: [Node: Extractor] Is this a cost analysis query?
+    LLM-->>Agent: YES
     
-    Agent->>LLM: Send Context + Available Tools
-    LLM-->>Agent: JSON Tool Call (get_weather, args: London)
+    Agent-->>FastAPI: yield stage: "Executing fixed pipeline workflow..."
+    FastAPI-->>Frontend: SSE data (Executing...)
     
-    Agent-->>FastAPI: yield stage: "Running tool: get_weather..."
-    FastAPI-->>Frontend: SSE data (Running tool)
+    Agent->>MCPSrv: [Node: Fetch Data] Execute 'get_subscriptions' via MCP
+    MCPSrv-->>Agent: JSON Data (Subscriptions)
     
-    Agent->>MCPSrv: Execute 'get_weather' via MCP Stdio adapter
-    MCPSrv-->>Agent: Live JSON API Result (Temperature, Windspeed)
+    Agent->>Agent: [Node: Analyze] Python logic calculates monthly spend
     
-    Agent-->>FastAPI: yield stage: "Synthesizing final response..."
-    FastAPI-->>Frontend: SSE data (Synthesizing)
+    Agent->>LLM: [Node: Synthesize] Generate final markdown response
+    LLM-->>Agent: Final formatted answer
     
-    Agent->>LLM: Send Tool Result Context
-    LLM-->>Agent: Natural Language Output
-    
-    Agent->>SQLite: Save User Query and AI Response
+    Agent->>DB: Save User Query and AI Response
     Agent-->>FastAPI: yield complete: Final Content
     FastAPI-->>Frontend: SSE data (Final Result)
     Frontend-->>User: Displays final formatted answer
@@ -98,19 +105,13 @@ sequenceDiagram
 
 ---
 
-## 🧩 Core Architectural Paradigm Shifts (From Demo 4)
+## 🧩 Core Architectural Paradigm Shifts
 
-### 1. The MCP Decoupling
-In previous architectures, the tools (like RAG and SQL) were tightly coupled into the LangGraph state execution pipeline. In Demo 5, **the AI logic is fully decoupled from the tool execution via the Model Context Protocol (MCP)**.
-- `mcp_server.py` hosts the tools securely in an isolated environment.
-- `mcp_graph.py` acts strictly as the **Client Brain**, reading the tools over standard IO, attaching them to the LLM via `bind_tools`, and telling the server when to execute them.
+### 1. Deterministic Multi-Step Workflow
+Unlike agents that autonomously decide which tool to call in a loop, this architecture enforces a strict pipeline (`extractor` -> `fetch_data` -> `analyze` -> `synthesize`). This provides better reliability for known enterprise use cases where the steps to fulfill a request are well-defined.
 
-### 2. Stateless UI + Database Memory
-Instead of the frontend managing a heavy `history` array, the frontend is completely stateless.
-- The UI generates a lightweight `session_id`.
-- The backend intercepts this ID and leverages `SQLChatMessageHistory` to inject the historical conversational thread from an SQLite Database into the LLM context.
-- This mirrors an enterprise SaaS application.
+### 2. Hybrid LLM + Code Analysis
+The workflow intentionally separates data retrieval from analysis. Instead of giving raw JSON to the LLM to do math (which can hallucinate), the `analyze` node uses standard Python to calculate accurate monthly totals, and then passes the pre-calculated report to the `synthesize` node for formatting.
 
-### 3. Asynchronous Live Streaming (`astream`)
-Instead of hiding the execution pipeline behind a monolithic blocking request, the Agent Loop acts as an asynchronous python generator (`yield`). 
-As the agent analyzes intent, executes tools, and synthesizes data, those granular status milestones are pushed instantly to the user's screen using Server-Sent Events (SSE).
+### 3. MCP Tool Integration in specific nodes
+The MCP Client session is initialized at the FastAPI lifecycle level and passed to the LangGraph workflow. The `fetch_data` node directly accesses the MCP session to invoke tools without exposing them to the LLM's autonomous function calling, ensuring tools are only called when the pipeline dictates.

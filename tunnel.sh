@@ -9,8 +9,7 @@ if ! command -v ngrok >/dev/null 2>&1; then
 fi
 
 echo "=========================================================="
-echo "⚡ Starting Ngrok Tunnel for Demo 4 (Port 5177)..."
-echo "=========================================================="
+echo "⚡ Starting Ngrok Tunnel for Demo 6 (Port 5177)..."
 echo "👉 Pointing public tunnel to http://localhost:5177"
 echo ""
 

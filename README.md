@@ -1,36 +1,34 @@
-# Demo 5: Single-Step API-Enabled MCP Agent
+# Demo 6b: Multi-Step Workflow Chatbot (MCP-enabled)
 
-A highly scalable, production-grade AI Agent that implements the **Model Context Protocol (MCP)** to autonomously execute tools (API calls, RAG search) while maintaining persistent database-backed session memory.
+A robust API-enabled chatbot that uses a **LangGraph StateGraph Workflow** combined with the **Model Context Protocol (MCP)** to intelligently route, fetch, analyze, and synthesize user requests about subscription data.
 
 ---
 
 ## 🌟 Key Features
 
-1. **Model Context Protocol (MCP)**:
-   - Complete decoupling of AI reasoning and tool execution.
-   - External MCP Server (`mcp_server.py`) hosts tools like `get_weather` (Open-Meteo API) and `search_krify_knowledge` (Hybrid RAG).
-   - Fast initialization via Persistent `stdio_client` and FastAPI Lifespan management.
+1. **Deterministic Workflow Routing**:
+   - Uses an LLM to extract the user's intent upfront (e.g., asking about subscriptions vs. general chat).
+   - Routes the request through a fixed pipeline (`extractor` -> `fetch_data` -> `analyze` -> `synthesize`).
 
-2. **Autonomous Tool-Calling Agent**:
-   - Zero hardcoded routing. The LLM acts autonomously as an agent, deciding when to chat normally and when to request tools via native Pydantic-validated function calling.
+2. **Model Context Protocol (MCP)**:
+   - External FastMCP Server hosts tools for managing Subscriptions (`get_subscriptions`, `create_subscription`, `update_subscription`, `delete_subscription`).
+   - The workflow securely invokes the `get_subscriptions` tool over stdio when needed.
 
-3. **Stateless UI & Stateful Database**:
-   - The React frontend is completely stateless, sending only the user's `question` and a `session_id`.
-   - The backend handles all multi-turn memory via SQLite (`SQLChatMessageHistory`), representing a true enterprise microservice architecture.
+3. **Pure Python Analysis Node**:
+   - Demonstrates hybrid architecture where data is fetched via MCP but analyzed using deterministic Python code (calculating monthly spend) rather than relying solely on the LLM.
 
-4. **Live SSE Streaming**:
-   - Real-time insight into the Agent's reasoning loop.
-   - Asynchronous Python generators (`astream`) pipe live tool-calling stages (e.g., *"Running tool: get_weather..."*) directly to the frontend UI via Server-Sent Events (SSE).
+4. **Stateless UI & Stateful Database**:
+   - Real-time conversation memory via SQLite (`SQLChatMessageHistory`).
 
-5. **Configurable Persona**:
-   - Fully customizable AI name, role, and tone driven entirely by the `config.py` / `.env` variables.
+5. **Streaming Workflow Updates**:
+   - LangGraph's `astream` yields state changes in real-time, sending SSE updates to the frontend as the agent moves through the pipeline.
 
 ---
 
 ## 🚀 Quick Start
 
 ```bash
-# In demo5-single-step-api/
+# In demo6b-multi-step-workflow/
 ./start.sh
 ```
 
@@ -43,21 +41,21 @@ A highly scalable, production-grade AI Agent that implements the **Model Context
 ## 📂 Project Structure
 
 ```
-demo5-single-step-api/
+demo6b-multi-step-workflow/
 ├── start.sh                  # Single-command launcher for backend + frontend
 ├── backend/
 │   ├── main.py               # FastAPI application (SSE, DB hooks, Lifespan)
-│   ├── mcp_server.py         # The MCP Server hosting tools (Weather, RAG)
-│   ├── config.py             # Persona configuration
+│   ├── mcp_server.py         # The MCP Server hosting Subzillo Subscription tools
+│   ├── database.py           # DB models for Subscriptions
 │   ├── data/
 │   │   └── chat_history.db   # SQLite DB storing persistent conversation threads
 │   └── graph/
-│       ├── mcp_graph.py      # The MCP Client & Agent Execution Loop
+│       ├── mcp_graph.py      # LangGraph Workflow (Extractor -> Fetch -> Analyze -> Synthesize)
 │       └── llm_factory.py    # LLM Initialization
 └── frontend/
     └── src/
-        ├── App.jsx           # Stateless React UI generating session_id
-        ├── api.js            # Fetch calls for SSE streaming
+        ├── App.jsx           
+        ├── api.js            
         └── components/
-            └── ChatView.jsx  # UI displaying live AI reasoning steps
+            └── ChatView.jsx  
 ```

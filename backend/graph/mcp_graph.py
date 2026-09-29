@@ -1,7 +1,10 @@
 import os
 import sys
-from typing import Annotated, TypedDict, List
-from langchain_core.messages import BaseMessage, HumanMessage, ToolMessage, AIMessage
+import json
+import logging
+from typing import TypedDict, Annotated, List
+from langgraph.graph import StateGraph, END
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 
 from mcp import ClientSession, StdioServerParameters
@@ -10,38 +13,159 @@ from langchain_mcp_adapters.tools import load_mcp_tools
 from graph.llm_factory import get_chat_model
 from config import settings
 
-# We create a simple class to mimic the interface of LangGraph for main.py
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# 1. Define the State for our Workflow
+class WorkflowState(TypedDict):
+    question: str
+    session_id: str
+    action_type: str  # "analyze_cost", "chat"
+    raw_subscriptions: list
+    analysis_report: str
+    final_message: str
+
 class MCPAgentApp:
     def __init__(self):
         self.llm = get_chat_model(temperature=0.0, max_tokens=2048)
-        self.system_prompt = f"""You are {settings.ASSISTANT_NAME}, {settings.ASSISTANT_ROLE_DESCRIPTION}.
-Your tone is {settings.ASSISTANT_TONE}.
-{settings.CUSTOM_SYSTEM_INSTRUCTIONS}
-
-You are a highly capable API-enabled assistant. Your job is to understand the user request and answer it completely by selecting the correct tool.
-If the user is missing required parameters for a tool, politely ask them for the missing information rather than guessing.
-If the API returns an error or no records found, explain this clearly to the user in plain language.
-If the API returns malformed data, mention that the service returned an unexpected format.
-Explain the returned data in detailed, natural, human-friendly language. Provide comprehensive and thoroughly formatted responses."""
         
         backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        
-        # Ensure data dir exists
         db_path = os.path.join(backend_dir, "data", "chat_history.db")
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
         self.db_uri = f"sqlite:///{db_path}"
         
-        # This will be populated by main.py's lifespan
         self.mcp_session = None
+        
+        # Build the LangGraph Workflow
+        workflow = StateGraph(WorkflowState)
+        
+        # Add Nodes
+        workflow.add_node("extractor", self.node_extractor)
+        workflow.add_node("fetch_data", self.node_fetch_data)
+        workflow.add_node("analyze", self.node_analyze)
+        workflow.add_node("synthesize", self.node_synthesize)
+        workflow.add_node("chat", self.node_chat)
+        
+        # Add Edges (Routing)
+        workflow.set_entry_point("extractor")
+        
+        workflow.add_conditional_edges(
+            "extractor",
+            lambda state: state["action_type"],
+            {
+                "analyze_cost": "fetch_data",
+                "chat": "chat"
+            }
+        )
+        
+        # Fixed path for the analyze_cost workflow
+        workflow.add_edge("fetch_data", "analyze")
+        workflow.add_edge("analyze", "synthesize")
+        workflow.add_edge("synthesize", END)
+        workflow.add_edge("chat", END)
+        
+        self.graph = workflow.compile()
 
     def get_history(self, session_id: str):
-        return SQLChatMessageHistory(
-            session_id=session_id,
-            connection=self.db_uri
-        )
+        return SQLChatMessageHistory(session_id=session_id, connection=self.db_uri)
 
+    # --- Node 1: Extract Intent ---
+    async def node_extractor(self, state: WorkflowState):
+        logger.info("🟢 STEP 1: Extracting Intent")
+        prompt = f"""Does the following user request ask about viewing, analyzing, or summarizing their subscriptions or costs?
+Reply with exactly one word: 'YES' or 'NO'.
+User request: {state['question']}"""
+        
+        response = await self.llm.ainvoke([("user", prompt)])
+        action = "analyze_cost" if "YES" in response.content.upper() else "chat"
+        return {"action_type": action}
+
+    # --- Node 2: Fetch Data via MCP ---
+    async def node_fetch_data(self, state: WorkflowState):
+        logger.info("🟢 STEP 2: Fetching Data via MCP Tool")
+        tools = await load_mcp_tools(self.mcp_session)
+        
+        # Find the specific tool we want
+        get_subs_tool = next((t for t in tools if t.name == "get_subscriptions"), None)
+        
+        if get_subs_tool:
+            raw_result = await get_subs_tool.ainvoke({})
+            logger.info(f"MCP Tool returned: {raw_result}")
+            try:
+                # LangChain MCP tools return a string representation of a list of blocks
+                import ast
+                if isinstance(raw_result, str) and raw_result.startswith("["):
+                    parsed_list = ast.literal_eval(raw_result)
+                    json_str = parsed_list[0].get("text", "{}")
+                    result_json = json.loads(json_str)
+                else:
+                    result_json = json.loads(raw_result)
+                subs = result_json.get("data", [])
+            except Exception as e:
+                logger.error(f"Failed to parse JSON from MCP Tool: {e}")
+                subs = []
+        else:
+            subs = []
+            
+        return {"raw_subscriptions": subs}
+
+    # --- Node 3: Pure Python Analysis ---
+    async def node_analyze(self, state: WorkflowState):
+        logger.info("🟢 STEP 3: Analyzing Data with Python")
+        subs = state.get("raw_subscriptions", [])
+        
+        if not subs:
+            return {"analysis_report": "No subscriptions found in the database."}
+            
+        total_monthly = 0.0
+        report = "System Analysis Data (For LLM Context):\n"
+        
+        for sub in subs:
+            cost = sub["cost"]
+            cycle = sub["billing_cycle"]
+            
+            # Normalize to monthly
+            if cycle == "yearly":
+                monthly_equivalent = cost / 12
+            elif cycle == "weekly":
+                monthly_equivalent = cost * 4.33
+            else:
+                monthly_equivalent = cost
+                
+            total_monthly += monthly_equivalent
+            report += f"- {sub['service_name']}: ${cost} ({cycle}) -> ${monthly_equivalent:.2f}/month\n"
+            
+        report += f"\nTOTAL ESTIMATED MONTHLY SPEND: ${total_monthly:.2f}"
+        return {"analysis_report": report}
+
+    # --- Node 4: LLM Synthesis ---
+    async def node_synthesize(self, state: WorkflowState):
+        logger.info("🟢 STEP 4: Synthesizing Final Response")
+        prompt = f"""You are {settings.ASSISTANT_NAME}, {settings.ASSISTANT_ROLE_DESCRIPTION} 
+Answer the user's question based strictly on the following data analysis report. Format it nicely using markdown.
+        
+Data Report:
+{state['analysis_report']}
+
+User Question: {state['question']}"""
+        
+        response = await self.llm.ainvoke([("system", prompt)])
+        return {"final_message": response.content}
+        
+    # --- Alternative Node: Normal Chat ---
+    async def node_chat(self, state: WorkflowState):
+        logger.info("🔵 STEP: Normal Chat")
+        prompt = f"""You are {settings.ASSISTANT_NAME}, {settings.ASSISTANT_ROLE_DESCRIPTION}
+Tone: {settings.ASSISTANT_TONE}
+{settings.CUSTOM_SYSTEM_INSTRUCTIONS}
+
+Reply to the user gracefully.
+User: {state['question']}"""
+        response = await self.llm.ainvoke([("system", prompt)])
+        return {"final_message": response.content}
+
+    # --- Orchestrator Methods ---
     async def ainvoke(self, state_input: dict):
-        # We can just consume astream for the synchronous invoke
         final_result = None
         async for event in self.astream(state_input):
             if event["type"] == "complete":
@@ -53,78 +177,24 @@ Explain the returned data in detailed, natural, human-friendly language. Provide
         session_id = state_input["session_id"]
         
         chat_history = self.get_history(session_id)
-        history_messages = chat_history.messages
         
-        # Dynamically load tools exposed by the MCP Server using the persistent session
-        tools = await load_mcp_tools(self.mcp_session)
+        # Initial State
+        state = {
+            "question": question,
+            "session_id": session_id
+        }
         
-        llm_with_tools = self.llm.bind_tools(tools)
+        yield {"type": "stage", "label": "Executing fixed pipeline workflow..."}
         
-        user_msg = HumanMessage(content=question)
+        # Run the LangGraph Workflow
+        final_state = await self.graph.ainvoke(state)
         
-        # Prepend System Prompt and append history
-        current_messages = [("system", self.system_prompt)] + history_messages + [user_msg]
-        
-        # 1. Ask LLM what to do
-        yield {"type": "stage", "label": "Analyzing..."}
-        response = await llm_with_tools.ainvoke(current_messages)
-        
-        if not hasattr(response, "tool_calls") or not response.tool_calls:
-            # No tool calls needed
-            chat_history.add_user_message(question)
-            chat_history.add_message(response)
-            yield {"type": "complete", "final_message": response.content}
-            return
-        
-        current_messages.append(response)
-        
-        import logging
-        logging.basicConfig(level=logging.INFO)
-        logger = logging.getLogger(__name__)
-
-        # 2. Execute the tool calls natively using MCP adapter
-        for tool_call in response.tool_calls:
-            tool_name = tool_call["name"]
-            tool_args = tool_call["args"]
-            
-            logger.info(f"🛠️ LLM Selected Tool: '{tool_name}' with arguments: {tool_args}")
-            yield {"type": "stage", "label": f"Running tool: {tool_name}..."}
-            
-            tool_instance = next((t for t in tools if t.name == tool_name), None)
-            if tool_instance:
-                try:
-                    # Invoke tool on the MCP server
-                    result = await tool_instance.ainvoke(tool_args)
-                    logger.info(f"✅ Tool Response ('{tool_name}'): {str(result)}")
-                    tool_msg = ToolMessage(
-                        content=str(result),
-                        tool_call_id=tool_call["id"],
-                        name=tool_name
-                    )
-                except Exception as e:
-                    logger.error(f"❌ Tool Error ('{tool_name}'): {str(e)}")
-                    tool_msg = ToolMessage(
-                        content=f"Error executing tool: {str(e)}",
-                        tool_call_id=tool_call["id"],
-                        name=tool_name
-                    )
-            else:
-                logger.warning(f"⚠️ Tool Not Found: '{tool_name}'")
-                tool_msg = ToolMessage(
-                    content=f"Error: Tool {tool_name} not found.",
-                    tool_call_id=tool_call["id"],
-                    name=tool_name
-                )
-            current_messages.append(tool_msg)
-        
-        # 3. Final synthesis
-        yield {"type": "stage", "label": "Synthesizing final response..."}
-        final_response = await llm_with_tools.ainvoke(current_messages)
+        final_msg = final_state["final_message"]
         
         # Save to DB
         chat_history.add_user_message(question)
-        chat_history.add_message(final_response)
+        chat_history.add_message(AIMessage(content=final_msg))
         
-        yield {"type": "complete", "final_message": final_response.content}
+        yield {"type": "complete", "final_message": final_msg}
 
 mcp_graph_app = MCPAgentApp()

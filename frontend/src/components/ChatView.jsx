@@ -27,7 +27,7 @@ export default function ChatView({ messages, onSendMessage, loading, currentStag
       <div className="messages-list">
         {messages.length === 0 ? (
           <div className="welcome-hero">
-            <h2 className="hero-title">Ask anything about Krify</h2>
+            <h2 className="hero-title">Manage your Subscriptions</h2>
           </div>
         ) : (
           messages.map((msg, index) => {
@@ -67,7 +67,7 @@ export default function ChatView({ messages, onSendMessage, loading, currentStag
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                           </svg>
-                          Krify Knowledge Base
+                          Subzillo Knowledge Base
                         </span>
                         <span style={{ fontSize: "11.5px", color: "var(--org-emerald)" }}>
                           ✓ Verified Sources ({citations.length})
@@ -113,7 +113,7 @@ export default function ChatView({ messages, onSendMessage, loading, currentStag
               </svg>
             </span>
             <span className="chatgpt-status-text">
-              {currentStage?.label || "Searching Krify knowledge base..."}
+              {currentStage?.label || "Analyzing Subscriptions..."}
             </span>
           </div>
         )}

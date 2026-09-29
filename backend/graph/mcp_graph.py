@@ -65,31 +65,39 @@ When a user gives you a goal (like "reduce my spending"), you must:
         
         yield {"type": "stage", "label": "Agent Planning..."}
         
-        # 1. Load the DB CRUD tools dynamically from MCP
-        tools = await load_mcp_tools(self.mcp_session)
-        logger.info(f"Loaded {len(tools)} tools for ReAct Agent.")
-        
-        # 2. Create the ReAct Agent Graph!
-        # This handles the exact loop: Goal -> Plan -> Select Tool -> Execute -> Observe -> Evaluate
-        agent_executor = create_react_agent(self.llm, tools)
+        # 1. Load tools safely
+        tools = []
+        if self.mcp_session:
+            try:
+                tools = await load_mcp_tools(self.mcp_session)
+                logger.info(f"Loaded {len(tools)} tools for ReAct Agent.")
+            except Exception as e:
+                logger.error(f"Error loading MCP tools: {e}")
+        else:
+            logger.warning("No active MCP session. Running in tool-less fallback mode.")
         
         current_messages = [SystemMessage(content=self.system_prompt)] + history_messages + [HumanMessage(content=question)]
-        
         final_message = ""
-        
-        # 3. Stream the Agent's thought process
-        async for chunk in agent_executor.astream({"messages": current_messages}):
-            if "agent" in chunk:
-                # The LLM planned something
-                message = chunk["agent"]["messages"][0]
-                if message.tool_calls:
-                    for tc in message.tool_calls:
-                        yield {"type": "stage", "label": f"Selecting Tool: {tc['name']}"}
-                else:
-                    final_message = message.content
-            elif "tools" in chunk:
-                # A tool was executed
-                yield {"type": "stage", "label": "Observing Tool Result..."}
+
+        if tools:
+            # 2. Create and run the ReAct Agent Graph
+            agent_executor = create_react_agent(self.llm, tools)
+            
+            async for chunk in agent_executor.astream({"messages": current_messages}):
+                if "agent" in chunk:
+                    message = chunk["agent"]["messages"][0]
+                    if message.tool_calls:
+                        for tc in message.tool_calls:
+                            yield {"type": "stage", "label": f"Selecting Tool: {tc['name']}"}
+                    else:
+                        final_message = message.content
+                elif "tools" in chunk:
+                    yield {"type": "stage", "label": "Observing Tool Result..."}
+        else:
+            # 2 (Fallback). Run without tools
+            yield {"type": "stage", "label": "Warning: External Tools Disconnected. Replying from base knowledge..."}
+            response = await self.llm.ainvoke(current_messages)
+            final_message = response.content
                 
         # Save to DB
         chat_history.add_user_message(question)

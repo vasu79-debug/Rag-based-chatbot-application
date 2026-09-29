@@ -11,13 +11,13 @@ export async function fetchHealth() {
   return res.json();
 }
 
-export async function sendChatMessage(question, history = []) {
+export async function sendChatMessage(question, session_id = "default_session") {
   const res = await fetch(`${BASE_URL}/chat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ question, history }),
+    body: JSON.stringify({ question, session_id }),
   });
 
   if (!res.ok) {
@@ -28,18 +28,18 @@ export async function sendChatMessage(question, history = []) {
   return res.json();
 }
 
-export async function streamChatMessage(question, history = [], onStage) {
+export async function streamChatMessage(question, session_id = "default_session", onStage) {
   try {
     const res = await fetch(`${BASE_URL}/chat/stream`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ question, history }),
+      body: JSON.stringify({ question, session_id }),
     });
 
     if (!res.ok || !res.body) {
-      return sendChatMessage(question, history);
+      return sendChatMessage(question, session_id);
     }
 
     const reader = res.body.getReader();
@@ -79,9 +79,9 @@ export async function streamChatMessage(question, history = [], onStage) {
     if (finalResult) {
       return finalResult;
     }
-    return sendChatMessage(question, history);
+    return sendChatMessage(question, session_id);
   } catch (err) {
-    return sendChatMessage(question, history);
+    return sendChatMessage(question, session_id);
   }
 }
 

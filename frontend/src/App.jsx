@@ -39,6 +39,7 @@ export default function App() {
   const [currentStage, setCurrentStage] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [selectedCitation, setSelectedCitation] = useState(null);
+  const [sessionId, setSessionId] = useState(() => "session_" + Math.random().toString(36).substring(2, 9));
 
   // Sync route on popstate and hashchange
   useEffect(() => {
@@ -93,6 +94,7 @@ export default function App() {
     setMessages([]);
     setCurrentStage(null);
     setLoading(false);
+    setSessionId("session_" + Math.random().toString(36).substring(2, 9));
   }, []);
 
   // Load initial health & indexed documents
@@ -122,25 +124,7 @@ export default function App() {
     setCurrentStage({ stage: "routing", step: "1/3", label: "Routing · Analyzing query intent & scope..." });
 
     try {
-      const historyPayload = messages.map((m) => {
-        let textContent = m.content || "";
-        if (m.role === "assistant" && m.payload) {
-          const parts = [];
-          if (m.payload.org_section?.content) {
-            parts.push(`[Internal Knowledge]: ${m.payload.org_section.content}`);
-          }
-          if (m.payload.general_section?.content) {
-            parts.push(`[General Knowledge]: ${m.payload.general_section.content}`);
-          }
-          textContent = parts.join("\n\n");
-        }
-        return {
-          role: m.role,
-          content: textContent,
-        };
-      });
-
-      const res = await streamChatMessage(text, historyPayload, (stage) => {
+      const res = await streamChatMessage(text, sessionId, (stage) => {
         setCurrentStage(stage);
       });
 

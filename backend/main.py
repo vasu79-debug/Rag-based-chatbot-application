@@ -1,6 +1,5 @@
 """
-FastAPI Backend Application for Demo 4 (Hybrid Knowledge).
-Provides endpoints for Hybrid Chat, Admin Document Upload, Index Management, and Health Checks.
+FastAPI Backend Application for Demo 5 (Single Step MCP Tool Calling).
 """
 
 from pathlib import Path
@@ -13,13 +12,33 @@ from pydantic import BaseModel, Field
 
 from config import settings
 from rag.document_service import document_service
-from graph.workflow import hybrid_graph_app
+from graph.mcp_graph import mcp_graph_app
+from langchain_core.messages import HumanMessage, AIMessage
 
+from contextlib import asynccontextmanager
+from mcp.client.stdio import stdio_client
+from mcp import ClientSession, StdioServerParameters
+import sys
+import os
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    server_params = StdioServerParameters(
+        command=sys.executable,
+        args=[os.path.join(backend_dir, "mcp_server.py")]
+    )
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+            mcp_graph_app.mcp_session = session
+            yield
 
 app = FastAPI(
-    title="Demo 4 - Hybrid General + Organisational Knowledge AI",
-    description="Enterprise AI backend combining Private Document RAG (ChromaDB + BM25 + FlashRank) and General LLM Intelligence using LangGraph.",
+    title="Demo 5 - Single-Step API-Enabled Chatbot",
+    description="Enterprise AI backend demonstrating tool/function calling with Pydantic validation.",
     version="1.0.0",
+    lifespan=lifespan
 )
 
 # Configure CORS
@@ -41,7 +60,8 @@ class MessageTurn(BaseModel):
 
 class ChatRequest(BaseModel):
     question: str = Field(..., min_length=1, description="The user question or request")
-    history: Optional[List[MessageTurn]] = Field(default=[], description="Past conversation history")
+    session_id: str = Field(default="default_session", description="The session or thread ID for database memory")
+    history: Optional[List[MessageTurn]] = Field(default=[], description="Deprecated frontend history")
 
 
 class CitationItem(BaseModel):
@@ -52,22 +72,17 @@ class CitationItem(BaseModel):
     score: float
 
 
+
+
+
 class KnowledgeSection(BaseModel):
     label: str
     content: str
-    citations: Optional[List[CitationItem]] = None
-    has_citations: Optional[bool] = False
-
 
 class ChatResponse(BaseModel):
-    route: str
-    content: Optional[str] = None
-    answer: Optional[str] = None
-    org_section: Optional[KnowledgeSection] = None
-    general_section: Optional[KnowledgeSection] = None
-    citations: List[CitationItem] = []
-    citations_count: int = 0
-
+    route: str = "API"
+    answer: str
+    general_section: KnowledgeSection
 
 class DocumentItem(BaseModel):
     doc_id: str
@@ -77,24 +92,18 @@ class DocumentItem(BaseModel):
     pages_count: int
     status: Optional[str] = "indexed"
 
-
 # --- REST API Endpoints ---
 
 @app.get("/api/health")
 async def health_check():
-    """Returns system status, active models, and vector database stats."""
-    docs = document_service.list_documents()
-    total_chunks = sum(d.get("chunks_count", 0) for d in docs)
+    """Returns system status."""
     return {
         "status": "healthy",
         "provider": settings.AI_PROVIDER,
         "default_model": settings.AI_DEFAULT_MODEL,
-        "embedding_model": settings.EMBEDDING_MODEL,
-        "reranker_model": settings.RERANKER_MODEL,
-        "indexed_documents_count": len(docs),
-        "total_indexed_chunks": total_chunks,
+        "indexed_documents_count": 0,
+        "total_indexed_chunks": 0,
     }
-
 
 import json
 import asyncio
@@ -104,8 +113,7 @@ from fastapi.responses import StreamingResponse
 async def chat_endpoint(request: ChatRequest):
     """
     Main Chat Interface:
-    Routes the query through the LangGraph StateGraph (Router -> RAG & General Nodes -> Synthesizer)
-    and returns a structured dual-knowledge response.
+    Routes the query through the LangGraph tool-calling graph.
     """
     if not request.question.strip():
         raise HTTPException(
@@ -114,26 +122,23 @@ async def chat_endpoint(request: ChatRequest):
         )
 
     try:
-        # Convert history format
-        formatted_history = [{"role": h.role, "content": h.content} for h in request.history]
-
-        # Execute LangGraph Workflow
+        # Execute Workflow with DB Memory
         state_input = {
             "question": request.question.strip(),
-            "history": formatted_history,
+            "session_id": request.session_id,
+            "route": "api"
         }
 
-        result = hybrid_graph_app.invoke(state_input)
-        final_out = result.get("final_output", {})
+        result = await mcp_graph_app.ainvoke(state_input)
+        final_message = result["final_message"]
 
         return ChatResponse(
-            route=final_out.get("route", "HYBRID"),
-            content=final_out.get("content") or final_out.get("answer"),
-            answer=final_out.get("answer") or final_out.get("content"),
-            org_section=final_out.get("org_section"),
-            general_section=final_out.get("general_section"),
-            citations=final_out.get("citations", []),
-            citations_count=final_out.get("citations_count", 0),
+            route="API",
+            answer=final_message,
+            general_section=KnowledgeSection(
+                label="AI Agent Response",
+                content=final_message
+            )
         )
     except Exception as e:
         raise HTTPException(
@@ -141,12 +146,11 @@ async def chat_endpoint(request: ChatRequest):
             detail=f"An error occurred while processing the request: {str(e)}",
         )
 
-
 @app.post("/api/chat/stream")
 async def chat_stream_endpoint(request: ChatRequest):
     """
-    Real-Time SSE Streaming Chat Interface:
-    Streams ChatGPT-style inline search & thinking progress and delivers the synthesized response.
+    Real-Time SSE Streaming Chat Interface.
+    (Simplified for API tool calling - just returns the final result at once)
     """
     if not request.question.strip():
         raise HTTPException(
@@ -155,50 +159,30 @@ async def chat_stream_endpoint(request: ChatRequest):
         )
 
     q = request.question.strip()
-    formatted_history = [{"role": h.role, "content": h.content} for h in request.history]
-    state_input = {
-        "question": q,
-        "history": formatted_history,
-    }
-
+    session_id = request.session_id
+    
     async def event_generator():
         try:
-            # 1. Initial ChatGPT-style search status
-            yield f"data: {json.dumps({'type': 'stage', 'stage': 'retrieving', 'label': f'Searching Krify knowledge base for \"{q}\"'})}\n\n"
-            await asyncio.sleep(0.01)
+            state_input = {
+                "question": q,
+                "session_id": session_id,
+                "route": "api"
+            }
 
-            final_out = None
-            for event in hybrid_graph_app.stream(state_input, stream_mode="updates"):
-                for node_name, node_output in event.items():
-                    if node_name == "router":
-                        route = node_output.get("route", "HYBRID")
-                        rag_sub = node_output.get("sub_questions", {}).get("rag") or q
-                        if route in ("RAG", "HYBRID"):
-                            yield f"data: {json.dumps({'type': 'stage', 'stage': 'retrieving', 'label': f'Searching Krify documents for \"{rag_sub}\"'})}\n\n"
-                        else:
-                            yield f"data: {json.dumps({'type': 'stage', 'stage': 'reasoning', 'label': 'Thinking...'})}\n\n"
-                    elif node_name == "rag_node":
-                        citations = node_output.get("citations", [])
-                        count = len(citations)
-                        if count > 0:
-                            yield f"data: {json.dumps({'type': 'stage', 'stage': 'retrieved', 'label': f'Found {count} relevant passages in Krify documents · Synthesizing...'})}\n\n"
-                        else:
-                            yield f"data: {json.dumps({'type': 'stage', 'stage': 'reasoning', 'label': 'Thinking...'})}\n\n"
-                    elif node_name == "general_node":
-                        yield f"data: {json.dumps({'type': 'stage', 'stage': 'reasoning', 'label': 'Thinking...'})}\n\n"
-                    elif node_name == "synthesizer":
-                        final_out = node_output.get("final_output", {})
-
-                await asyncio.sleep(0.01)
-
-            if not final_out:
-                final_out = {
-                    "route": "HYBRID",
-                    "org_section": None,
-                    "general_section": {"label": "Response", "content": "Completed."}
-                }
-
-            yield f"data: {json.dumps({'type': 'complete', 'result': final_out})}\n\n"
+            async for event in mcp_graph_app.astream(state_input):
+                if event["type"] == "stage":
+                    # Send live tool/reasoning updates
+                    yield f"data: {json.dumps({'type': 'stage', 'stage': 'reasoning', 'label': event['label']})}\n\n"
+                    await asyncio.sleep(0.01)
+                
+                elif event["type"] == "complete":
+                    final_message = event["final_message"]
+                    final_out = {
+                        "route": "API",
+                        "answer": final_message,
+                        "general_section": {"label": "AI Agent Response", "content": final_message}
+                    }
+                    yield f"data: {json.dumps({'type': 'complete', 'result': final_out})}\n\n"
 
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
@@ -212,6 +196,8 @@ async def chat_stream_endpoint(request: ChatRequest):
             "X-Accel-Buffering": "no",
         },
     )
+
+
 
 
 

@@ -15,24 +15,44 @@ from rag.document_service import document_service
 from graph.mcp_graph import mcp_graph_app
 from langchain_core.messages import HumanMessage, AIMessage
 
-from contextlib import asynccontextmanager
-from mcp.client.stdio import stdio_client
-from mcp import ClientSession, StdioServerParameters
+from contextlib import asynccontextmanager, AsyncExitStack
+from mcp.client.sse import sse_client
+from mcp import ClientSession
 import sys
 import os
 
+mcp_state = {
+    "url": "http://127.0.0.1:8001/sse",
+    "exit_stack": None,
+    "session": None
+}
+
+async def connect_mcp(url: str):
+    if mcp_state.get("exit_stack"):
+        await mcp_state["exit_stack"].aclose()
+        
+    stack = AsyncExitStack()
+    try:
+        read, write = await stack.enter_async_context(sse_client(url))
+        session = await stack.enter_async_context(ClientSession(read, write))
+        await session.initialize()
+        mcp_graph_app.mcp_session = session
+        mcp_state["exit_stack"] = stack
+        mcp_state["session"] = session
+        mcp_state["url"] = url
+    except Exception as e:
+        await stack.aclose()
+        raise e
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    backend_dir = os.path.dirname(os.path.abspath(__file__))
-    server_params = StdioServerParameters(
-        command=sys.executable,
-        args=[os.path.join(backend_dir, "mcp_server.py")]
-    )
-    async with stdio_client(server_params) as (read, write):
-        async with ClientSession(read, write) as session:
-            await session.initialize()
-            mcp_graph_app.mcp_session = session
-            yield
+    try:
+        await connect_mcp(mcp_state["url"])
+    except Exception as e:
+        print(f"Warning: Could not connect to default MCP server: {e}")
+    yield
+    if mcp_state.get("exit_stack"):
+        await mcp_state["exit_stack"].aclose()
 
 app = FastAPI(
     title="Demo 5 - Single-Step API-Enabled Chatbot",
@@ -104,6 +124,21 @@ async def health_check():
         "indexed_documents_count": 0,
         "total_indexed_chunks": 0,
     }
+
+@app.get("/api/settings/mcp")
+async def get_mcp_url():
+    return {"url": mcp_state.get("url", "")}
+
+@app.post("/api/settings/mcp")
+async def update_mcp_url(payload: dict):
+    url = payload.get("url")
+    if not url:
+        raise HTTPException(400, "URL is required")
+    try:
+        await connect_mcp(url)
+        return {"status": "success", "url": url}
+    except Exception as e:
+        raise HTTPException(500, f"Failed to connect to MCP Server at {url}: {str(e)}")
 
 import json
 import asyncio

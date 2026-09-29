@@ -166,4 +166,6 @@ def search_public_subscription_data(query: str) -> str:
         return json.dumps({"status": "error", "message": f"Failed to search the web: {str(e)}"})
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    # mcp.run(transport="stdio")
+    print("Starting MCP Server on http://127.0.0.1:8001/sse")
+    mcp.run(transport="sse", host="127.0.0.1", port=8001)

@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { getMcpSettings, updateMcpSettings } from "../api";
 
 export default function AdminPortal({ documents, onUpload, onIngestUrl, onDelete, uploading }) {
   const [dragActive, setDragActive] = useState(false);
@@ -6,6 +7,28 @@ export default function AdminPortal({ documents, onUpload, onIngestUrl, onDelete
   const [urlInput, setUrlInput] = useState("");
   const [urlStatus, setUrlStatus] = useState(null);
   const fileInputRef = useRef(null);
+
+  const [mcpUrl, setMcpUrl] = useState("");
+  const [mcpStatus, setMcpStatus] = useState(null);
+  const [savingMcp, setSavingMcp] = useState(false);
+
+  useEffect(() => {
+    getMcpSettings().then(data => setMcpUrl(data.url)).catch(err => console.error(err));
+  }, []);
+
+  const handleSaveMcp = async (e) => {
+    e.preventDefault();
+    setSavingMcp(true);
+    setMcpStatus(null);
+    try {
+      const res = await updateMcpSettings(mcpUrl);
+      setMcpStatus(`✓ Connected successfully to MCP Server at ${res.url}`);
+    } catch (err) {
+      setMcpStatus(`⚠️ ${err.message}`);
+    } finally {
+      setSavingMcp(false);
+    }
+  };
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -140,6 +163,50 @@ export default function AdminPortal({ documents, onUpload, onIngestUrl, onDelete
           </div>
         </div>
 
+      </div>
+
+      {/* External Tool Integration / MCP */}
+      <div className="upload-dropzone" style={{ marginBottom: "24px", cursor: "default", borderStyle: "solid", minHeight: "auto", padding: "20px" }}>
+        <h3 className="dropzone-title" style={{ fontSize: "15px", marginBottom: "4px" }}>
+          🔌 External Tool Integration (MCP Server)
+        </h3>
+        <p className="dropzone-sub" style={{ fontSize: "12px", marginBottom: "16px" }}>
+          Connect your Agent to an external Model Context Protocol (MCP) server over SSE.
+        </p>
+
+        <form onSubmit={handleSaveMcp} style={{ width: "100%", display: "flex", gap: "8px" }}>
+          <input
+            type="url"
+            value={mcpUrl}
+            onChange={(e) => setMcpUrl(e.target.value)}
+            placeholder="http://127.0.0.1:8001/sse"
+            disabled={savingMcp}
+            style={{
+              flex: 1,
+              padding: "8px 12px",
+              borderRadius: "8px",
+              background: "rgba(255, 255, 255, 0.06)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              color: "#fff",
+              fontSize: "13px",
+              outline: "none",
+            }}
+          />
+          <button
+            type="submit"
+            disabled={!mcpUrl.trim() || savingMcp}
+            className="tab-btn active"
+            style={{ padding: "8px 14px", fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap" }}
+          >
+            {savingMcp ? "Connecting..." : "Connect MCP ➔"}
+          </button>
+        </form>
+
+        {mcpStatus && (
+          <div style={{ marginTop: "12px", fontSize: "12px", color: mcpStatus.startsWith("✓") ? "var(--org-emerald)" : "#f87171" }}>
+            {mcpStatus}
+          </div>
+        )}
       </div>
 
       {uploadError && (

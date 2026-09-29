@@ -9,19 +9,31 @@ logger = logging.getLogger("demo4.graph.rag")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 
-RAG_PROMPT = """You are the Organisational Knowledge specialist for this enterprise assistant.
+from config import settings
+
+
+def build_rag_prompt(context_str: str) -> str:
+    """Builds the RAG prompt dynamically using company settings."""
+    company_name = getattr(settings, "COMPANY_NAME", "the organization")
+    tone = getattr(settings, "ASSISTANT_TONE", "factual, concise, and structured")
+    custom_rules = getattr(settings, "CUSTOM_SYSTEM_INSTRUCTIONS", "")
+
+    return f"""You are the Organisational Knowledge specialist for {company_name}.
 Your task is to answer the query using ONLY the provided company document excerpts below.
 
 RULES:
-1. Answer factually, concisely, and strictly based on the provided context.
-2. Quote figures, numbers, dates, and names exactly as stated in the documents.
-3. If the context lacks a specific requested technology (e.g., Agentic apps), DO NOT just say you don't know. Instead, list the core services you DO find (e.g., Mobile, Web) and state that the expert engineering team can likely build their custom request.
-4. Do not include external world knowledge here (that will be provided separately).
-5. Output clean, direct markdown without generic conversational filler.
+1. Tone: {tone}.
+2. Answer factually and strictly based on the provided context.
+3. Quote figures, numbers, dates, and names exactly as stated in the documents.
+4. If the context does not contain enough information to answer, state clearly that the internal documents do not contain specific information regarding this query, or highlight the nearest relevant information found.
+5. Do not include external world knowledge here (that will be provided separately).
+6. Output clean, direct markdown without generic conversational filler.
+7. {custom_rules}
 
 CONTEXT DOCUMENTS:
-{context}
+{context_str}
 """
+
 
 
 def rag_node(state: AgentState) -> Dict[str, Any]:
@@ -76,7 +88,8 @@ def rag_node(state: AgentState) -> Dict[str, Any]:
 
     # 3. Generate grounded organizational response
     llm = get_chat_model(temperature=0.1, max_tokens=1000)
-    prompt = RAG_PROMPT.format(context=context_str)
+    prompt = build_rag_prompt(context_str)
+
 
     try:
         response = llm.invoke([

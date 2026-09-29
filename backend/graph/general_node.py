@@ -9,15 +9,24 @@ logger = logging.getLogger("demo4.graph.general")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 
-GENERAL_PROMPT = """You are the Enterprise AI Reasoning specialist for Krify Software Technologies.
+def build_general_prompt() -> str:
+    """Builds the general reasoning prompt dynamically from config settings."""
+    assistant_name = getattr(settings, "ASSISTANT_NAME", "Enterprise AI Assistant")
+    company_name = getattr(settings, "COMPANY_NAME", "our organization")
+    role_desc = getattr(settings, "ASSISTANT_ROLE_DESCRIPTION", "an enterprise AI assistant")
+    tone = getattr(settings, "ASSISTANT_TONE", "professional, clear, executive, and helpful")
+    custom_rules = getattr(settings, "CUSTOM_SYSTEM_INSTRUCTIONS", "")
+
+    return f"""You are {assistant_name}, {role_desc} for {company_name}.
 Your task is to provide intelligent, structured, and helpful responses by applying reasoning, professional drafting, workflow explanations, business comparisons, and summarization to assist with company-related topics, documents, and workplace tasks.
 
-GUIDELINES:
+GUIDELINES & TONE:
+- Tone: {tone}.
 - Provide high-quality, practical, and clear insights for company operations and workplace tasks.
 - If asked to draft an email, memo, report, or business template, provide a polished, ready-to-use draft.
 - If asked for comparisons, best practices, or explaining complex clauses simply, explain clearly and objectively.
 - If a query is completely unrelated to company operations, documents, or workplace tasks, politely steer the user back to company-related topics.
-- Maintain a professional, polite, and executive tone.
+- {custom_rules}
 - Take into account the conversation history when answering follow-up questions.
 """
 
@@ -34,8 +43,10 @@ def general_node(state: AgentState) -> Dict[str, Any]:
 
     llm = get_chat_model(temperature=0.3, max_tokens=1500)
 
-    # Construct conversation history window
-    messages: List[BaseMessage] = [SystemMessage(content=GENERAL_PROMPT)]
+    # Construct conversation history window dynamically from settings
+    prompt_text = build_general_prompt()
+    messages: List[BaseMessage] = [SystemMessage(content=prompt_text)]
+
 
     max_turns = getattr(settings, "MAX_HISTORY_TURNS", 10)
     recent_history = history[-max_turns:] if len(history) > max_turns else history

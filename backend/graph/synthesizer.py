@@ -8,15 +8,23 @@ logger = logging.getLogger("demo4.graph.synthesizer")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 
-SYNTHESIZER_PROMPT = """You are an enterprise AI assistant for Krify (Krify Software Technologies).
+from config import settings
+
+
+def build_synthesizer_prompt() -> str:
+    """Builds the synthesizer prompt dynamically from config settings."""
+    company_name = getattr(settings, "COMPANY_NAME", "the organization")
+    custom_rules = getattr(settings, "CUSTOM_SYSTEM_INSTRUCTIONS", "")
+    return f"""You are an enterprise AI assistant for {company_name}.
 Your task is to merge internal organizational knowledge (from company documents) and general intelligence/reasoning into a SINGLE, unified, professional, and clear answer to the user's question.
 
 RULES:
 1. Provide ONE seamless, direct, and well-structured answer.
 2. DO NOT use separated section headers like "Organisational Knowledge" vs "General Knowledge" or say "From documents... and from AI...".
-3. For questions about Krify, its services, team, or policies, strictly prioritize the factual company document excerpts.
+3. For questions about {company_name}, its services, team, or policies, strictly prioritize the factual company document excerpts.
 4. Seamlessly answer any follow-up, conversational, or general parts of the user's question.
 5. Format cleanly using standard Markdown with concise bullet points or headings where helpful.
+6. {custom_rules}
 """
 
 
@@ -32,11 +40,10 @@ def synthesizer_node(state: AgentState) -> Dict[str, Any]:
     unified_content = ""
 
     if route == "OUT_OF_SCOPE":
-        unified_content = (
-            "I am an enterprise AI assistant dedicated to helping with Krify company knowledge, "
-            "uploaded documents, services, and workplace operations.\n\n"
-            "I cannot answer unrelated outside topics such as celebrity trivia, sports, entertainment, or general world trivia. "
-            "Please ask a question related to company documents, services, or workplace tasks!"
+        unified_content = getattr(
+            settings,
+            "OUT_OF_SCOPE_MESSAGE",
+            "I am an enterprise AI assistant dedicated to helping with company knowledge, documents, services, and workplace operations. I cannot answer unrelated outside topics."
         )
 
     elif route == "HYBRID":
@@ -45,8 +52,9 @@ def synthesizer_node(state: AgentState) -> Dict[str, Any]:
             logger.info("⚡ [Synthesizer] Synthesizing RAG & General streams into a single unified answer...")
             llm = get_chat_model(temperature=0.2, max_tokens=1500)
             try:
+                synth_prompt = build_synthesizer_prompt()
                 response = llm.invoke([
-                    SystemMessage(content=SYNTHESIZER_PROMPT),
+                    SystemMessage(content=synth_prompt),
                     HumanMessage(content=f"User Question: {question}\n\nCompany Document Excerpts & Findings:\n{rag_answer}\n\nGeneral Intelligence & Context:\n{general_answer}"),
                 ])
                 res_txt = response.content.strip() if response and response.content else ""

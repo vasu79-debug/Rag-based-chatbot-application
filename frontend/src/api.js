@@ -62,6 +62,9 @@ export async function streamChatMessage(question, session_id = "default_session"
             const payload = JSON.parse(trimmed.slice(6));
             if (payload.type === "stage" && onStage) {
               onStage(payload);
+            } else if (payload.type === "approval_needed") {
+              if (onStage) onStage({ stage: "paused", label: "Agent paused for approval." });
+              finalResult = payload;
             } else if (payload.type === "complete") {
               finalResult = payload.result;
             } else if (payload.type === "error") {
@@ -176,4 +179,39 @@ export async function fetchChatHistory(sessionId) {
     throw new Error(`Failed to fetch history for session ${sessionId}`);
   }
   return res.json();
+}
+
+export async function resumeChat(sessionId, action, onChunk) {
+  const res = await fetch(`${BASE_URL}/chat/resume`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId, action: action }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to resume chat");
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder("utf-8");
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const chunk = decoder.decode(value, { stream: true });
+    const lines = chunk.split("\n");
+
+    for (let line of lines) {
+      if (line.startsWith("data: ")) {
+        try {
+          const data = JSON.parse(line.replace("data: ", ""));
+          onChunk(data);
+        } catch (e) {
+          console.error("Error parsing resume SSE chunk:", e);
+        }
+      }
+    }
+  }
 }

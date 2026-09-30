@@ -61,6 +61,9 @@ class Settings(BaseSettings):
     CUSTOM_SYSTEM_INSTRUCTIONS: str = "If asked to review spending, analyze the total cost across subscriptions. Suggest removing duplicate or expensive services."
     OUT_OF_SCOPE_MESSAGE: str = "I am a financial AI assistant focused on subscription management. I cannot answer unrelated outside topics."
 
+    # Tools that require Human-in-the-Loop (HITL) approval before execution
+    WRITE_TOOLS: str = "delete_subscription,create_subscription"
+
     # ASSISTANT_NAME: str = "Krify Sales Specialist"
     # COMPANY_NAME: str = "Krify Software Technologies"
     # ASSISTANT_ROLE_DESCRIPTION: str = "a proactive, persuasive B2B sales and solution consultant helping prospective clients understand our services and book project consultations"
@@ -106,6 +109,10 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> List[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+
+    @property
+    def write_tools_list(self) -> List[str]:
+        return [tool.strip() for tool in self.WRITE_TOOLS.split(",") if tool.strip()]
 
     @property
     def absolute_chroma_dir(self) -> Path:

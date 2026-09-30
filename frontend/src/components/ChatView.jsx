@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-export default function ChatView({ messages, onSendMessage, loading, currentStage, onSelectCitation }) {
+export default function ChatView({ messages, onSendMessage, onResume, loading, currentStage, onSelectCitation }) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
 
@@ -49,6 +49,67 @@ export default function ChatView({ messages, onSendMessage, loading, currentStag
 
             // Assistant Response
             const payload = msg.payload || {};
+            
+            // Handle Approval UI
+            if (payload.type === "approval_needed") {
+              const data = payload.data || {};
+              return (
+                <div key={index} className="chat-row bot">
+                  <div className="avatar bot">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                      <line x1="12" y1="9" x2="12" y2="13"></line>
+                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                  </div>
+                  <div className="bot-response-container">
+                    <div className="knowledge-card unified" style={{ borderColor: "#f59e0b", background: "rgba(245, 158, 11, 0.05)" }}>
+                      <div className="card-header unified" style={{ background: "rgba(245, 158, 11, 0.15)", borderBottom: "1px solid rgba(245, 158, 11, 0.2)" }}>
+                        <span style={{ display: "flex", alignItems: "center", gap: "6px", color: "#fbbf24" }}>
+                          ⚠️ Action Approval Required
+                        </span>
+                      </div>
+                      <div className="card-body" style={{ padding: "12px" }}>
+                        <p style={{ margin: "0 0 10px 0", color: "#e5e7eb", fontSize: "13px" }}>
+                          The agent wants to execute <strong>{data.tool}</strong>. Please review the details below:
+                        </p>
+                        
+                        <div style={{ marginBottom: "12px", borderRadius: "6px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
+                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", background: "rgba(0,0,0,0.2)" }}>
+                            <tbody>
+                              {Object.entries(data.args || {}).map(([key, val], i) => (
+                                <tr key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                                  <td style={{ padding: "6px 10px", color: "#a78bfa", width: "40%", borderRight: "1px solid rgba(255,255,255,0.05)", fontWeight: "600" }}>{key}</td>
+                                  <td style={{ padding: "6px 10px", color: "#e5e7eb" }}>{String(val)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <button 
+                            onClick={() => onResume && onResume("approved")}
+                            disabled={loading}
+                            style={{ flex: 1, padding: "8px", background: "var(--org-emerald)", color: "#000", border: "none", borderRadius: "6px", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}
+                          >
+                            ✓ Approve
+                          </button>
+                          <button 
+                            onClick={() => onResume && onResume("rejected")}
+                            disabled={loading}
+                            style={{ flex: 1, padding: "8px", background: "rgba(239, 68, 68, 0.2)", color: "#f87171", border: "1px solid rgba(239, 68, 68, 0.4)", borderRadius: "6px", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}
+                          >
+                            ✕ Reject
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
             const content = payload.content || payload.answer || payload.org_section?.content || payload.general_section?.content || msg.content || "";
             const citations = payload.citations || payload.org_section?.citations || [];
 
@@ -136,8 +197,11 @@ export default function ChatView({ messages, onSendMessage, loading, currentStag
             className="chat-input"
             rows={1}
           />
-          <button type="submit" disabled={!input.trim() || loading} className="btn-send">
-            Send ➔
+          <button type="submit" disabled={!input.trim() || loading} className="btn-send" aria-label="Send message">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
           </button>
         </form>
       </div>

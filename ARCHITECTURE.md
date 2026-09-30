@@ -1,116 +1,48 @@
-# System Architecture: Demo 5 - Single-Step API-Enabled MCP Agent
+# Demo 7A Architecture: Transactional AI with Human-in-the-Loop
 
-An end-to-end architecture specification for Demo 5, demonstrating how an AI Agent leverages the Model Context Protocol (MCP) to autonomously execute tools (live APIs and RAG) with a stateless frontend and a stateful SQLite database backend.
+This document outlines the architectural patterns used to achieve safe, transactional API executions using LangGraph, React, and MCP.
 
----
+## 1. The Core Data Flow (HITL)
 
-## 🏛️ High-Level System Architecture
+When a user requests a sensitive action (e.g., modifying database records), the system enforces a strict boundary between "planning" and "execution".
 
-```mermaid
-flowchart TD
-    subgraph Client ["Frontend (React + Vite · Port 5177)"]
-        UI["Stateless Chat Interface"]
-        Session["Session ID Generator"]
-        SSE["SSE Stream Handler (Live Stages)"]
-    end
+1. **User Request:** "Cancel my Netflix subscription."
+2. **LLM Planning:** The ReAct agent identifies the need to call `delete_subscription`. It formats a conversational preview and yields text to the user: "Are you sure you want to cancel?"
+3. **User Confirmation:** The user types "Yes".
+4. **Tool Selection:** The agent attempts to invoke the `delete_subscription` tool.
+5. **The Interceptor (`mcp_graph.py`):**
+   - The graph dynamically checks the requested tool against `settings.write_tools_list`.
+   - If a match is found, the graph calls `interrupt()`.
+   - The graph execution is **suspended** and its exact state is saved into the LangGraph `MemorySaver` checkpointer.
+   - The backend yields a special `approval_needed` event to the frontend over SSE.
+6. **The Approval UI (`ChatView.jsx`):**
+   - The React frontend intercepts the `approval_needed` payload.
+   - It renders a hard boundary UI (Action Approval Box) displaying the Target Tool and its JSON Arguments.
+   - The UI provides `[Approve]` and `[Reject]` buttons.
+7. **The Resume API (`main.py`):**
+   - Clicking a button triggers a POST request to `/api/chat/resume`.
+   - The backend calls `aresume(session_id, action)`.
+   - LangGraph retrieves the paused state from the checkpointer and injects the user's action.
+8. **Execution & Verification:** 
+   - If "approved", the graph executes the MCP tool, observes the database result, and synthesizes a final verified answer.
+   - If "rejected", the graph gracefully aborts the tool execution.
 
-    subgraph API ["FastAPI Backend (Port 8000)"]
-        Lifespan["FastAPI Lifespan (MCP Init)"]
-        ChatEP["POST /api/chat/stream"]
-        DB[(SQLite DB\ndata/chat_history.db)]
-    end
+## 2. Dynamic Tool Interception (The Wrapper)
 
-    subgraph MCPClient ["MCP Client & Agent Engine"]
-        Graph["Agent Loop (astream)"]
-        SQLStore["SQLChatMessageHistory"]
-        LLM["LLM (Groq/OpenAI)"]
-    end
+Instead of hardcoding intercepts into the MCP server (which is decoupled), the graph dynamically wraps incoming MCP tools with an interrupt layer.
 
-    subgraph MCPServer ["MCP Server (mcp_server.py)"]
-        Tools["Exposed FastMCP Tools"]
-        WeatherAPI["get_weather\n(Open-Meteo)"]
-        RAGAPI["search_krify_knowledge\n(ChromaDB + BM25)"]
-    end
-
-    UI --> Session
-    Session -->|question + session_id| ChatEP
-    Lifespan -->|Establishes persistent Stdio connection| MCPServer
-    
-    ChatEP --> Graph
-    Graph <--> SQLStore
-    SQLStore <--> DB
-    
-    Graph -->|1. Request Action| LLM
-    LLM -->|2. Function Call| Graph
-    Graph -->|3. Trigger Tool| MCPServer
-    MCPServer --> WeatherAPI
-    MCPServer --> RAGAPI
-    
-    Graph -->|Yields Live Status| ChatEP
-    ChatEP -->|SSE Updates| SSE
-    SSE --> UI
+```python
+if tool.name in WRITE_TOOLS:
+    async def wrapped_func(**kwargs):
+        response = interrupt({"type": "approval_request", "tool": tool.name, "args": kwargs})
+        if response == "approved":
+            return await tool.ainvoke(kwargs)
+        else:
+            return "Rejected by user."
 ```
+*Why this is powerful:* The agent can connect to ANY 3rd party MCP server (e.g., GitHub, Jira, Slack). As long as the admin lists the sensitive tool names in `config.py` (`WRITE_TOOLS="create_issue,send_message"`), the system will automatically protect them with HITL without modifying any external code.
 
----
+## 3. Configuration-Driven Agent Persona
 
-## 🔄 End-to-End Query Lifecycle
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as User
-    participant Frontend as React Frontend
-    participant FastAPI as FastAPI Server
-    participant SQLite as Database
-    participant Agent as MCP Client Loop (mcp_graph.py)
-    participant LLM as LLM API
-    participant MCPSrv as MCP Server Subprocess
-
-    User->>Frontend: Enters query ("What is the weather in London?")
-    Frontend->>FastAPI: POST /api/chat/stream (question, session_id)
-    
-    FastAPI->>Agent: astream(question, session_id)
-    Agent->>SQLite: Fetch past messages for session_id
-    
-    Agent-->>FastAPI: yield stage: "Analyzing intent..."
-    FastAPI-->>Frontend: SSE data (Analyzing intent)
-    
-    Agent->>LLM: Send Context + Available Tools
-    LLM-->>Agent: JSON Tool Call (get_weather, args: London)
-    
-    Agent-->>FastAPI: yield stage: "Running tool: get_weather..."
-    FastAPI-->>Frontend: SSE data (Running tool)
-    
-    Agent->>MCPSrv: Execute 'get_weather' via MCP Stdio adapter
-    MCPSrv-->>Agent: Live JSON API Result (Temperature, Windspeed)
-    
-    Agent-->>FastAPI: yield stage: "Synthesizing final response..."
-    FastAPI-->>Frontend: SSE data (Synthesizing)
-    
-    Agent->>LLM: Send Tool Result Context
-    LLM-->>Agent: Natural Language Output
-    
-    Agent->>SQLite: Save User Query and AI Response
-    Agent-->>FastAPI: yield complete: Final Content
-    FastAPI-->>Frontend: SSE data (Final Result)
-    Frontend-->>User: Displays final formatted answer
-```
-
----
-
-## 🧩 Core Architectural Paradigm Shifts (From Demo 4)
-
-### 1. The MCP Decoupling
-In previous architectures, the tools (like RAG and SQL) were tightly coupled into the LangGraph state execution pipeline. In Demo 5, **the AI logic is fully decoupled from the tool execution via the Model Context Protocol (MCP)**.
-- `mcp_server.py` hosts the tools securely in an isolated environment.
-- `mcp_graph.py` acts strictly as the **Client Brain**, reading the tools over standard IO, attaching them to the LLM via `bind_tools`, and telling the server when to execute them.
-
-### 2. Stateless UI + Database Memory
-Instead of the frontend managing a heavy `history` array, the frontend is completely stateless.
-- The UI generates a lightweight `session_id`.
-- The backend intercepts this ID and leverages `SQLChatMessageHistory` to inject the historical conversational thread from an SQLite Database into the LLM context.
-- This mirrors an enterprise SaaS application.
-
-### 3. Asynchronous Live Streaming (`astream`)
-Instead of hiding the execution pipeline behind a monolithic blocking request, the Agent Loop acts as an asynchronous python generator (`yield`). 
-As the agent analyzes intent, executes tools, and synthesizes data, those granular status milestones are pushed instantly to the user's screen using Server-Sent Events (SSE).
+The entire agent persona is abstracted into `backend/config.py`.
+By altering `ASSISTANT_NAME`, `ASSISTANT_ROLE_DESCRIPTION`, and `WRITE_TOOLS`, this architecture can instantly pivot from a Finance Assistant to an IT Helpdesk or a Marketing Strategist, requiring zero code changes in `main.py` or the React frontend.

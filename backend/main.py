@@ -20,45 +20,89 @@ from mcp.client.sse import sse_client
 from mcp import ClientSession
 import sys
 import os
+import asyncio
+import json
+
+MCP_SERVERS_FILE = os.path.join(os.path.dirname(__file__), "data", "mcp_servers.json")
 
 mcp_state = {
-    "connections": {} # keyed by url, value: {"exit_stack": stack, "session": session}
+    "connections": {}, # keyed by url, value: {"session": session}
+    "tasks": {} # keyed by url, value: asyncio.Task
 }
+
+def save_mcp_servers():
+    os.makedirs(os.path.dirname(MCP_SERVERS_FILE), exist_ok=True)
+    with open(MCP_SERVERS_FILE, "w") as f:
+        json.dump(list(mcp_state["tasks"].keys()), f)
+
+def load_mcp_servers():
+    if os.path.exists(MCP_SERVERS_FILE):
+        with open(MCP_SERVERS_FILE, "r") as f:
+            return json.load(f)
+    return ["http://127.0.0.1:8001/sse"] # default
+
+
+async def mcp_connection_worker(url: str, ready_event: asyncio.Event):
+    """Background task to keep the MCP session alive in its own Task context."""
+    try:
+        async with AsyncExitStack() as stack:
+            read, write = await stack.enter_async_context(sse_client(url))
+            session = await stack.enter_async_context(ClientSession(read, write))
+            await session.initialize()
+            
+            mcp_state["connections"][url] = {
+                "session": session
+            }
+            ready_event.set()
+            
+            # Wait indefinitely until this task is cancelled (during disconnect)
+            await asyncio.Event().wait()
+    except asyncio.CancelledError:
+        # Normal disconnect flow
+        pass
+    except Exception as e:
+        print(f"MCP connection error for {url}: {e}")
+    finally:
+        # Cleanup state if the connection drops or is closed
+        if url in mcp_state["connections"]:
+            del mcp_state["connections"][url]
+        if url in mcp_state["tasks"]:
+            del mcp_state["tasks"][url]
 
 async def connect_mcp(url: str):
     if url in mcp_state["connections"]:
         return # Already connected
         
-    stack = AsyncExitStack()
-    try:
-        read, write = await stack.enter_async_context(sse_client(url))
-        session = await stack.enter_async_context(ClientSession(read, write))
-        await session.initialize()
-        
-        mcp_state["connections"][url] = {
-            "exit_stack": stack,
-            "session": session
-        }
-    except Exception as e:
-        await stack.aclose()
-        raise e
+    ready_event = asyncio.Event()
+    task = asyncio.create_task(mcp_connection_worker(url, ready_event))
+    mcp_state["tasks"][url] = task
+    
+    # Wait for the worker to successfully initialize the session
+    await ready_event.wait()
+    save_mcp_servers()
 
 async def disconnect_mcp(url: str):
-    if url in mcp_state["connections"]:
-        conn = mcp_state["connections"][url]
-        await conn["exit_stack"].aclose()
-        del mcp_state["connections"][url]
+    if url in mcp_state["tasks"]:
+        # Cancel the task. The task will catch CancelledError and exit the AsyncExitStack cleanly.
+        mcp_state["tasks"][url].cancel()
+        del mcp_state["tasks"][url]
+        if url in mcp_state["connections"]:
+            del mcp_state["connections"][url]
+        save_mcp_servers()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Try connecting to the default one on startup if needed
-    try:
-        await connect_mcp("http://127.0.0.1:8001/sse")
-    except Exception as e:
-        print(f"Warning: Could not connect to default MCP server: {e}")
+    # Connect to all saved servers on startup
+    saved_servers = load_mcp_servers()
+    for url in saved_servers:
+        try:
+            await connect_mcp(url)
+        except Exception as e:
+            print(f"Warning: Could not connect to MCP server {url}: {e}")
     yield
-    for url, conn in list(mcp_state["connections"].items()):
-        await conn["exit_stack"].aclose()
+    # Cleanup all connections on shutdown
+    for url, task in list(mcp_state["tasks"].items()):
+        task.cancel()
 
 app = FastAPI(
     title="Demo 5 - Single-Step API-Enabled Chatbot",
@@ -88,6 +132,10 @@ class ChatRequest(BaseModel):
     question: str = Field(..., min_length=1, description="The user question or request")
     session_id: str = Field(default="default_session", description="The session or thread ID for database memory")
     history: Optional[List[MessageTurn]] = Field(default=[], description="Deprecated frontend history")
+
+class ResumeRequest(BaseModel):
+    session_id: str
+    action: str  # "approved" or "rejected"
 
 
 class CitationItem(BaseModel):
@@ -232,6 +280,9 @@ async def chat_stream_endpoint(request: ChatRequest):
                         "general_section": {"label": "AI Agent Response", "content": final_message}
                     }
                     yield f"data: {json.dumps({'type': 'complete', 'result': final_out})}\n\n"
+                    
+                elif event["type"] == "approval_needed":
+                    yield f"data: {json.dumps({'type': 'approval_needed', 'data': event['data']})}\n\n"
 
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
@@ -246,9 +297,40 @@ async def chat_stream_endpoint(request: ChatRequest):
         },
     )
 
+@app.post("/api/chat/resume")
+async def chat_resume_endpoint(request: ResumeRequest):
+    """
+    Resumes a paused graph execution after user approval/rejection.
+    """
+    session_id = request.session_id
+    action = request.action
+    
+    async def event_generator():
+        try:
+            async for event in mcp_graph_app.aresume(session_id, action):
+                if event["type"] == "stage":
+                    yield f"data: {json.dumps({'type': 'stage', 'stage': 'reasoning', 'label': event['label']})}\n\n"
+                    await asyncio.sleep(0.01)
+                elif event["type"] == "complete":
+                    final_message = event["final_message"]
+                    final_out = {
+                        "route": "API",
+                        "answer": final_message,
+                        "general_section": {"label": "AI Agent Response", "content": final_message}
+                    }
+                    yield f"data: {json.dumps({'type': 'complete', 'result': final_out})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
 
-
-
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 @app.get("/api/chat/history/{session_id}")
 async def get_chat_history(session_id: str):

@@ -1,47 +1,46 @@
-# Subscription Assistant (Demo 6C - Agentic Multi-Tool Chatbot)
+# Demo 7A: API-Based Transactional Agent (Human-in-the-Loop)
 
-This project demonstrates an **Autonomous Agentic Workflow** using LangGraph and the Model Context Protocol (MCP). Unlike rigid rule-based workflows (e.g., Demo 5), this agent autonomously parses goals, dynamically selects tools, evaluates responses, and performs multi-step reasoning.
+This project demonstrates an advanced, production-grade **Transactional AI Agent** with **Human-in-the-Loop (HITL)** capabilities. It builds upon the decoupled Multi-Server MCP architecture and introduces strict safety mechanisms for executing sensitive operations (Write actions).
+
+## Core Philosophy: Preview, Approve, Verify
+Whenever this agent needs to modify real business data (e.g., adding a subscription, deleting an account, or creating a Jira ticket), it strictly adheres to a three-part discipline:
+1. **Preview:** The LLM gathers required arguments and presents a formatted Markdown table to the user for visual confirmation.
+2. **Approve:** The LangGraph execution pauses via `interrupt()`, pushing an `approval_needed` event to the React UI. A hard boundary prevents execution until the user clicks `[Approve]`.
+3. **Verify:** After execution resumes, the agent checks the return values from the MCP tool and synthesizes a final confirmation message.
 
 ## Features
+- **Dynamic Human-in-the-Loop (HITL):** Configurable `WRITE_TOOLS` list in `config.py`. Any MCP tool matching a name in this list will automatically trigger a UI breakpoint.
+- **Stateful Graph Execution:** Uses LangGraph's Checkpointer (`MemorySaver`) to persist the exact state of the agent across HTTP boundaries during approval pauses.
+- **Multi-Server MCP Orchestrator:** Connect an infinite number of external MCP tool servers via the Admin Panel. The agent inherits all tools dynamically.
+- **Agentic Fallback:** If MCP servers disconnect, the agent gracefully degrades to Native RAG tools without crashing.
 
-- **Agentic ReAct Loop**: The AI doesn't follow a hardcoded script. Given a goal like "reduce my spending", it decides which tools to call, observes the results, and acts again.
-- **MCP Tool Integration**: 
-  - **Database Tools**: `get_subscriptions`, `create_subscription`, `delete_subscription` interact safely with a PostgreSQL database.
-  - **Logic Tools**: `get_alternative_plans` and `get_usage_statistics`.
-  - **Web Search Tool**: `search_public_subscription_data` uses DuckDuckGo (`ddgs`) to scrape real-time pricing off the live internet.
-- **Persistent Chat History**: Session histories are stored locally using SQLite, and a ChatGPT-style sidebar allows users to revisit and delete old sessions.
-- **Modern UI**: A responsive, premium Light Theme interface built with React.
+## Setup Instructions
 
-## Getting Started
-
-### 1. Prerequisites
-- Python 3.12+
-- Node.js & npm
-- PostgreSQL running locally (Database name: `subscriptions`)
-
-### 2. Backend Setup
+### 1. Start the External MCP Server(s)
+To provide the agent with database tools (like `delete_subscription`):
 ```bash
 cd backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-pip install psycopg[binary] langchain-mcp-adapters ddgs
+python mcp_server.py
 ```
+*(Runs on port 8001)*
 
-Ensure your `.env` file contains your LLM API keys (e.g., `GROQ_API_KEY`) and your database URL:
-```
-DATABASE_URL="postgresql://postgres:password@localhost:5432/subscriptions"
-```
-
-Start the backend:
+### 2. Start the FastAPI Backend
 ```bash
-uvicorn main:app --reload --port 8000
+cd backend
+python main.py
 ```
+*(Runs on port 8000)*
 
-### 3. Frontend Setup
+### 3. Start the React Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Navigate to `http://localhost:5173` to interact with your Agent!
+
+## How to Test HITL
+1. Open the UI and connect the MCP Server in the Admin Panel (`http://127.0.0.1:8001/sse`).
+2. Ask the Chatbot: `"Cancel my Netflix subscription"`
+3. The chatbot will ask you to confirm. Say `"yes"`.
+4. The backend Graph will pause, and the UI will show an Action Approval box.
+5. Click **Approve** to resume the graph and execute the database deletion!

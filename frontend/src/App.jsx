@@ -12,6 +12,7 @@ import {
   ingestUrl,
   deleteDocument,
   fetchChatHistory,
+  resumeChat,
 } from "./api";
 
 const getInitialTab = () => {
@@ -204,6 +205,47 @@ export default function App() {
     }
   };
 
+  const handleResume = async (action) => {
+    if (loading) return;
+    setLoading(true);
+    setCurrentStage({ stage: "executing", label: `Agent executing tool (Action: ${action})...` });
+
+    try {
+      let finalRes = null;
+      await resumeChat(sessionId, action, (payload) => {
+        if (payload.type === "stage") {
+          setCurrentStage(payload);
+        } else if (payload.type === "complete") {
+          finalRes = payload.result;
+        } else if (payload.type === "approval_needed") {
+          finalRes = payload;
+        }
+      });
+
+      if (finalRes) {
+        setMessages((prev) => {
+          // Remove the previous approval message and replace it
+          const updated = [...prev];
+          const lastMsg = updated[updated.length - 1];
+          if (lastMsg && lastMsg.payload && lastMsg.payload.type === "approval_needed") {
+            updated.pop();
+          }
+          return [...updated, { role: "assistant", payload: finalRes }];
+        });
+      }
+    } catch (err) {
+      setMessages((prev) => [...prev, {
+        role: "assistant",
+        payload: {
+          general_section: { label: "⚠️ Error", content: `Failed to resume: ${err.message}` }
+        }
+      }]);
+    } finally {
+      setLoading(false);
+      setCurrentStage(null);
+    }
+  };
+
   const handleUpload = async (file) => {
     setUploading(true);
     try {
@@ -266,6 +308,7 @@ export default function App() {
             <ChatView
               messages={messages}
               onSendMessage={handleSendMessage}
+              onResume={handleResume}
               loading={loading}
               currentStage={currentStage}
               onSelectCitation={setSelectedCitation}

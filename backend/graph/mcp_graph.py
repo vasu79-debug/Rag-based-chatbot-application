@@ -57,7 +57,8 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
 2. PREVIEW: Once you have all details, you MUST present a Preview in a Markdown table and explicitly ask "Are these details correct? (Yes/No)".
 3. STRICT FORBIDDEN ACTION: You are STRICTLY FORBIDDEN from calling any transaction tools UNTIL the user has explicitly replied "yes" to your preview. If you jump straight to the tool, you fail.
 4. VERIFY: After the tool is executed and approved, verify the output and synthesize a final answer.
-5. ABORTS: If a tool returns a message that the action was "rejected" or "aborted", DO NOT retry the tool. Acknowledge the cancellation and ask how else you can help."""
+5. ABORTS: If a tool returns a message that the action was "rejected" or "aborted", DO NOT retry the tool. Acknowledge the cancellation and ask how else you can help.
+6. LIVE DATA: You DO have access to the internet via the `search_web` tool. If the user asks for live sports scores, weather, news, or any real-time data, you MUST use the `search_web` tool. NEVER say you don't have access to live data."""
         
         backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         
@@ -110,7 +111,7 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
                 pass
                 
         agent_executor = create_react_agent(self.llm, tools, checkpointer=memory, prompt=self.system_prompt)
-        config = {"configurable": {"thread_id": session_id}}
+        config = {"configurable": {"thread_id": session_id}, "recursion_limit": 12}
         
         final_message = ""
         try:
@@ -201,7 +202,7 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
             yield {"type": "stage", "label": "Running with Local Tools only"}
         # 3. Create the ReAct Agent Graph with Checkpointer
         agent_executor = create_react_agent(self.llm, tools, checkpointer=memory, prompt=self.system_prompt)
-        config = {"configurable": {"thread_id": session_id}}
+        config = {"configurable": {"thread_id": session_id}, "recursion_limit":12}
         
         # Avoid duplicate messages in checkpointer state
         state = agent_executor.get_state(config)

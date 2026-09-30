@@ -20,45 +20,84 @@ from mcp.client.sse import sse_client
 from mcp import ClientSession
 import sys
 import os
+import asyncio
+import json
+
+MCP_SERVERS_FILE = os.path.join(os.path.dirname(__file__), "data", "mcp_servers.json")
 
 mcp_state = {
-    "connections": {} # keyed by url, value: {"exit_stack": stack, "session": session}
+    "connections": {}, # keyed by url, value: {"session": session}
+    "tasks": {} # keyed by url, value: asyncio.Task
 }
+
+def save_mcp_servers():
+    os.makedirs(os.path.dirname(MCP_SERVERS_FILE), exist_ok=True)
+    with open(MCP_SERVERS_FILE, "w") as f:
+        json.dump(list(mcp_state["tasks"].keys()), f)
+
+def load_mcp_servers():
+    if os.path.exists(MCP_SERVERS_FILE):
+        with open(MCP_SERVERS_FILE, "r") as f:
+            return json.load(f)
+    return ["http://127.0.0.1:8001/sse"] # default
+
+async def mcp_connection_worker(url: str, ready_event: asyncio.Event):
+    """Background task to keep the MCP session alive in its own Task context."""
+    try:
+        async with AsyncExitStack() as stack:
+            read, write = await stack.enter_async_context(sse_client(url))
+            session = await stack.enter_async_context(ClientSession(read, write))
+            await session.initialize()
+            
+            mcp_state["connections"][url] = {
+                "session": session
+            }
+            ready_event.set()
+            
+            # Wait indefinitely until this task is cancelled (during disconnect)
+            await asyncio.Event().wait()
+    except asyncio.CancelledError:
+        pass
+    except Exception as e:
+        print(f"MCP connection error for {url}: {e}")
+    finally:
+        if url in mcp_state["connections"]:
+            del mcp_state["connections"][url]
+        if url in mcp_state["tasks"]:
+            del mcp_state["tasks"][url]
 
 async def connect_mcp(url: str):
     if url in mcp_state["connections"]:
         return # Already connected
         
-    stack = AsyncExitStack()
-    try:
-        read, write = await stack.enter_async_context(sse_client(url))
-        session = await stack.enter_async_context(ClientSession(read, write))
-        await session.initialize()
-        
-        mcp_state["connections"][url] = {
-            "exit_stack": stack,
-            "session": session
-        }
-    except Exception as e:
-        await stack.aclose()
-        raise e
+    ready_event = asyncio.Event()
+    task = asyncio.create_task(mcp_connection_worker(url, ready_event))
+    mcp_state["tasks"][url] = task
+    
+    await ready_event.wait()
+    save_mcp_servers()
 
 async def disconnect_mcp(url: str):
-    if url in mcp_state["connections"]:
-        conn = mcp_state["connections"][url]
-        await conn["exit_stack"].aclose()
-        del mcp_state["connections"][url]
+    if url in mcp_state["tasks"]:
+        mcp_state["tasks"][url].cancel()
+        del mcp_state["tasks"][url]
+        if url in mcp_state["connections"]:
+            del mcp_state["connections"][url]
+        save_mcp_servers()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Try connecting to the default one on startup if needed
-    try:
-        await connect_mcp("http://127.0.0.1:8001/sse")
-    except Exception as e:
-        print(f"Warning: Could not connect to default MCP server: {e}")
+    # Connect to all saved servers on startup
+    saved_servers = load_mcp_servers()
+    for url in saved_servers:
+        try:
+            await connect_mcp(url)
+        except Exception as e:
+            print(f"Warning: Could not connect to MCP server {url}: {e}")
     yield
-    for url, conn in list(mcp_state["connections"].items()):
-        await conn["exit_stack"].aclose()
+    # Cleanup all connections on shutdown
+    for url, task in list(mcp_state["tasks"].items()):
+        task.cancel()
 
 app = FastAPI(
     title="Demo 5 - Single-Step API-Enabled Chatbot",

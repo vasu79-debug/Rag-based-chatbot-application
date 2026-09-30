@@ -104,11 +104,11 @@ Important Behavioral Rules:
             logger.warning("No active MCP session tools found.")
             yield {"type": "stage", "label": "Running with Local Tools only"}
         
-        current_messages = [SystemMessage(content=self.system_prompt)] + history_messages + [HumanMessage(content=question)]
+        current_messages = history_messages + [HumanMessage(content=question)]
         final_message = ""
 
         # 3. Create and run the ReAct Agent Graph (It ALWAYS has at least the RAG tool now)
-        agent_executor = create_react_agent(self.llm, tools)
+        agent_executor = create_react_agent(self.llm, tools, prompt=self.system_prompt)
         
         async for chunk in agent_executor.astream({"messages": current_messages}):
             if "agent" in chunk:

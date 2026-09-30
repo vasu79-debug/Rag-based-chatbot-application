@@ -22,37 +22,43 @@ import sys
 import os
 
 mcp_state = {
-    "url": "http://127.0.0.1:8001/sse",
-    "exit_stack": None,
-    "session": None
+    "connections": {} # keyed by url, value: {"exit_stack": stack, "session": session}
 }
 
 async def connect_mcp(url: str):
-    if mcp_state.get("exit_stack"):
-        await mcp_state["exit_stack"].aclose()
+    if url in mcp_state["connections"]:
+        return # Already connected
         
     stack = AsyncExitStack()
     try:
         read, write = await stack.enter_async_context(sse_client(url))
         session = await stack.enter_async_context(ClientSession(read, write))
         await session.initialize()
-        mcp_graph_app.mcp_session = session
-        mcp_state["exit_stack"] = stack
-        mcp_state["session"] = session
-        mcp_state["url"] = url
+        
+        mcp_state["connections"][url] = {
+            "exit_stack": stack,
+            "session": session
+        }
     except Exception as e:
         await stack.aclose()
         raise e
 
+async def disconnect_mcp(url: str):
+    if url in mcp_state["connections"]:
+        conn = mcp_state["connections"][url]
+        await conn["exit_stack"].aclose()
+        del mcp_state["connections"][url]
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Try connecting to the default one on startup if needed
     try:
-        await connect_mcp(mcp_state["url"])
+        await connect_mcp("http://127.0.0.1:8001/sse")
     except Exception as e:
         print(f"Warning: Could not connect to default MCP server: {e}")
     yield
-    if mcp_state.get("exit_stack"):
-        await mcp_state["exit_stack"].aclose()
+    for url, conn in list(mcp_state["connections"].items()):
+        await conn["exit_stack"].aclose()
 
 app = FastAPI(
     title="Demo 5 - Single-Step API-Enabled Chatbot",
@@ -126,11 +132,11 @@ async def health_check():
     }
 
 @app.get("/api/settings/mcp")
-async def get_mcp_url():
-    return {"url": mcp_state.get("url", "")}
+async def get_mcp_servers():
+    return {"servers": list(mcp_state["connections"].keys())}
 
 @app.post("/api/settings/mcp")
-async def update_mcp_url(payload: dict):
+async def connect_mcp_endpoint(payload: dict):
     url = payload.get("url")
     if not url:
         raise HTTPException(400, "URL is required")
@@ -139,6 +145,14 @@ async def update_mcp_url(payload: dict):
         return {"status": "success", "url": url}
     except Exception as e:
         raise HTTPException(500, f"Failed to connect to MCP Server at {url}: {str(e)}")
+
+@app.delete("/api/settings/mcp")
+async def disconnect_mcp_endpoint(payload: dict):
+    url = payload.get("url")
+    if not url:
+        raise HTTPException(400, "URL is required")
+    await disconnect_mcp(url)
+    return {"status": "success", "url": url}
 
 import json
 import asyncio

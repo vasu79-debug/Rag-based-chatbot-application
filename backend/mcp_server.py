@@ -6,7 +6,7 @@ from mcp.server.fastmcp import FastMCP
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-mcp = FastMCP("Subzillo CRUD Server")
+mcp = FastMCP("Subzillo CRUD Server", host="127.0.0.1", port=8001)
 
 db_available = False
 try:
@@ -168,4 +168,4 @@ def search_public_subscription_data(query: str) -> str:
 if __name__ == "__main__":
     # mcp.run(transport="stdio")
     print("Starting MCP Server on http://127.0.0.1:8001/sse")
-    mcp.run(transport="sse", host="127.0.0.1", port=8001)
+    mcp.run(transport="sse")

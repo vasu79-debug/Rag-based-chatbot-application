@@ -157,6 +157,19 @@ export async function updateMcpSettings(url) {
   return res.json();
 }
 
+export async function disconnectMcpSettings(url) {
+  const res = await fetch(`${BASE_URL}/settings/mcp`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to disconnect MCP settings");
+  }
+  return res.json();
+}
+
 export async function fetchChatHistory(sessionId) {
   const res = await fetch(`${BASE_URL}/chat/history/${sessionId}`);
   if (!res.ok) {

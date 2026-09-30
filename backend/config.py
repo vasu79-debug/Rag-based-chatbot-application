@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     # Multi-Turn Memory Window (Number of past message turns to retain)
     MAX_HISTORY_TURNS: int = 10
 
+    # Multi-Intent Configuration
+    ALLOW_PARTIAL_SUCCESS: bool = True
+
     # ==========================================
     # Assistant Persona & Behavior Configuration
     # ==========================================

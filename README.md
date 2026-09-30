@@ -1,36 +1,38 @@
-# Demo 5: Single-Step API-Enabled MCP Agent
+# Demo 6: Multi-Intent Chatbot API (MCP-enabled)
 
-A highly scalable, production-grade AI Agent that implements the **Model Context Protocol (MCP)** to autonomously execute tools (API calls, RAG search) while maintaining persistent database-backed session memory.
+A robust API-enabled chatbot that uses the **Model Context Protocol (MCP)** to autonomously parse, decompose, and execute complex user queries containing multiple, independent intents.
 
 ---
 
 ## 🌟 Key Features
 
-1. **Model Context Protocol (MCP)**:
-   - Complete decoupling of AI reasoning and tool execution.
-   - External MCP Server (`mcp_server.py`) hosts tools like `get_weather` (Open-Meteo API) and `search_krify_knowledge` (Hybrid RAG).
-   - Fast initialization via Persistent `stdio_client` and FastAPI Lifespan management.
+1. **Multi-Intent Decomposition**:
+   - Analyzes incoming messages and splits them into distinct, independent requests.
+   - Automatically handles as many distinct intents as the user includes in their message.
 
-2. **Autonomous Tool-Calling Agent**:
-   - Zero hardcoded routing. The LLM acts autonomously as an agent, deciding when to chat normally and when to request tools via native Pydantic-validated function calling.
+2. **Parallel Execution**:
+   - Executes each parsed intent asynchronously in parallel using Python's `asyncio.gather`.
+   - Radically reduces total latency for complex user prompts (e.g. "What's the weather in Tokyo and what's Krify's return policy?").
 
-3. **Stateless UI & Stateful Database**:
-   - The React frontend is completely stateless, sending only the user's `question` and a `session_id`.
-   - The backend handles all multi-turn memory via SQLite (`SQLChatMessageHistory`), representing a true enterprise microservice architecture.
+3. **Partial Success & Fault Tolerance**:
+   - Each intent is executed in an isolated branch.
+   - If one intent fails (e.g. API timeout, bad arguments), the others succeed.
+   - Admin-configurable behavior via `ALLOW_PARTIAL_SUCCESS`: decide whether to return the successful parts with error notes, or reject the entire prompt and ask the user to simplify.
 
-4. **Live SSE Streaming**:
-   - Real-time insight into the Agent's reasoning loop.
-   - Asynchronous Python generators (`astream`) pipe live tool-calling stages (e.g., *"Running tool: get_weather..."*) directly to the frontend UI via Server-Sent Events (SSE).
+4. **Model Context Protocol (MCP)**:
+   - External MCP Server hosts tools like `get_weather` and `search_krify_knowledge`.
+   - The LLM automatically maps individual intents to the appropriate tools using native Pydantic-validated function calling.
 
-5. **Configurable Persona**:
-   - Fully customizable AI name, role, and tone driven entirely by the `config.py` / `.env` variables.
+5. **Stateless UI & Stateful Database**:
+   - Real-time conversation memory via SQLite (`SQLChatMessageHistory`).
+   - Unified final response synthesized from all parallel branches is saved as a single conversational turn.
 
 ---
 
 ## 🚀 Quick Start
 
 ```bash
-# In demo5-single-step-api/
+# In demo6-multi-intent/
 ./start.sh
 ```
 
@@ -43,21 +45,21 @@ A highly scalable, production-grade AI Agent that implements the **Model Context
 ## 📂 Project Structure
 
 ```
-demo5-single-step-api/
+demo6-multi-intent/
 ├── start.sh                  # Single-command launcher for backend + frontend
 ├── backend/
 │   ├── main.py               # FastAPI application (SSE, DB hooks, Lifespan)
 │   ├── mcp_server.py         # The MCP Server hosting tools (Weather, RAG)
-│   ├── config.py             # Persona configuration
+│   ├── config.py             # Configs (including MAX_INTENTS_PER_MESSAGE)
 │   ├── data/
 │   │   └── chat_history.db   # SQLite DB storing persistent conversation threads
 │   └── graph/
-│       ├── mcp_graph.py      # The MCP Client & Agent Execution Loop
+│       ├── mcp_graph.py      # The Intent Decomposer, Parallel Execution & Synthesizer
 │       └── llm_factory.py    # LLM Initialization
 └── frontend/
     └── src/
-        ├── App.jsx           # Stateless React UI generating session_id
-        ├── api.js            # Fetch calls for SSE streaming
+        ├── App.jsx           
+        ├── api.js            
         └── components/
-            └── ChatView.jsx  # UI displaying live AI reasoning steps
+            └── ChatView.jsx  
 ```

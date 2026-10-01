@@ -247,15 +247,25 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
                 triage_dict = decision.get("triage", {})
                 intent = triage_dict.get("intent", "other")
                 
-                if intent == "other":
-                    # If Laya isn't sure, don't hide tools from the LLM!
+                # ==========================================
+                # DOMAIN MAPPING (ChatGPT Architecture)
+                # ==========================================
+                domain_mapping = {
+                    "subscription": ["get_subscriptions", "create_subscription", "delete_subscription", "get_alternative_plans", "get_usage_statistics", "search_public_subscription_data"],
+                    "knowledge": ["search_local_knowledge_base"],
+                    "billing": ["get_subscriptions"] 
+                }
+                
+                if intent == "other" or intent not in domain_mapping:
+                    # If Laya isn't sure, fallback to all tools so LLM can decide
                     triage_tools = tools 
                 else:
-                    # Filter tools if intent exactly matches, else fallback
-                    triage_tools = [t for t in tools if t.name == intent or intent in t.name or t.name == "search_local_knowledge_base"]
+                    # Filter tools EXACTLY as per the mapped domain
+                    mapped_tool_names = domain_mapping[intent]
+                    triage_tools = [t for t in tools if t.name in mapped_tool_names]
                     
-                if len(triage_tools) <= 1: 
-                    triage_tools = tools # fallback to all if filtering was too aggressive
+                if len(triage_tools) == 0: 
+                    triage_tools = tools # Safety fallback
         except Exception as e:
             logger.warning(f"Laya Triage failed, falling back to all tools: {e}")
             

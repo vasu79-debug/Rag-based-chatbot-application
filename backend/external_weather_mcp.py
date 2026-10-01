@@ -1,8 +1,8 @@
 import httpx
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # This represents an "Outer" 3rd-party MCP Server
-mcp = FastMCP("Free Weather Server", host="127.0.0.1", port=8002)
+mcp = FastMCP("Free Weather Server")
 
 @mcp.tool()
 def get_live_weather(city: str) -> str:
@@ -16,4 +16,4 @@ def get_live_weather(city: str) -> str:
 
 if __name__ == "__main__":
     print("Starting Outer Weather MCP Server on http://127.0.0.1:8002/sse")
-    mcp.run(transport="sse")
+    mcp.run(transport="sse", host="127.0.0.1", port=8002)

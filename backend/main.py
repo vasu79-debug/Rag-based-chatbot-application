@@ -16,8 +16,7 @@ from graph.mcp_graph import mcp_graph_app
 from langchain_core.messages import HumanMessage, AIMessage
 
 from contextlib import asynccontextmanager, AsyncExitStack
-from mcp.client.sse import sse_client
-from mcp import ClientSession
+from langchain.mcp import MCPAdapter
 import sys
 import os
 import asyncio
@@ -46,12 +45,11 @@ async def mcp_connection_worker(url: str, ready_event: asyncio.Event):
     """Background task to keep the MCP session alive in its own Task context."""
     try:
         async with AsyncExitStack() as stack:
-            read, write = await stack.enter_async_context(sse_client(url))
-            session = await stack.enter_async_context(ClientSession(read, write))
-            await session.initialize()
+            adapter = MCPAdapter(url)
+            await stack.enter_async_context(adapter)
             
             mcp_state["connections"][url] = {
-                "session": session
+                "adapter": adapter
             }
             ready_event.set()
             

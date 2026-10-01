@@ -10,8 +10,11 @@ from langchain_core.tools import tool, StructuredTool
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.types import interrupt, Command
 
-from mcp import ClientSession
-from langchain_mcp_adapters.tools import load_mcp_tools
+
+try:
+    from laya.integrations.langchain import LayaTriage
+except ImportError:
+    LayaTriage = None
 from graph.llm_factory import get_chat_model
 from config import settings
 from rag.hybrid_retriever import hybrid_retriever
@@ -91,7 +94,7 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
         
         for url, conn in mcp_state["connections"].items():
             try:
-                tools_from_server = await load_mcp_tools(conn["session"])
+                tools_from_server = await conn["adapter"].list_tools()
                 for t in tools_from_server:
                     if t.name in WRITE_TOOLS:
                         async def make_wrapper(original_tool=t):
@@ -148,6 +151,34 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
         chat_history = self.get_history(session_id)
         history_messages = chat_history.messages
         
+        # ==========================================
+        # LESSON 1: MEMORY COMPRESSION (SUMMARIZATION)
+        # ==========================================
+        if len(history_messages) > 6:
+            yield {"type": "stage", "label": f"Compressing {len(history_messages)} old messages to save tokens..."}
+            
+            summary_prompt = "Briefly summarize this conversation in 2-3 sentences. Focus on the user's core intent, facts provided, and actions taken:\n\n"
+            for m in history_messages:
+                role = "User" if m.type == "human" else "Agent"
+                summary_prompt += f"{role}: {m.content}\n"
+                
+            try:
+                # We use the main LLM here, but in production, we can use a smaller model 
+                # (e.g., Llama-3-8B) to save even more cost on this summarization step.
+                summary_result = await self.llm.ainvoke(summary_prompt)
+                summary_text = summary_result.content
+                
+                # Clear the old database rows and save only the summary
+                chat_history.clear()
+                chat_history.add_message(SystemMessage(content=f"Previous conversation summary:\n{summary_text}"))
+                
+                # Refresh our local variable
+                history_messages = chat_history.messages
+                yield {"type": "stage", "label": "Memory Compressed Successfully!"}
+            except Exception as e:
+                logger.error(f"Memory compression failed: {e}")
+                yield {"type": "stage", "label": "Memory compression skipped (error)."}
+        
         yield {"type": "stage", "label": "Agent Planning..."}
         
         # 1. Start with our Native Tool(s)
@@ -160,7 +191,7 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
 
         for url, conn in mcp_state["connections"].items():
             try:
-                tools_from_server = await load_mcp_tools(conn["session"])
+                tools_from_server = await conn["adapter"].list_tools()
                 for t in tools_from_server:
                     if t.name in WRITE_TOOLS:
                         # Wrap write tools with Human-in-the-Loop Interrupt
@@ -200,8 +231,41 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
         else:
             logger.warning("No active MCP session tools found.")
             yield {"type": "stage", "label": "Running with Local Tools only"}
-        # 3. Create the ReAct Agent Graph with Checkpointer
-        agent_executor = create_react_agent(self.llm, tools, checkpointer=memory, prompt=self.system_prompt)
+            
+        # ==========================================
+        # LAYA TRIAGE LAYER (SYSTEM-1 ROUTING)
+        # ==========================================
+        yield {"type": "stage", "label": "Laya Triage: Classifying Intent & Filtering Tools..."}
+        triage_tools = tools # Default to all tools
+        try:
+            if LayaTriage:
+                triage = LayaTriage(state_key="message")
+                state = {"message": question}
+                decision = await triage.ainvoke(state)
+                
+                # Retrieve the intent from the dictionary
+                triage_dict = decision.get("triage", {})
+                intent = triage_dict.get("intent", "other")
+                
+                if intent == "other":
+                    # If Laya isn't sure, don't hide tools from the LLM!
+                    triage_tools = tools 
+                else:
+                    # Filter tools if intent exactly matches, else fallback
+                    triage_tools = [t for t in tools if t.name == intent or intent in t.name or t.name == "search_local_knowledge_base"]
+                    
+                if len(triage_tools) <= 1: 
+                    triage_tools = tools # fallback to all if filtering was too aggressive
+        except Exception as e:
+            logger.warning(f"Laya Triage failed, falling back to all tools: {e}")
+            
+        if len(triage_tools) < len(tools):
+            yield {"type": "stage", "label": f"Triage Result: Pruned down to {len(triage_tools)} tools for LLM"}
+        else:
+            yield {"type": "stage", "label": "Triage Result: Complex Query -> Passing all tools to LLM"}
+            
+        # 3. Create the ReAct Agent Graph with Checkpointer (Using filtered tools!)
+        agent_executor = create_react_agent(self.llm, triage_tools, checkpointer=memory, prompt=self.system_prompt)
         config = {"configurable": {"thread_id": session_id}, "recursion_limit":12}
         
         # Avoid duplicate messages in checkpointer state

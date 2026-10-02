@@ -45,7 +45,11 @@ async def mcp_connection_worker(url: str, ready_event: asyncio.Event):
     """Background task to keep the MCP session alive in its own Task context."""
     try:
         async with AsyncExitStack() as stack:
-            adapter = MCPAdapter(url)
+            if url.strip().startswith("{"):
+                config = json.loads(url)
+                adapter = MCPAdapter(config)
+            else:
+                adapter = MCPAdapter(url)
             await stack.enter_async_context(adapter)
             
             mcp_state["connections"][url] = {

@@ -61,7 +61,8 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
 3. STRICT FORBIDDEN ACTION: You are STRICTLY FORBIDDEN from calling any transaction tools UNTIL the user has explicitly replied "yes" to your preview. If you jump straight to the tool, you fail.
 4. VERIFY: After the tool is executed and approved, verify the output and synthesize a final answer.
 5. ABORTS: If a tool returns a message that the action was "rejected" or "aborted", DO NOT retry the tool. Acknowledge the cancellation and ask how else you can help.
-6. LIVE DATA: You DO have access to the internet via the `search_web` tool. If the user asks for live sports scores, weather, news, or any real-time data, you MUST use the `search_web` tool. NEVER say you don't have access to live data."""
+6. LIVE DATA: You DO have access to the internet via the `search_web` tool. If the user asks for live sports scores, weather, news, or any real-time data, you MUST use the `search_web` tool. NEVER say you don't have access to live data.
+7. SEARCH LIMIT: When using any web search tool, you are allowed a MAXIMUM of 3 searches per request. If you cannot find the answer after 3 attempts, you MUST STOP searching and politely inform the user that you could not find the information. DO NOT loop endlessly."""
         
         backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         
@@ -253,7 +254,8 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
                 domain_mapping = {
                     "subscription": ["get_subscriptions", "create_subscription", "delete_subscription", "get_alternative_plans", "get_usage_statistics", "search_public_subscription_data"],
                     "knowledge": ["search_local_knowledge_base"],
-                    "billing": ["get_subscriptions"] 
+                    "billing": ["get_subscriptions"],
+                    "search": ["tavily_web_search", "tavily_search"]
                 }
                 
                 if intent == "other" or intent not in domain_mapping:

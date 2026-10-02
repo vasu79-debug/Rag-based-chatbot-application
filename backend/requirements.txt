@@ -31,3 +31,9 @@ requests>=2.31.0
 # Database
 sqlalchemy>=2.0.0
 psycopg2-binary>=2.9.9
+
+# Added for async history and MCP support
+greenlet>=3.0.0
+sqlalchemy[asyncio]>=2.0.0
+mcp>=1.0.0
+langchain-mcp-adapters>=0.1.0

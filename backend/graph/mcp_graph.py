@@ -92,9 +92,12 @@ User request: {state['question']}"""
             raw_result = await get_subs_tool.ainvoke({})
             logger.info(f"MCP Tool returned: {raw_result}")
             try:
-                # LangChain MCP tools return a string representation of a list of blocks
+                # LangChain MCP tools return a string representation of a list of blocks, or a list directly
                 import ast
-                if isinstance(raw_result, str) and raw_result.startswith("["):
+                if isinstance(raw_result, list):
+                    json_str = raw_result[0].get("text", "{}")
+                    result_json = json.loads(json_str)
+                elif isinstance(raw_result, str) and raw_result.startswith("["):
                     parsed_list = ast.literal_eval(raw_result)
                     json_str = parsed_list[0].get("text", "{}")
                     result_json = json.loads(json_str)

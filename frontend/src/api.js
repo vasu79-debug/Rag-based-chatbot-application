@@ -3,7 +3,8 @@
  * Connects to the standalone FastAPI backend.
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL || "/api";
+const BASE_PATH = import.meta.env.BASE_URL === "/" ? "" : import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE_URL = import.meta.env.VITE_API_URL || `${BASE_PATH}/api`;
 
 export async function fetchHealth() {
   const res = await fetch(`${BASE_URL}/health`);

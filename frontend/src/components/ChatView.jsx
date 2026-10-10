@@ -74,6 +74,12 @@ export default function ChatView({ messages, onSendMessage, onResume, loading, c
                           The agent wants to execute <strong>{data.tool}</strong>. Please review the details below:
                         </p>
                         
+                        {payload.image && (
+                          <div style={{ marginBottom: "12px", textAlign: "center" }}>
+                            <img src={`data:image/jpeg;base64,${payload.image}`} alt="Browser Action Screen" style={{ maxWidth: '100%', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)' }} />
+                          </div>
+                        )}
+
                         <div style={{ marginBottom: "12px", borderRadius: "6px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
                           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", background: "rgba(0,0,0,0.2)" }}>
                             <tbody>
@@ -165,17 +171,24 @@ export default function ChatView({ messages, onSendMessage, onResume, loading, c
         )}
 
         {loading && (
-          <div className="chatgpt-status-row">
-            <span className="chatgpt-status-icon">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="2" y1="12" x2="22" y2="12"></line>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-              </svg>
-            </span>
-            <span className="chatgpt-status-text">
-              {currentStage?.label || "Analyzing Subscriptions..."}
-            </span>
+          <div className="chatgpt-status-row" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <span className="chatgpt-status-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="2" y1="12" x2="22" y2="12"></line>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+              </span>
+              <span className="chatgpt-status-text">
+                {currentStage?.label || "Analyzing Subscriptions..."}
+              </span>
+            </div>
+            {currentStage?.image && (
+              <div style={{ marginTop: "12px", alignSelf: "center", width: "100%", maxWidth: "600px" }}>
+                <img src={`data:image/jpeg;base64,${currentStage.image}`} alt="Live Browser View" style={{ width: '100%', borderRadius: '8px', border: '1px solid #333' }} />
+              </div>
+            )}
           </div>
         )}
 

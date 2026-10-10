@@ -216,3 +216,13 @@ export async function resumeChat(sessionId, action, onChunk) {
     }
   }
 }
+
+export async function killAgent() {
+  const res = await fetch(`${BASE_URL}/kill`, {
+    method: "POST",
+  });
+  if (!res.ok) {
+    throw new Error("Failed to trigger Emergency Stop");
+  }
+  return res.json();
+}

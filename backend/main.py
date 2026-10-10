@@ -38,7 +38,11 @@ def load_mcp_servers():
     if os.path.exists(MCP_SERVERS_FILE):
         with open(MCP_SERVERS_FILE, "r") as f:
             return json.load(f)
-    return ["http://127.0.0.1:8001/sse"] # default
+    return [
+        "http://127.0.0.1:8001/sse", # Subscriptions
+        "http://127.0.0.1:8002/sse", # Weather
+        "http://127.0.0.1:8003/sse"  # GitHub
+    ]
 
 
 async def mcp_connection_worker(url: str, ready_event: asyncio.Event):
@@ -471,6 +475,17 @@ async def delete_document(doc_id: str):
         )
     return {"status": "deleted", "doc_id": doc_id}
 
+
+from browser_tools import close_browser
+
+@app.post("/api/kill")
+async def kill_agent():
+    """
+    Emergency Kill Switch: Force-closes the Playwright browser immediately.
+    This halts the agent's ability to act.
+    """
+    await close_browser()
+    return {"status": "success", "message": "Emergency Stop: Browser closed."}
 
 if __name__ == "__main__":
     import uvicorn

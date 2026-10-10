@@ -39,28 +39,32 @@ def get_chat_model(temperature: float = None, max_tokens: int = 1500) -> BaseCha
 
     elif provider == "openai":
         from langchain_openai import ChatOpenAI
-        primary_model = settings.AI_DEFAULT_MODEL or "gpt-4o-mini"
+        
+        primary_model = settings.AI_DEFAULT_MODEL or "gpt-4o"
         main_llm = ChatOpenAI(
             model=primary_model,
             openai_api_key=settings.OPENAI_API_KEY,
             temperature=temp,
             max_tokens=max_tokens,
         )
-        return main_llm.with_fallbacks([
-            ChatOpenAI(
-                model="gpt-3.5-turbo",
-                openai_api_key=settings.OPENAI_API_KEY,
-                temperature=temp,
-                max_tokens=max_tokens,
-            )
-        ])
-
+        return main_llm
+        
     elif provider == "openrouter":
         from langchain_openai import ChatOpenAI
         return ChatOpenAI(
             model=settings.AI_DEFAULT_MODEL,
             openai_api_key=settings.OPENROUTER_API_KEY,
             openai_api_base="https://openrouter.ai/api/v1",
+            temperature=temp,
+            max_tokens=max_tokens,
+        )
+        
+    elif provider == "deepseek":
+        from langchain_openai import ChatOpenAI
+        return ChatOpenAI(
+            model=settings.AI_DEFAULT_MODEL or "deepseek-flash",
+            openai_api_key=settings.DEEPSEEK_API_KEY,
+            openai_api_base="https://api.deepseek.com/v1",
             temperature=temp,
             max_tokens=max_tokens,
         )

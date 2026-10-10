@@ -18,6 +18,7 @@ g = Github(GITHUB_TOKEN)
 @mcp.tool()
 def create_github_issue(repo_name: str, title: str, body: str) -> str:
     """Create a new issue in a GitHub repository.
+    [capability: github] [operation: write]
     repo_name MUST be in the exact format 'owner/repo' (e.g. 'vasu79-debug/Rag-based-chatbot-application').
     Use this tool when the user asks to report a bug or create an issue.
     """

@@ -18,7 +18,9 @@ except Exception as e:
 
 @mcp.tool()
 def get_subscriptions() -> str:
-    """Retrieve all current user subscriptions."""
+    """Retrieve all current user subscriptions.
+    [capability: subscription] [operation: read]
+    """
     if not db_available:
         return json.dumps({"error": "Database not available."})
     
@@ -49,7 +51,9 @@ def create_subscription(
     category: str = "", 
     notes: str = ""
 ) -> str:
-    """Create a new subscription."""
+    """Create a new subscription.
+    [capability: subscription] [operation: write]
+    """
     if not db_available:
         return json.dumps({"error": "Database not available."})
     
@@ -76,7 +80,9 @@ def create_subscription(
 
 @mcp.tool()
 def delete_subscription(service_name: str) -> str:
-    """Cancel or delete a subscription by its service name."""
+    """Cancel or delete a subscription by its service name.
+    [capability: subscription] [operation: write]
+    """
     if not db_available:
         return json.dumps({"error": "Database not available."})
     
@@ -93,7 +99,9 @@ def delete_subscription(service_name: str) -> str:
 
 @mcp.tool()
 def get_alternative_plans(service_name: str) -> str:
-    """Retrieve cheaper alternative plans or competitors for a given subscription service to save money."""
+    """Retrieve cheaper alternative plans or competitors for a given subscription service to save money.
+    [capability: subscription] [operation: read]
+    """
     service = service_name.lower()
     
     alternatives = {
@@ -122,7 +130,9 @@ def get_alternative_plans(service_name: str) -> str:
 
 @mcp.tool()
 def get_usage_statistics(service_name: str) -> str:
-    """Check how often the user has actually used a subscription service in the last 30 days."""
+    """Check how often the user has actually used a subscription service in the last 30 days.
+    [capability: subscription] [operation: read]
+    """
     service = service_name.lower()
     
     # Mock data showing high, medium, and low usage
@@ -139,7 +149,9 @@ def get_usage_statistics(service_name: str) -> str:
 
 @mcp.tool()
 def search_public_subscription_data(query: str) -> str:
-    """Use this tool to search the live internet for public pricing, plans, and features of a subscription service."""
+    """Use this tool to search the live internet for public pricing, plans, and features of a subscription service.
+    [capability: subscription] [operation: read]
+    """
     try:
         # pyrefly: ignore [missing-import]
         from ddgs import DDGS

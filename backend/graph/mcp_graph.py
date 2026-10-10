@@ -12,9 +12,11 @@ from langgraph.types import interrupt, Command
 
 
 try:
-    from laya.integrations.langchain import LayaTriage
+    import laya
+    laya_runner = laya.load("convaiinnovations/laya")
 except ImportError:
-    LayaTriage = None
+    laya = None
+    laya_runner = None
 from graph.llm_factory import get_chat_model
 from config import settings
 from rag.hybrid_retriever import hybrid_retriever
@@ -61,8 +63,10 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
 3. STRICT FORBIDDEN ACTION: You are STRICTLY FORBIDDEN from calling any transaction tools UNTIL the user has explicitly replied "yes" to your preview. If you jump straight to the tool, you fail.
 4. VERIFY: After the tool is executed and approved, verify the output and synthesize a final answer.
 5. ABORTS: If a tool returns a message that the action was "rejected" or "aborted", DO NOT retry the tool. Acknowledge the cancellation and ask how else you can help.
-6. LIVE DATA: You DO have access to the internet via the `search_web` tool. If the user asks for live sports scores, weather, news, or any real-time data, you MUST use the `search_web` tool. NEVER say you don't have access to live data.
-7. SEARCH LIMIT: When using any web search tool, you are allowed a MAXIMUM of 3 searches per request. If you cannot find the answer after 3 attempts, you MUST STOP searching and politely inform the user that you could not find the information. DO NOT loop endlessly."""
+6. LIVE DATA: You DO have access to the internet via the `tavily_search` tool. If the user asks for live sports scores, weather, news, or any real-time data, you MUST use the `tavily_search` tool. NEVER say you don't have access to live data.
+7. READ-ONLY EXCEPTION: You DO NOT need to ask for permission to use read-only tools (like getting weather, viewing subscriptions, or checking alternative plans). Only ask for permission for WRITE actions (create, delete, modify).
+8. BROWSER CAPABILITY: You HAVE full access to a web browser using tools like `navigate`, `click`, `type_text`, and `get_page_content`. NEVER tell the user that you cannot browse the web or log into websites. If you need them to log in, simply navigate to the page and use `request_human_action`.
+9. SEARCH LIMIT: When using any web search tool, you are allowed a MAXIMUM of 3 searches per request. If you cannot find the answer after 3 attempts, you MUST STOP searching and politely inform the user that you could not find the information. DO NOT loop endlessly."""
         
         backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         
@@ -114,25 +118,80 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
             except Exception:
                 pass
                 
+        # ADD BROWSER TOOLS
+        from browser_tools import BROWSER_TOOLS
+        @tool
+        async def request_human_action(reason: str, details: str = "") -> str:
+            """
+            [capability: browser] [operation: read]
+            Call this tool when you encounter a Login page, OTP, or CAPTCHA.
+            It will pause execution and wait for human approval.
+            """
+            response = interrupt({
+                "type": "approval_request",
+                "tool": "request_human_action",
+                "args": {"reason": reason, "details": details}
+            })
+            if response == "approved":
+                from browser_tools import get_page_content
+                new_content = await get_page_content.ainvoke({})
+                return f"Human has successfully completed the action! Here is the new screen content after they logged in:\n\n{new_content}"
+            else:
+                return "Human rejected or aborted. SYSTEM DIRECTIVE: Stop the task."
+
+        tools.extend(BROWSER_TOOLS)
+        tools.append(request_human_action)
+                
         agent_executor = create_react_agent(self.llm, tools, checkpointer=memory, prompt=self.system_prompt)
         config = {"configurable": {"thread_id": session_id}, "recursion_limit": 12}
         
         final_message = ""
         try:
-            # We resume the graph with the user's string ("approved" or "rejected")
-            async for chunk in agent_executor.astream(Command(resume=approval_status), config=config):
+            state = agent_executor.get_state(config)
+            
+            # Map approval status to all pending interrupted tasks
+            resume_val = {}
+            for task in state.tasks:
+                if task.interrupts:
+                    for i in task.interrupts:
+                        resume_val[i.id] = approval_status
+            
+            # Fallback for single interrupt format
+            if not resume_val:
+                resume_val = approval_status
+                
+            # We resume the graph with the correct Command format
+            async for chunk in agent_executor.astream(Command(resume=resume_val), config=config):
                 if "agent" in chunk:
                     message = chunk["agent"]["messages"][0]
                     if message.tool_calls:
                         for tc in message.tool_calls:
-                            yield {"type": "stage", "label": f"Selecting Tool: {tc['name']}"}
+                            logger.info(f"LLM Calling Tool: {tc['name']} with args: {tc['args']}")
+                            from browser_tools import get_latest_screenshot_base64
+                            b64_img = await get_latest_screenshot_base64()
+                            if b64_img:
+                                yield {"type": "stage", "label": f"Selecting Tool: {tc['name']}", "image": b64_img}
+                            else:
+                                yield {"type": "stage", "label": f"Selecting Tool: {tc['name']}"}
                     else:
                         final_message = message.content
+                        if hasattr(message, "response_metadata") and "token_usage" in message.response_metadata:
+                            logger.info(f"Token Usage for turn: {message.response_metadata['token_usage']}")
                 elif "tools" in chunk:
-                    yield {"type": "stage", "label": "Observing Tool Result..."}
+                    from browser_tools import get_latest_screenshot_base64
+                    b64_img = await get_latest_screenshot_base64()
+                    if b64_img:
+                        yield {"type": "stage", "label": "Observing Tool Result...", "image": b64_img}
+                    else:
+                        yield {"type": "stage", "label": "Observing Tool Result..."}
                 elif "__interrupt__" in chunk:
                     interrupt_data = chunk["__interrupt__"][0].value
-                    yield {"type": "approval_needed", "data": interrupt_data}
+                    from browser_tools import get_latest_screenshot_base64
+                    b64_img = await get_latest_screenshot_base64()
+                    if b64_img:
+                        yield {"type": "approval_needed", "data": interrupt_data, "image": b64_img}
+                    else:
+                        yield {"type": "approval_needed", "data": interrupt_data}
                     return
         except Exception as e:
             logger.error(f"Graph resume error: {e}")
@@ -234,49 +293,179 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
             yield {"type": "stage", "label": "Running with Local Tools only"}
             
         # ==========================================
-        # LAYA TRIAGE LAYER (SYSTEM-1 ROUTING)
+        # ADD BROWSER TOOLS
         # ==========================================
-        yield {"type": "stage", "label": "Laya Triage: Classifying Intent & Filtering Tools..."}
+        from browser_tools import BROWSER_TOOLS
+        
+        @tool
+        async def request_human_action(reason: str, details: str = "") -> str:
+            """
+            [capability: browser] [operation: read]
+            Call this tool when you encounter a Login page, OTP, or CAPTCHA.
+            It will pause execution and wait for human approval.
+            """
+            response = interrupt({
+                "type": "approval_request",
+                "tool": "request_human_action",
+                "args": {"reason": reason, "details": details}
+            })
+            if response == "approved":
+                from browser_tools import get_page_content
+                # Immediately fetch the new DOM so the LLM doesn't have to!
+                new_content = await get_page_content.ainvoke({})
+                return f"Human has successfully completed the action! Here is the new screen content after they logged in:\n\n{new_content}"
+            else:
+                return "Human rejected or aborted. SYSTEM DIRECTIVE: Stop the task."
+
+        tools.extend(BROWSER_TOOLS)
+        tools.append(request_human_action)
+        
+        # ==========================================
+        # PARSE DISTRIBUTED METADATA
+        # ==========================================
+        import re
+        tool_metadata_map = {}
+        for t in tools:
+            # Default metadata
+            meta = {"capability": "other", "operation": "read"}
+            
+            # Hardcoded fallbacks for existing tools without tags
+            if "tavily" in t.name: meta["capability"] = "search"
+            elif "knowledge" in t.name: meta["capability"] = "knowledge"
+            elif t.name in ["navigate", "click", "type_text", "get_page_content"]: meta["capability"] = "browser"
+            
+            # Parse [capability: X] [operation: Y] from description
+            if t.description:
+                cap_match = re.search(r"\[capability:\s*([^\]]+)\]", t.description)
+                if cap_match: meta["capability"] = cap_match.group(1).strip()
+                
+                op_match = re.search(r"\[operation:\s*([^\]]+)\]", t.description)
+                if op_match: meta["operation"] = op_match.group(1).strip()
+                
+                desc_match = re.search(r"\[intent_desc:\s*([^\]]+)\]", t.description)
+                if desc_match: meta["intent_desc"] = desc_match.group(1).strip()
+                
+            tool_metadata_map[t.name] = meta
+
+
+        # ==========================================
+        # LAYA SYSTEM-1 (DYNAMIC INTENT GENERATION)
+        # ==========================================
+        yield {"type": "stage", "label": "Laya System-1: Probabilistic Capability Routing..."}
         triage_tools = tools # Default to all tools
         try:
-            if LayaTriage:
-                triage = LayaTriage(state_key="message")
-                state = {"message": question}
-                decision = await triage.ainvoke(state)
-                
-                # Retrieve the intent from the dictionary
-                triage_dict = decision.get("triage", {})
-                intent = triage_dict.get("intent", "other")
-                
-                # ==========================================
-                # DOMAIN MAPPING (ChatGPT Architecture)
-                # ==========================================
-                domain_mapping = {
-                    "subscription": ["get_subscriptions", "create_subscription", "delete_subscription", "get_alternative_plans", "get_usage_statistics", "search_public_subscription_data"],
-                    "knowledge": ["search_local_knowledge_base"],
-                    "billing": ["get_subscriptions"],
-                    "search": ["tavily_web_search", "tavily_search"]
+            if laya and laya_runner:
+                # 1. Dynamically build Laya Criteria based on currently connected tools
+                dynamic_criteria = {}
+                # Provide strong fallback descriptions for core domains
+                core_descriptions = {
+                    "subscription": "Questions about subscriptions, plans, or account management",
+                    "knowledge": "Questions requiring local knowledge-base or document information",
+                    "search": "Requests requiring live web search, weather, news, or general real-time facts",
+                    "browser": "Requests requiring specific browser interaction or UI navigation",
+                    "github": "Requests to interact with GitHub repositories, code, or creating issues"
                 }
                 
-                if intent == "other" or intent not in domain_mapping:
-                    # If Laya isn't sure, fallback to all tools so LLM can decide
-                    triage_tools = tools 
-                else:
-                    # Filter tools EXACTLY as per the mapped domain
-                    mapped_tool_names = domain_mapping[intent]
-                    triage_tools = [t for t in tools if t.name in mapped_tool_names]
+                for t in tools:
+                    t_meta = tool_metadata_map.get(t.name, {})
+                    cap = t_meta.get("capability")
+                    if cap and cap not in dynamic_criteria:
+                        # Use custom intent_desc if parsed, else use core fallback, else generic
+                        desc = t_meta.get("intent_desc")
+                        if not desc:
+                            desc = core_descriptions.get(cap, f"Requests relating to {cap}")
+                        dynamic_criteria[cap] = desc
+                        
+                dynamic_criteria["other"] = "Anything else"
+                
+                # 2. Ask System-1 independent noul questions for EVERY capability (Multi-Intent Support)
+                questions = {}
+                for cap, desc in dynamic_criteria.items():
+                    if cap == "other": continue
+                    questions[f"needs_{cap}"] = {
+                        "type": "noul",
+                        "instructions": f"Does the user's request require interacting with {cap}? ({desc})"
+                    }
+                
+                questions["needs_browser"] = {
+                    "type": "noul",
+                    "instructions": "Does this request explicitly require navigating, logging in, or interacting with a website via a browser? (Examples: 'go to spotify', 'open amazon', 'visit website')"
+                }
+                questions["needs_write"] = {
+                    "type": "noul",
+                    "instructions": "Does this request ask to modify, create, delete, or write data?"
+                }
+                
+                decision_result = await asyncio.to_thread(
+                    laya.decide,
+                    laya_runner,
+                    state={"message": question},
+                    questions=questions,
+                    return_details=True
+                )
+                
+                ans = decision_result.answers
+                browser_prob = ans["needs_browser"]["noul"]
+                write_prob = ans["needs_write"]["noul"]
+                
+                # Calculate the highest scored intent just for logging/fallback
+                highest_intent_prob = max([ans[k]["noul"] for k in ans if k.startswith("needs_") and k not in ["needs_browser", "needs_write"]], default=0.0)
+                
+                logger.info(f"System-1 Multi-Intent Triage: Top Intent={highest_intent_prob:.2f}, browser={browser_prob:.2f}, write={write_prob:.2f}")
+
+                # 3. DYNAMIC PYTHON POLICY (Using Distributed Tool Metadata)
+                allowed_tools = []
+                
+                for t in tools:
+                    t_meta = tool_metadata_map.get(t.name, {})
+                    cap = t_meta.get("capability", "other")
+                    op = t_meta.get("operation", "read")
                     
+                    is_allowed = False
+                    
+                    # 1. Multi-Intent Match: Allow any tool whose specific capability scored high
+                    cap_prob = 0.0
+                    if cap != "other" and f"needs_{cap}" in ans:
+                        cap_prob = ans[f"needs_{cap}"]["noul"]
+                        if cap_prob >= 0.35:
+                            is_allowed = True
+                    
+                    # 0. Follow-up Context Fallback
+                    # If NO intents scored highly (extremely confused, short follow up like "yes"), 
+                    # allow ALL tools so the LLM doesn't lose context of the workflow it is in.
+                    if highest_intent_prob < 0.35:
+                        is_allowed = True
+                    
+                    # 2. Browser override
+                    if cap == "browser" and browser_prob >= 0.4:
+                        is_allowed = True
+                        
+                    # 3. Search / Knowledge Fallback (always keep them available for basic queries)
+                    if cap in ["knowledge", "search"]:
+                        is_allowed = True
+                        
+                    # 4. Security Check (Block write tools if highly unlikely to need write access)
+                    if op == "write":
+                        if write_prob < 0.4 and highest_intent_prob >= 0.35:
+                            # Only block writes if we are highly confident this is a new, read-only request
+                            is_allowed = False
+                        
+                    if is_allowed:
+                        allowed_tools.append(t)
+                        
+                triage_tools = allowed_tools
+                
                 if len(triage_tools) == 0: 
-                    triage_tools = tools # Safety fallback
+                    triage_tools = tools # Absolute safety fallback
         except Exception as e:
-            logger.warning(f"Laya Triage failed, falling back to all tools: {e}")
+            logger.warning(f"Laya System-1 failed, falling back to all tools: {e}")
             
         if len(triage_tools) < len(tools):
             yield {"type": "stage", "label": f"Triage Result: Pruned down to {len(triage_tools)} tools for LLM"}
         else:
             yield {"type": "stage", "label": "Triage Result: Complex Query -> Passing all tools to LLM"}
             
-        # 3. Create the ReAct Agent Graph with Checkpointer (Using filtered tools!)
+        # 3. Create the ReAct Agent Graph with Checkpointer
         agent_executor = create_react_agent(self.llm, triage_tools, checkpointer=memory, prompt=self.system_prompt)
         config = {"configurable": {"thread_id": session_id}, "recursion_limit":12}
         
@@ -300,14 +489,32 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
                     message = chunk["agent"]["messages"][0]
                     if message.tool_calls:
                         for tc in message.tool_calls:
-                            yield {"type": "stage", "label": f"Selecting Tool: {tc['name']}"}
+                            logger.info(f"LLM Calling Tool: {tc['name']} with args: {tc['args']}")
+                            from browser_tools import get_latest_screenshot_base64
+                            b64_img = await get_latest_screenshot_base64()
+                            if b64_img:
+                                yield {"type": "stage", "label": f"Selecting Tool: {tc['name']}", "image": b64_img}
+                            else:
+                                yield {"type": "stage", "label": f"Selecting Tool: {tc['name']}"}
                     else:
                         final_message = message.content
+                        if hasattr(message, "response_metadata") and "token_usage" in message.response_metadata:
+                            logger.info(f"Token Usage for turn: {message.response_metadata['token_usage']}")
                 elif "tools" in chunk:
-                    yield {"type": "stage", "label": "Observing Tool Result..."}
+                    from browser_tools import get_latest_screenshot_base64
+                    b64_img = await get_latest_screenshot_base64()
+                    if b64_img:
+                        yield {"type": "stage", "label": "Observing Tool Result...", "image": b64_img}
+                    else:
+                        yield {"type": "stage", "label": "Observing Tool Result..."}
                 elif "__interrupt__" in chunk:
                     interrupt_data = chunk["__interrupt__"][0].value
-                    yield {"type": "approval_needed", "data": interrupt_data}
+                    from browser_tools import get_latest_screenshot_base64
+                    b64_img = await get_latest_screenshot_base64()
+                    if b64_img:
+                        yield {"type": "approval_needed", "data": interrupt_data, "image": b64_img}
+                    else:
+                        yield {"type": "approval_needed", "data": interrupt_data}
                     return # Stop execution here until resumed!
                     
         except Exception as e:

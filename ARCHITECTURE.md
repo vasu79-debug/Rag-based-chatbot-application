@@ -1,48 +1,30 @@
-# Demo 7A Architecture: Transactional AI with Human-in-the-Loop
+# Demo 7B Architecture: Browser Agent with Transparency
 
-This document outlines the architectural patterns used to achieve safe, transactional API executions using LangGraph, React, and MCP.
+This document outlines the architectural patterns used to achieve safe and observable web browsing using LangGraph and Playwright.
 
-## 1. The Core Data Flow (HITL)
+## 1. The Core Data Flow
 
-When a user requests a sensitive action (e.g., modifying database records), the system enforces a strict boundary between "planning" and "execution".
+When a user requests a web-based action (e.g., "Go to Hacker News and read the top story"), the system uses a ReAct agent to orchestrate a browser.
 
-1. **User Request:** "Cancel my Netflix subscription."
-2. **LLM Planning:** The ReAct agent identifies the need to call `delete_subscription`. It formats a conversational preview and yields text to the user: "Are you sure you want to cancel?"
-3. **User Confirmation:** The user types "Yes".
-4. **Tool Selection:** The agent attempts to invoke the `delete_subscription` tool.
-5. **The Interceptor (`mcp_graph.py`):**
-   - The graph dynamically checks the requested tool against `settings.write_tools_list`.
-   - If a match is found, the graph calls `interrupt()`.
-   - The graph execution is **suspended** and its exact state is saved into the LangGraph `MemorySaver` checkpointer.
-   - The backend yields a special `approval_needed` event to the frontend over SSE.
-6. **The Approval UI (`ChatView.jsx`):**
-   - The React frontend intercepts the `approval_needed` payload.
-   - It renders a hard boundary UI (Action Approval Box) displaying the Target Tool and its JSON Arguments.
-   - The UI provides `[Approve]` and `[Reject]` buttons.
-7. **The Resume API (`main.py`):**
-   - Clicking a button triggers a POST request to `/api/chat/resume`.
-   - The backend calls `aresume(session_id, action)`.
-   - LangGraph retrieves the paused state from the checkpointer and injects the user's action.
-8. **Execution & Verification:** 
-   - If "approved", the graph executes the MCP tool, observes the database result, and synthesizes a final verified answer.
-   - If "rejected", the graph gracefully aborts the tool execution.
+1. **User Request:** The user submits a natural language request.
+2. **Tool Selection:** The LangGraph ReAct agent determines which browser action to take (e.g., `navigate(url)`).
+3. **Browser Automation:** The agent calls a tool in `browser_tools.py`. Playwright executes the action in a **headful** (visible) browser window.
+4. **Evidence Collection:** Before and after any interaction (`click` or `type_text`), Playwright takes a screenshot of the DOM state and saves it to the `evidence/` directory.
+5. **Auditing:** Every action is securely logged to `audit.log`.
+6. **Observation:** The result (or the extracted text) is returned to the agent, which then formulates the next step or the final answer.
 
-## 2. Dynamic Tool Interception (The Wrapper)
+## 2. Playwright Integration (`browser_tools.py`)
 
-Instead of hardcoding intercepts into the MCP server (which is decoupled), the graph dynamically wraps incoming MCP tools with an interrupt layer.
+Instead of making silent API calls, the Browser Agent physically controls a Chromium instance. 
 
-```python
-if tool.name in WRITE_TOOLS:
-    async def wrapped_func(**kwargs):
-        response = interrupt({"type": "approval_request", "tool": tool.name, "args": kwargs})
-        if response == "approved":
-            return await tool.ainvoke(kwargs)
-        else:
-            return "Rejected by user."
-```
-*Why this is powerful:* The agent can connect to ANY 3rd party MCP server (e.g., GitHub, Jira, Slack). As long as the admin lists the sensitive tool names in `config.py` (`WRITE_TOOLS="create_issue,send_message"`), the system will automatically protect them with HITL without modifying any external code.
+Key architectural decisions:
+- **Headful Mode:** `headless=False` ensures the human user can always see what the agent is doing. This prevents silent background manipulation.
+- **Global State:** A single `_page` and `_browser` instance is maintained globally. This allows the agent to navigate across multiple steps without losing context or session data.
 
-## 3. Configuration-Driven Agent Persona
+## 3. Human-in-the-Loop & Security Controls
 
-The entire agent persona is abstracted into `backend/config.py`.
-By altering `ASSISTANT_NAME`, `ASSISTANT_ROLE_DESCRIPTION`, and `WRITE_TOOLS`, this architecture can instantly pivot from a Finance Assistant to an IT Helpdesk or a Marketing Strategist, requiring zero code changes in `main.py` or the React frontend.
+Web agents pose a high security risk. This architecture mitigates risks through:
+
+- **Visibility:** By forcing headful mode, the user can monitor the agent's progress.
+- **Credential Safety:** The agent is instructed via system prompt NOT to type passwords. If a login is required, it can wait while the user manually types their password into the visible browser window.
+- **Emergency Kill Switch:** `main.py` exposes a `POST /api/kill` endpoint. If the user notices the agent doing something unexpected, clicking "Stop" in the UI instantly tears down the Playwright browser context, stopping the agent dead in its tracks.

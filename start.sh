@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Standalone startup script for Demo 7a (Transactional Agent)
+# Standalone startup script for Demo 7b (Browser Agent)
 set -e
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "=========================================================="
-echo "⚡ Starting Demo 7a: Transactional Agent"
+echo "⚡ Starting Demo 7b: Browser Agent"
 echo "=========================================================="
 
 # 1. Start Python FastAPI Backend (Port 8000)
@@ -29,7 +29,7 @@ npm run dev &
 FRONTEND_PID=$!
 
 echo ""
-echo "🚀 Demo 7a is running!"
+echo "🚀 Demo 7b is running!"
 echo "👉 Open Frontend: http://localhost:5177"
 echo "👉 API Swagger Docs: http://localhost:8000/docs"
 echo "Press Ctrl+C to stop both servers."

@@ -1,46 +1,37 @@
-# Demo 7A: API-Based Transactional Agent (Human-in-the-Loop)
+# Demo 7B: Browser Agent
 
-This project demonstrates an advanced, production-grade **Transactional AI Agent** with **Human-in-the-Loop (HITL)** capabilities. It builds upon the decoupled Multi-Server MCP architecture and introduces strict safety mechanisms for executing sensitive operations (Write actions).
+This project demonstrates an advanced **Browser AI Agent** using **Playwright**. It provides the agent with tools to navigate the web, click elements, type text, and read page content, while keeping a human in the loop for sensitive actions (like typing passwords).
 
-## Core Philosophy: Preview, Approve, Verify
-Whenever this agent needs to modify real business data (e.g., adding a subscription, deleting an account, or creating a Jira ticket), it strictly adheres to a three-part discipline:
-1. **Preview:** The LLM gathers required arguments and presents a formatted Markdown table to the user for visual confirmation.
-2. **Approve:** The LangGraph execution pauses via `interrupt()`, pushing an `approval_needed` event to the React UI. A hard boundary prevents execution until the user clicks `[Approve]`.
-3. **Verify:** After execution resumes, the agent checks the return values from the MCP tool and synthesizes a final confirmation message.
+## Core Philosophy: Transparency and Auditing
+When this agent navigates the web on your behalf, it adheres to strict observability rules:
+1. **Headful Browser:** The Playwright browser is launched in non-headless mode, so you can watch exactly what the agent is doing in real-time.
+2. **Audit Logging:** Every action (Navigate, Click, Type, Extract) is logged to an `audit.log` file with timestamps.
+3. **Evidence Collection:** Before and after every interaction (click or type), the agent automatically takes a screenshot and saves it to the `evidence/` directory.
 
 ## Features
-- **Dynamic Human-in-the-Loop (HITL):** Configurable `WRITE_TOOLS` list in `config.py`. Any MCP tool matching a name in this list will automatically trigger a UI breakpoint.
-- **Stateful Graph Execution:** Uses LangGraph's Checkpointer (`MemorySaver`) to persist the exact state of the agent across HTTP boundaries during approval pauses.
-- **Multi-Server MCP Orchestrator:** Connect an infinite number of external MCP tool servers via the Admin Panel. The agent inherits all tools dynamically.
-- **Agentic Fallback:** If MCP servers disconnect, the agent gracefully degrades to Native RAG tools without crashing.
+- **Web Navigation & Interaction:** The agent can browse websites, click on links, and type into input fields.
+- **Evidence Retention:** Screenshots are taken at every step to ensure a clear trail of what the agent saw and did.
+- **Human-in-the-Loop (HITL) for Secrets:** The agent is explicitly instructed not to type passwords. Instead, it pauses and allows the human user to take over the browser window to enter sensitive credentials.
 
 ## Setup Instructions
 
-### 1. Start the External MCP Server(s)
-To provide the agent with database tools (like `delete_subscription`):
-```bash
-cd backend
-python mcp_server.py
-```
-*(Runs on port 8001)*
-
-### 2. Start the FastAPI Backend
+### 1. Start the FastAPI Backend
 ```bash
 cd backend
 python main.py
 ```
 *(Runs on port 8000)*
 
-### 3. Start the React Frontend
+### 2. Start the React Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-## How to Test HITL
-1. Open the UI and connect the MCP Server in the Admin Panel (`http://127.0.0.1:8001/sse`).
-2. Ask the Chatbot: `"Cancel my Netflix subscription"`
-3. The chatbot will ask you to confirm. Say `"yes"`.
-4. The backend Graph will pause, and the UI will show an Action Approval box.
-5. Click **Approve** to resume the graph and execute the database deletion!
+## How to Test
+1. Open the UI.
+2. Ask the Chatbot: `"Go to hacker news and read the top headline."`
+3. The backend will launch a visible Chromium browser.
+4. Watch as the agent navigates, clicks, and extracts information.
+5. Check the `backend/evidence/` directory for screenshot trails and `backend/audit.log` for action logs!

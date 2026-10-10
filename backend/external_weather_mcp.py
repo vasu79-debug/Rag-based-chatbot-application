@@ -6,7 +6,9 @@ mcp = FastMCP("Free Weather Server")
 
 @mcp.tool()
 def get_live_weather(city: str) -> str:
-    """Use this tool to get the real live weather for any city in the world."""
+    """Use this tool to get the real live weather for any city in the world.
+    [capability: search] [operation: read]
+    """
     try:
         # Hitting a real, free, public API that requires zero authentication!
         response = httpx.get(f"https://wttr.in/{city}?format=3")

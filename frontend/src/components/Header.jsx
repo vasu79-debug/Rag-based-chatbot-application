@@ -1,7 +1,17 @@
 import React from "react";
+import { killAgent } from "../api";
 
 export default function Header({ activeTab, onNavigate, onNewChat, healthData }) {
   const isAdmin = activeTab === "admin";
+
+  const handleKill = async () => {
+    try {
+      await killAgent();
+      alert("Emergency Stop Triggered: Browser closed and agent halted.");
+    } catch (e) {
+      alert("Error triggering Emergency Stop: " + e.message);
+    }
+  };
 
   return (
     <header className="app-header">
@@ -33,6 +43,17 @@ export default function Header({ activeTab, onNavigate, onNewChat, healthData })
       </div>
 
       <div className="header-actions">
+        {!isAdmin && (
+          <button
+            onClick={handleKill}
+            className="tab-btn"
+            title="Immediately stop the agent and close browser"
+            style={{ backgroundColor: "#dc2626", color: "white", border: "1px solid #b91c1c", fontWeight: "bold" }}
+          >
+            ⏹ Emergency Stop
+          </button>
+        )}
+
         {isAdmin ? (
           <button
             onClick={() => onNavigate("/")}

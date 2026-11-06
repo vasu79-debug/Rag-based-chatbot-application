@@ -1,12 +1,12 @@
 import React from "react";
 import { killAgent } from "../api";
 
-export default function Header({ activeTab, onNavigate, onNewChat, healthData }) {
+export default function Header({ activeTab, onNavigate, onNewChat, healthData, sessionId }) {
   const isAdmin = activeTab === "admin";
 
   const handleKill = async () => {
     try {
-      await killAgent();
+      await killAgent(sessionId);
       alert("Emergency Stop Triggered: Browser closed and agent halted.");
     } catch (e) {
       alert("Error triggering Emergency Stop: " + e.message);

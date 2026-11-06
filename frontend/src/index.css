@@ -225,6 +225,192 @@ body {
   padding: 24px;
 }
 
+/* Inline "sandbox window" - opens inside the chat transcript itself while
+   the agent is working, the same way ChatGPT's agent mode shows its browser
+   pane as part of the conversation rather than a separate fixed column. */
+.inline-sandbox {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.inline-sandbox-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-surface-elevated);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sandbox-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--text-muted);
+}
+
+.sandbox-dot.live {
+  background: var(--danger-red);
+  box-shadow: 0 0 6px var(--danger-red);
+  animation: sandbox-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes sandbox-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.inline-sandbox-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.inline-sandbox-url {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inline-sandbox-expand {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.inline-sandbox-expand:hover {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+.inline-sandbox-stop {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: var(--danger-red);
+  color: #fff;
+  border: 1px solid #b91c1c;
+}
+
+.inline-sandbox-frame {
+  display: block;
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  background: #05070d;
+  outline: none;
+}
+
+/* Human-takeover state: the agent has handed control to the user */
+.inline-sandbox.manual {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.4), var(--shadow-card);
+}
+
+/* Full screen: covers the viewport like ChatGPT's agent-mode expanded view,
+   without leaving the inline chat layout - the card just lifts out on top
+   of everything else while it's toggled on. */
+.inline-sandbox.fullscreen {
+  position: fixed;
+  inset: 16px;
+  z-index: 1000;
+  max-width: none;
+  border-radius: var(--radius-md);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
+.inline-sandbox.fullscreen::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: -1;
+}
+
+.inline-sandbox.fullscreen .inline-sandbox-frame {
+  flex: 1;
+  width: 100%;
+  max-height: none;
+  height: 100%;
+}
+
+.inline-sandbox.fullscreen .inline-sandbox-bar {
+  flex-shrink: 0;
+}
+
+.inline-sandbox.fullscreen .inline-sandbox-handoff {
+  flex-shrink: 0;
+}
+
+.inline-sandbox-frame.interactive {
+  cursor: crosshair;
+}
+
+.inline-sandbox-handoff {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(245, 158, 11, 0.12);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.inline-sandbox-handoff-text {
+  font-size: 12.5px;
+  color: #fbbf24;
+  line-height: 1.4;
+}
+
+.inline-sandbox-handoff-sub {
+  margin-top: 3px;
+  font-size: 11.5px;
+  font-weight: 400;
+  color: #e5c687;
+}
+
+.inline-sandbox-resume-btn {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: #f59e0b;
+  color: #1a1203;
+  border: none;
+  white-space: nowrap;
+}
+
+.inline-sandbox-resume-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 /* Chat View */
 .chat-wrapper {
   flex: 1;

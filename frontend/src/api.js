@@ -29,7 +29,7 @@ export async function sendChatMessage(question, session_id = "default_session") 
   return res.json();
 }
 
-export async function streamChatMessage(question, session_id = "default_session", onStage) {
+export async function streamChatMessage(question, session_id = "default_session", onStage, signal) {
   try {
     const res = await fetch(`${BASE_URL}/chat/stream`, {
       method: "POST",
@@ -37,6 +37,7 @@ export async function streamChatMessage(question, session_id = "default_session"
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ question, session_id }),
+      signal,
     });
 
     if (!res.ok || !res.body) {
@@ -68,6 +69,13 @@ export async function streamChatMessage(question, session_id = "default_session"
               finalResult = payload;
             } else if (payload.type === "complete") {
               finalResult = payload.result;
+            } else if (payload.type === "stopped") {
+              // User hit Emergency Stop - the backend cancelled the agent
+              // turn on purpose. Mark this so the caller doesn't treat it
+              // as an error or retry it as a plain (non-streaming) request.
+              const stoppedErr = new Error("Stopped by user");
+              stoppedErr.name = "AbortError";
+              throw stoppedErr;
             } else if (payload.type === "error") {
               throw new Error(payload.error || "Processing failed");
             }
@@ -85,6 +93,10 @@ export async function streamChatMessage(question, session_id = "default_session"
     }
     return sendChatMessage(question, session_id);
   } catch (err) {
+    // Don't silently retry as a plain request when the user deliberately
+    // stopped the agent (browser-level abort, or the "stopped" SSE event
+    // above) - let the caller know it was a stop, not a failure.
+    if (err.name === "AbortError") throw err;
     return sendChatMessage(question, session_id);
   }
 }
@@ -182,11 +194,12 @@ export async function fetchChatHistory(sessionId) {
   return res.json();
 }
 
-export async function resumeChat(sessionId, action, onChunk) {
+export async function resumeChat(sessionId, action, onChunk, signal) {
   const res = await fetch(`${BASE_URL}/chat/resume`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ session_id: sessionId, action: action }),
+    signal,
   });
 
   if (!res.ok) {
@@ -217,12 +230,62 @@ export async function resumeChat(sessionId, action, onChunk) {
   }
 }
 
-export async function killAgent() {
-  const res = await fetch(`${BASE_URL}/kill`, {
+export function getSandboxWsUrl(sessionId) {
+  // Turn the REST base URL (http/https, possibly relative) into a ws/wss URL
+  // for the live sandbox feed at /ws/sandbox/{session_id}.
+  let wsBase;
+  try {
+    const u = new URL(BASE_URL, window.location.href);
+    u.protocol = u.protocol === "https:" ? "wss:" : "ws:";
+    wsBase = u.toString().replace(/\/api\/?$/, "");
+  } catch (e) {
+    wsBase = BASE_URL.replace(/^http/, "ws").replace(/\/api\/?$/, "");
+  }
+  return `${wsBase}/ws/sandbox/${encodeURIComponent(sessionId)}`;
+}
+
+export async function killAgent(sessionId = "default_session") {
+  const res = await fetch(`${BASE_URL}/kill?session_id=${encodeURIComponent(sessionId)}`, {
     method: "POST",
   });
   if (!res.ok) {
     throw new Error("Failed to trigger Emergency Stop");
   }
   return res.json();
+}
+
+// --- Human takeover: forwarding input into the live sandbox ---------------
+
+export async function sendSandboxClick(sessionId, x, y) {
+  const res = await fetch(`${BASE_URL}/sandbox/${encodeURIComponent(sessionId)}/click`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ x, y }),
+  });
+  return res.json().catch(() => ({}));
+}
+
+export async function sendSandboxKey(sessionId, key) {
+  const res = await fetch(`${BASE_URL}/sandbox/${encodeURIComponent(sessionId)}/key`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key }),
+  });
+  return res.json().catch(() => ({}));
+}
+
+export async function sendSandboxScroll(sessionId, deltaX, deltaY) {
+  const res = await fetch(`${BASE_URL}/sandbox/${encodeURIComponent(sessionId)}/scroll`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ deltaX, deltaY }),
+  });
+  return res.json().catch(() => ({}));
+}
+
+export async function resumeSandboxControl(sessionId) {
+  const res = await fetch(`${BASE_URL}/sandbox/${encodeURIComponent(sessionId)}/resume`, {
+    method: "POST",
+  });
+  return res.json().catch(() => ({}));
 }

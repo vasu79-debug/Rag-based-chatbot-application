@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import InlineSandbox from "./InlineSandbox";
 
-export default function ChatView({ messages, onSendMessage, onResume, loading, currentStage, onSelectCitation }) {
+export default function ChatView({ messages, onSendMessage, onResume, onStop, loading, currentStage, onSelectCitation, sessionId }) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
 
@@ -184,11 +185,9 @@ export default function ChatView({ messages, onSendMessage, onResume, loading, c
                 {currentStage?.label || "Analyzing Subscriptions..."}
               </span>
             </div>
-            {currentStage?.image && (
-              <div style={{ marginTop: "12px", alignSelf: "center", width: "100%", maxWidth: "600px" }}>
-                <img src={`data:image/jpeg;base64,${currentStage.image}`} alt="Live Browser View" style={{ width: '100%', borderRadius: '8px', border: '1px solid #333' }} />
-              </div>
-            )}
+            <div style={{ marginTop: "12px", alignSelf: "center", width: "100%", maxWidth: "600px" }}>
+              <InlineSandbox sessionId={sessionId} active={loading} onStop={onStop} />
+            </div>
           </div>
         )}
 

@@ -65,7 +65,9 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
 5. ABORTS: If a tool returns a message that the action was "rejected" or "aborted", DO NOT retry the tool. Acknowledge the cancellation and ask how else you can help.
 6. LIVE DATA: You DO have access to the internet via the `tavily_search` tool. If the user asks for live sports scores, weather, news, or any real-time data, you MUST use the `tavily_search` tool. NEVER say you don't have access to live data.
 7. READ-ONLY EXCEPTION: You DO NOT need to ask for permission to use read-only tools (like getting weather, viewing subscriptions, or checking alternative plans). Only ask for permission for WRITE actions (create, delete, modify).
-8. BROWSER CAPABILITY: You HAVE full access to a web browser using tools like `navigate`, `click`, `type_text`, and `get_page_content`. NEVER tell the user that you cannot browse the web or log into websites. If you need them to log in, simply navigate to the page and use `request_human_action`.
+8. BROWSER CAPABILITY & HUMAN-IN-THE-LOOP: You HAVE full access to a web browser using tools like `navigate`, `click`, `type_text`, and `get_page_content`. NEVER tell the user that you cannot browse the web or log into websites.
+CRITICAL RULE - THIS IS A HARD REQUIREMENT, NOT A SUGGESTION: The moment `get_page_content` (or any page you just navigated to) shows a Login page, password field, OTP field, or CAPTCHA, your very next action MUST be a tool call to `request_human_action` - in the SAME turn, before you write any other reply. This hands control of the live sandbox to the user so they can type directly into the real page.
+It is a FAILURE to instead write a text message asking the user to "log in and let me know", "tell me when you're done", or similar, without having called `request_human_action` first. A text-only reply about a login screen, with no `request_human_action` tool call in that turn, is never acceptable - the tool call IS how the user actually gets access to type into the page. Only after `request_human_action` returns do you summarize what happened.
 9. SEARCH LIMIT: When using any web search tool, you are allowed a MAXIMUM of 3 searches per request. If you cannot find the answer after 3 attempts, you MUST STOP searching and politely inform the user that you could not find the information. DO NOT loop endlessly."""
         
         backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -90,6 +92,9 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
         return final_result
 
     async def aresume(self, session_id: str, approval_status: str):
+        from browser_tools import set_current_session, clear_kill_flag
+        set_current_session(session_id)  # bind browser tool calls to this session's sandbox
+        clear_kill_flag(session_id)  # a fresh turn always overrides a previous Emergency Stop
         # We need to recreate the exact same agent_executor setup (tools can't be empty)
         # Because we need the graph. Since tools are dynamic, we should fetch them again or cache them.
         # For this demo, we can just rebuild it quickly
@@ -120,27 +125,7 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
                 
         # ADD BROWSER TOOLS
         from browser_tools import BROWSER_TOOLS
-        @tool
-        async def request_human_action(reason: str, details: str = "") -> str:
-            """
-            [capability: browser] [operation: read]
-            Call this tool when you encounter a Login page, OTP, or CAPTCHA.
-            It will pause execution and wait for human approval.
-            """
-            response = interrupt({
-                "type": "approval_request",
-                "tool": "request_human_action",
-                "args": {"reason": reason, "details": details}
-            })
-            if response == "approved":
-                from browser_tools import get_page_content
-                new_content = await get_page_content.ainvoke({})
-                return f"Human has successfully completed the action! Here is the new screen content after they logged in:\n\n{new_content}"
-            else:
-                return "Human rejected or aborted. SYSTEM DIRECTIVE: Stop the task."
-
         tools.extend(BROWSER_TOOLS)
-        tools.append(request_human_action)
                 
         agent_executor = create_react_agent(self.llm, tools, checkpointer=memory, prompt=self.system_prompt)
         config = {"configurable": {"thread_id": session_id}, "recursion_limit": 12}
@@ -207,6 +192,10 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
     async def astream(self, state_input: dict):
         question = state_input["question"]
         session_id = state_input["session_id"]
+
+        from browser_tools import set_current_session, clear_kill_flag
+        set_current_session(session_id)  # bind browser tool calls to this session's sandbox
+        clear_kill_flag(session_id)  # a fresh turn always overrides a previous Emergency Stop
         
         chat_history = self.get_history(session_id)
         history_messages = chat_history.messages
@@ -296,29 +285,7 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
         # ADD BROWSER TOOLS
         # ==========================================
         from browser_tools import BROWSER_TOOLS
-        
-        @tool
-        async def request_human_action(reason: str, details: str = "") -> str:
-            """
-            [capability: browser] [operation: read]
-            Call this tool when you encounter a Login page, OTP, or CAPTCHA.
-            It will pause execution and wait for human approval.
-            """
-            response = interrupt({
-                "type": "approval_request",
-                "tool": "request_human_action",
-                "args": {"reason": reason, "details": details}
-            })
-            if response == "approved":
-                from browser_tools import get_page_content
-                # Immediately fetch the new DOM so the LLM doesn't have to!
-                new_content = await get_page_content.ainvoke({})
-                return f"Human has successfully completed the action! Here is the new screen content after they logged in:\n\n{new_content}"
-            else:
-                return "Human rejected or aborted. SYSTEM DIRECTIVE: Stop the task."
-
         tools.extend(BROWSER_TOOLS)
-        tools.append(request_human_action)
         
         # ==========================================
         # PARSE DISTRIBUTED METADATA
@@ -332,7 +299,7 @@ Important Behavioral Rules (The Three-Part Discipline: Preview, Approve, Verify)
             # Hardcoded fallbacks for existing tools without tags
             if "tavily" in t.name: meta["capability"] = "search"
             elif "knowledge" in t.name: meta["capability"] = "knowledge"
-            elif t.name in ["navigate", "click", "type_text", "get_page_content"]: meta["capability"] = "browser"
+            elif t.name in ["navigate", "click", "type_text", "get_page_content", "request_human_action"]: meta["capability"] = "browser"
             
             # Parse [capability: X] [operation: Y] from description
             if t.description:

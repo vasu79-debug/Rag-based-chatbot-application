@@ -4,7 +4,7 @@ This project demonstrates an advanced **Browser AI Agent** using **Playwright**.
 
 ## Core Philosophy: Transparency and Auditing
 When this agent navigates the web on your behalf, it adheres to strict observability rules:
-1. **Headful Browser:** The Playwright browser is launched in non-headless mode, so you can watch exactly what the agent is doing in real-time.
+1. **Live Sandbox Window:** The Playwright browser runs headless, one isolated sandbox per chat session, and streams a live view into the chat UI itself (toggle “🖥️ Sandbox” above the chat) over `/ws/sandbox/{session_id}`, so you can watch exactly what the agent is doing in real-time without a window on the server's own desktop.
 2. **Audit Logging:** Every action (Navigate, Click, Type, Extract) is logged to an `audit.log` file with timestamps.
 3. **Evidence Collection:** Before and after every interaction (click or type), the agent automatically takes a screenshot and saves it to the `evidence/` directory.
 

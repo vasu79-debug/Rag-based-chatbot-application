@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Header from "./components/Header";
 import ChatView from "./components/ChatView";
 import AdminPortal from "./components/AdminPortal";
@@ -13,6 +13,7 @@ import {
   deleteDocument,
   fetchChatHistory,
   resumeChat,
+  killAgent,
 } from "./api";
 
 const getInitialTab = () => {
@@ -106,6 +107,22 @@ export default function App() {
     }
   }, []);
 
+  // Lets the Stop button abort whichever SSE fetch (send or resume) is
+  // currently in flight, immediately - instead of waiting for the backend
+  // to notice it was cancelled.
+  const streamControllerRef = useRef(null);
+
+  const handleStopAgent = useCallback(async () => {
+    streamControllerRef.current?.abort();
+    setLoading(false);
+    setCurrentStage(null);
+    try {
+      await killAgent(sessionId);
+    } catch (err) {
+      console.error("Emergency Stop request failed:", err);
+    }
+  }, [sessionId]);
+
   const handleNewChat = useCallback(() => {
     setMessages([]);
     setCurrentStage(null);
@@ -169,10 +186,13 @@ export default function App() {
     setLoading(true);
     setCurrentStage({ stage: "routing", step: "1/3", label: "Routing · Analyzing query intent & scope..." });
 
+    const controller = new AbortController();
+    streamControllerRef.current = controller;
+
     try {
       const res = await streamChatMessage(text, sessionId, (stage) => {
         setCurrentStage(stage);
-      });
+      }, controller.signal);
 
       const botMsg = {
         role: "assistant",
@@ -189,6 +209,11 @@ export default function App() {
         return prev;
       });
     } catch (err) {
+      if (err.name === "AbortError") {
+        // The user hit Stop - that's an intentional cancellation, not a
+        // failure, so don't show an error bubble for it.
+        return;
+      }
       const errorMsg = {
         role: "assistant",
         payload: {
@@ -202,6 +227,7 @@ export default function App() {
     } finally {
       setLoading(false);
       setCurrentStage(null);
+      streamControllerRef.current = null;
     }
   };
 
@@ -209,6 +235,9 @@ export default function App() {
     if (loading) return;
     setLoading(true);
     setCurrentStage({ stage: "executing", label: `Agent executing tool (Action: ${action})...` });
+
+    const controller = new AbortController();
+    streamControllerRef.current = controller;
 
     try {
       let finalRes = null;
@@ -234,15 +263,18 @@ export default function App() {
         });
       }
     } catch (err) {
-      setMessages((prev) => [...prev, {
-        role: "assistant",
-        payload: {
-          general_section: { label: "⚠️ Error", content: `Failed to resume: ${err.message}` }
-        }
-      }]);
+      if (err.name !== "AbortError") {
+        setMessages((prev) => [...prev, {
+          role: "assistant",
+          payload: {
+            general_section: { label: "⚠️ Error", content: `Failed to resume: ${err.message}` }
+          }
+        }]);
+      }
     } finally {
       setLoading(false);
       setCurrentStage(null);
+      streamControllerRef.current = null;
     }
   };
 
@@ -285,6 +317,7 @@ export default function App() {
         onNavigate={handleNavigate}
         onNewChat={handleNewChat}
         healthData={healthData}
+        sessionId={sessionId}
       />
 
       <main className="main-content">
@@ -309,9 +342,11 @@ export default function App() {
               messages={messages}
               onSendMessage={handleSendMessage}
               onResume={handleResume}
+              onStop={handleStopAgent}
               loading={loading}
               currentStage={currentStage}
               onSelectCitation={setSelectedCitation}
+              sessionId={sessionId}
             />
           </>
         )}

@@ -265,6 +265,7 @@ async def chat_stream_endpoint(request: ChatRequest):
     session_id = request.session_id
     
     async def event_generator():
+        _active_streams[session_id] = asyncio.current_task()
         try:
             state_input = {
                 "question": q,
@@ -274,8 +275,9 @@ async def chat_stream_endpoint(request: ChatRequest):
 
             async for event in mcp_graph_app.astream(state_input):
                 if event["type"] == "stage":
-                    # Send live tool/reasoning updates
-                    yield f"data: {json.dumps({'type': 'stage', 'stage': 'reasoning', 'label': event['label']})}\n\n"
+                    # Send live tool/reasoning updates (image is the latest sandbox
+                    # screenshot, if a browser tool was involved in this step)
+                    yield f"data: {json.dumps({'type': 'stage', 'stage': 'reasoning', 'label': event['label'], 'image': event.get('image')})}\n\n"
                     await asyncio.sleep(0.01)
                 
                 elif event["type"] == "complete":
@@ -288,10 +290,17 @@ async def chat_stream_endpoint(request: ChatRequest):
                     yield f"data: {json.dumps({'type': 'complete', 'result': final_out})}\n\n"
                     
                 elif event["type"] == "approval_needed":
-                    yield f"data: {json.dumps({'type': 'approval_needed', 'data': event['data']})}\n\n"
+                    yield f"data: {json.dumps({'type': 'approval_needed', 'data': event['data'], 'image': event.get('image')})}\n\n"
 
+        except asyncio.CancelledError:
+            # Emergency Stop cancelled this turn - tell the client plainly
+            # instead of leaving the connection hanging, and do not re-raise
+            # (this generator's work is intentionally done here).
+            yield f"data: {json.dumps({'type': 'stopped'})}\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+        finally:
+            _active_streams.pop(session_id, None)
 
     return StreamingResponse(
         event_generator(),
@@ -312,10 +321,11 @@ async def chat_resume_endpoint(request: ResumeRequest):
     action = request.action
     
     async def event_generator():
+        _active_streams[session_id] = asyncio.current_task()
         try:
             async for event in mcp_graph_app.aresume(session_id, action):
                 if event["type"] == "stage":
-                    yield f"data: {json.dumps({'type': 'stage', 'stage': 'reasoning', 'label': event['label']})}\n\n"
+                    yield f"data: {json.dumps({'type': 'stage', 'stage': 'reasoning', 'label': event['label'], 'image': event.get('image')})}\n\n"
                     await asyncio.sleep(0.01)
                 elif event["type"] == "complete":
                     final_message = event["final_message"]
@@ -325,8 +335,12 @@ async def chat_resume_endpoint(request: ResumeRequest):
                         "general_section": {"label": "AI Agent Response", "content": final_message}
                     }
                     yield f"data: {json.dumps({'type': 'complete', 'result': final_out})}\n\n"
+        except asyncio.CancelledError:
+            yield f"data: {json.dumps({'type': 'stopped'})}\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+        finally:
+            _active_streams.pop(session_id, None)
 
     return StreamingResponse(
         event_generator(),
@@ -476,16 +490,112 @@ async def delete_document(doc_id: str):
     return {"status": "deleted", "doc_id": doc_id}
 
 
-from browser_tools import close_browser
+from browser_tools import (
+    close_browser,
+    emergency_stop,
+    get_latest_screenshot_base64,
+    get_current_url,
+    get_manual_control_info,
+    exit_manual_control,
+    dispatch_click,
+    dispatch_key,
+    dispatch_scroll,
+)
+from fastapi import WebSocket, WebSocketDisconnect
+
+# Tracks the asyncio Task actually running each session's agent turn (set by
+# the SSE generators below), so Emergency Stop can cancel the agent itself -
+# not just its browser. Without this, a stopped browser doesn't stop the
+# agent loop, which can silently reopen a new sandbox on its very next tool
+# call (e.g. a retried `navigate`), making Stop look like it didn't work.
+_active_streams: Dict[str, asyncio.Task] = {}
 
 @app.post("/api/kill")
-async def kill_agent():
+async def kill_agent(session_id: str = "default_session"):
     """
-    Emergency Kill Switch: Force-closes the Playwright browser immediately.
-    This halts the agent's ability to act.
+    Emergency Kill Switch: cancels this session's in-flight agent turn (if
+    any) and force-closes its sandbox browser, so the agent cannot keep
+    acting or reopen a new sandbox after the user has stopped it.
     """
-    await close_browser()
-    return {"status": "success", "message": "Emergency Stop: Browser closed."}
+    task = _active_streams.get(session_id)
+    if task and not task.done():
+        task.cancel()
+    await emergency_stop(session_id)
+    return {"status": "success", "message": f"Emergency Stop: session {session_id} cancelled and sandbox closed."}
+
+
+# --- Human takeover: input forwarding into the live sandbox -----------------
+# While browser_tools.request_human_action() has put a session into manual
+# control, these let the sandbox window in the chat UI forward the user's own
+# mouse/keyboard directly into that session's headless page. Credentials
+# never pass through the agent - they're typed straight into the real page.
+
+@app.post("/api/sandbox/{session_id}/click")
+async def sandbox_click(session_id: str, payload: dict):
+    x, y = payload.get("x"), payload.get("y")
+    if x is None or y is None:
+        raise HTTPException(400, "x and y are required")
+    ok = await dispatch_click(session_id, float(x), float(y))
+    return {"status": "success" if ok else "no_active_sandbox"}
+
+
+@app.post("/api/sandbox/{session_id}/key")
+async def sandbox_key(session_id: str, payload: dict):
+    key = payload.get("key")
+    if not key:
+        raise HTTPException(400, "key is required")
+    ok = await dispatch_key(session_id, key)
+    return {"status": "success" if ok else "no_active_sandbox"}
+
+
+@app.post("/api/sandbox/{session_id}/scroll")
+async def sandbox_scroll(session_id: str, payload: dict):
+    delta_x = float(payload.get("deltaX", 0))
+    delta_y = float(payload.get("deltaY", 0))
+    ok = await dispatch_scroll(session_id, delta_x, delta_y)
+    return {"status": "success" if ok else "no_active_sandbox"}
+
+
+@app.post("/api/sandbox/{session_id}/resume")
+async def sandbox_resume_control(session_id: str):
+    """Called when the user clicks 'Resume agent' - hands control back."""
+    await exit_manual_control(session_id)
+    return {"status": "success"}
+
+
+@app.websocket("/ws/sandbox/{session_id}")
+async def sandbox_live_feed(websocket: WebSocket, session_id: str):
+    """
+    Live view for the "sandbox window": streams the agent's headless browser
+    as a rolling sequence of JPEG screenshots while this session's sandbox is
+    open, so the chat UI can show it the way ChatGPT's agent mode shows its
+    browser sandbox, instead of only showing one still frame per tool call.
+    Also carries manual-control state so the frontend knows when to show the
+    "you're in control" banner and start forwarding input.
+    """
+    await websocket.accept()
+    try:
+        while True:
+            image = await get_latest_screenshot_base64(session_id)
+            url = await get_current_url(session_id)
+            control = get_manual_control_info(session_id)
+            await websocket.send_json({
+                "type": "frame",
+                "active": image is not None,
+                "image": image,
+                "url": url,
+                "manual_control": control["manual_control"],
+                "manual_control_reason": control["reason"],
+                "manual_control_details": control["details"],
+            })
+            await asyncio.sleep(0.25)
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        try:
+            await websocket.send_json({"type": "error", "message": str(e)})
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     import uvicorn

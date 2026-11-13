@@ -105,7 +105,20 @@ async def lifespan(app: FastAPI):
             await connect_mcp(url)
         except Exception as e:
             print(f"Warning: Could not connect to MCP server {url}: {e}")
+
+    # Start the browser session idle reaper background worker
+    from browser_tools import browser_session_reaper, close_browser
+    reaper_task = asyncio.create_task(browser_session_reaper())
+
     yield
+
+    # Cleanup background reaper & close all remaining browser instances on shutdown
+    reaper_task.cancel()
+    try:
+        await close_browser()
+    except Exception:
+        pass
+
     # Cleanup all connections on shutdown
     for url, task in list(mcp_state["tasks"].items()):
         task.cancel()
@@ -579,14 +592,16 @@ async def sandbox_live_feed(websocket: WebSocket, session_id: str):
             image = await get_latest_screenshot_base64(session_id)
             url = await get_current_url(session_id)
             control = get_manual_control_info(session_id)
+            # Only mark sandbox active if a real webpage is loaded (not empty or about:blank)
+            has_real_page = bool(image is not None and url and url != "about:blank")
             await websocket.send_json({
                 "type": "frame",
-                "active": image is not None,
-                "image": image,
-                "url": url,
-                "manual_control": control["manual_control"],
-                "manual_control_reason": control["reason"],
-                "manual_control_details": control["details"],
+                "active": has_real_page,
+                "image": image if has_real_page else None,
+                "url": url if has_real_page else "",
+                "manual_control": control["manual_control"] if has_real_page else False,
+                "manual_control_reason": control["reason"] if has_real_page else "",
+                "manual_control_details": control["details"] if has_real_page else "",
             })
             await asyncio.sleep(0.25)
     except WebSocketDisconnect:

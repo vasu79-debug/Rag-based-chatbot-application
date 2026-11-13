@@ -68,12 +68,18 @@ export default function InlineSandbox({ sessionId, active, onStop }) {
       try {
         const data = JSON.parse(evt.data);
         if (data.type === "frame") {
-          if (data.image) setFrame(data.image);
-          if (typeof data.url === "string") setPageUrl(data.url);
-          if (!data.active) setFrame(null);
-          setManualControl(!!data.manual_control);
-          setManualReason(data.manual_control_reason || "");
-          setManualDetails(data.manual_control_details || "");
+          const isRealPage = Boolean(data.active && data.url && data.url !== "about:blank");
+          if (isRealPage) {
+            if (data.image) {
+              setFrame(data.image);
+            }
+            if (data.url) {
+              setPageUrl(data.url);
+            }
+          }
+          setManualControl(isRealPage && Boolean(data.manual_control));
+          setManualReason(isRealPage ? (data.manual_control_reason || "") : "");
+          setManualDetails(isRealPage ? (data.manual_control_details || "") : "");
         }
       } catch (e) {
         // ignore malformed frames
@@ -164,17 +170,17 @@ export default function InlineSandbox({ sessionId, active, onStop }) {
     setFullscreen((f) => !f);
   };
 
-  if (!active || !frame) return null;
+  if (!active || (!frame && !pageUrl)) return null;
 
   return (
     <div className={`inline-sandbox ${manualControl ? "manual" : ""} ${fullscreen ? "fullscreen" : ""}`}>
       <div className="inline-sandbox-bar">
         <span className={`sandbox-dot ${connected ? "live" : "idle"}`} />
         <span className="inline-sandbox-label">
-          {manualControl ? "Your turn" : "Agent's browser"}
+          {manualControl ? "Your turn (Manual Control)" : "Agent live browser"}
         </span>
         <span className="inline-sandbox-url" title={pageUrl || ""}>
-          {pageUrl || ""}
+          {pageUrl || "about:blank"}
         </span>
         <button
           className="inline-sandbox-expand"
@@ -207,18 +213,26 @@ export default function InlineSandbox({ sessionId, active, onStop }) {
         </div>
       )}
 
-      <img
-        ref={imgRef}
-        src={`data:image/jpeg;base64,${frame}`}
-        alt="Agent's live sandbox view"
-        className={`inline-sandbox-frame ${manualControl ? "interactive" : ""}`}
-        tabIndex={manualControl ? 0 : -1}
-        draggable={false}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        onWheel={handleWheel}
-        onContextMenu={(e) => manualControl && e.preventDefault()}
-      />
+      {frame ? (
+        <img
+          ref={imgRef}
+          src={`data:image/jpeg;base64,${frame}`}
+          alt="Agent's live sandbox view"
+          className={`inline-sandbox-frame ${manualControl ? "interactive" : ""}`}
+          tabIndex={manualControl ? 0 : -1}
+          draggable={false}
+          onClick={handleClick}
+          onKeyDown={handleKeyDown}
+          onWheel={handleWheel}
+          onContextMenu={(e) => manualControl && e.preventDefault()}
+        />
+      ) : (
+        <div style={{ padding: "48px 16px", textAlign: "center", color: "#9ca3af", background: "rgba(0,0,0,0.4)", borderRadius: "0 0 8px 8px" }}>
+          <div style={{ fontSize: "24px", marginBottom: "8px" }}>🌐</div>
+          <div style={{ fontSize: "13px", fontWeight: "600", color: "#e5e7eb" }}>Opening live browser session...</div>
+          <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "4px" }}>{pageUrl || "Connecting to sandbox Chromium..."}</div>
+        </div>
+      )}
     </div>
   );
 }

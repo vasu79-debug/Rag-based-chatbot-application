@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     CUSTOM_OPENAI_BASE_URL: Optional[str] = None
     CUSTOM_OPENAI_API_KEY: str = "dummy"  # most self-hosted servers accept any key
 
+    # Browser Sandbox (Docker / Remote Browserless endpoint)
+    # e.g., "ws://localhost:3000" or "ws://browser-sandbox:3000"
+    BROWSER_WS_ENDPOINT: Optional[str] = None
+
     # Storage Paths
     BASE_DIR: Path = Path(__file__).resolve().parent
     CHROMA_PERSIST_DIR: str = "./data/chroma_db"
@@ -55,15 +59,20 @@ class Settings(BaseSettings):
     # ==========================================
     # Assistant Persona & Behavior Configuration
     # ==========================================
-    ASSISTANT_NAME: str = "Subscription Assistant"
-    COMPANY_NAME: str = "Subzillo"
-    ASSISTANT_ROLE_DESCRIPTION: str = "a financial AI assistant helping users manage, optimize, and review their software subscriptions to save money"
-    ASSISTANT_TONE: str = "financially-savvy, helpful, concise, and smart"
-    CUSTOM_SYSTEM_INSTRUCTIONS: str = "If asked to review spending, analyze the total cost across subscriptions. Suggest removing duplicate or expensive services."
-    OUT_OF_SCOPE_MESSAGE: str = "I am a financial AI assistant focused on subscription management. I cannot answer unrelated outside topics."
+    ASSISTANT_NAME: str = "Travel & Booking Assistant"
+    COMPANY_NAME: str = "Wanderlust AI"
+    ASSISTANT_ROLE_DESCRIPTION: str = "an intelligent travel planner and autonomous booking assistant helping users plan trips, create personalized itineraries, find flights and hotels, and navigate real booking portals"
+    ASSISTANT_TONE: str = "inspiring, organized, budget-conscious, and proactive"
+    CUSTOM_SYSTEM_INSTRUCTIONS: str = (
+        "Help users explore destinations, build day-by-day travel itineraries, find the best flight and hotel deals, "
+        "and navigate live travel websites (MakeMyTrip, Agoda, Google Hotels, Skyscanner, Booking.com, OYO, Airbnb, etc.). "
+        "When comparing options, clearly list prices, departure times, durations, and ratings. "
+        "For payments, bookings, or sensitive actions, always guide the user and request human approval or takeover."
+    )
+    OUT_OF_SCOPE_MESSAGE: str = "I am a dedicated travel planning and booking assistant. I specialize in trips, itineraries, flights, and hotels."
 
     # Tools that require Human-in-the-Loop (HITL) approval before execution
-    WRITE_TOOLS: str = "delete_subscription,create_subscription"
+    WRITE_TOOLS: str = ""
 
     # ASSISTANT_NAME: str = "Krify Sales Specialist"
     # COMPANY_NAME: str = "Krify Software Technologies"

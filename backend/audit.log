@@ -122,3 +122,405 @@
 [2026-11-05T18:23:51.214301] ACTION: MANUAL_KEY | DETAILS: Session: session_ylp1p5t | user typed a key (content not logged)
 [2026-11-05T18:23:53.869154] ACTION: MANUAL_KEY | DETAILS: Session: session_ylp1p5t | user typed a key (content not logged)
 [2026-11-05T18:24:06.854041] ACTION: MANUAL_CLICK | DETAILS: Session: session_ylp1p5t | x=594, y=294
+[2026-11-06T10:41:55.341573] ACTION: NAVIGATE | DETAILS: Session: session_vqxolrd | URL: https://www.spotify.com/account/overview/
+[2026-11-06T10:41:58.709508] ACTION: EXTRACT | DETAILS: Session: session_vqxolrd | Extracted page content
+[2026-11-06T10:42:00.420431] ACTION: REQUEST_HUMAN_ACTION | DETAILS: Session: session_vqxolrd | Reason: Spotify requires you to log in before I can view your subscription details.
+[2026-11-06T10:42:03.934777] ACTION: MANUAL_CLICK | DETAILS: Session: session_vqxolrd | x=637, y=459
+[2026-11-06T10:42:05.010099] ACTION: MANUAL_CLICK | DETAILS: Session: session_vqxolrd | x=663, y=291
+[2026-11-06T10:42:06.175288] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:06.359793] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:06.655577] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:06.863502] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:07.269647] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:07.442520] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:08.758619] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:08.929002] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:09.243664] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:09.896971] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:11.231421] ACTION: MANUAL_CLICK | DETAILS: Session: session_vqxolrd | x=649, y=354
+[2026-11-06T10:42:22.228250] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:22.477598] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:24.437142] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:24.702787] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:24.907729] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:25.060683] ACTION: MANUAL_KEY | DETAILS: Session: session_vqxolrd | user typed a key (content not logged)
+[2026-11-06T10:42:30.425647] ACTION: EXTRACT | DETAILS: Session: session_vqxolrd | Extracted page content
+[2026-11-06T11:42:09.986986] ACTION: NAVIGATE | DETAILS: Session: session_vqxolrd | URL: https://react.dev/
+[2026-11-06T11:42:12.902256] ACTION: EXTRACT | DETAILS: Session: session_vqxolrd | Extracted page content
+[2026-11-06T19:05:32.440058] ACTION: NAVIGATE | DETAILS: Session: session_ygb1pdg | URL: https://www.google.com
+[2026-11-06T19:05:35.206168] ACTION: EXTRACT | DETAILS: Session: session_ygb1pdg | Extracted page content
+[2026-11-06T19:05:36.471222] ACTION: TYPE | DETAILS: Session: session_ygb1pdg | Selector: textarea[name='q'], input[name='q'], Text Length: 35
+[2026-11-06T19:05:37.956172] ACTION: CLICK | DETAILS: Session: session_ygb1pdg | Selector: [name='btnK']
+[2026-11-06T19:05:44.189303] ACTION: CLICK | DETAILS: Session: session_ygb1pdg | Selector: input[name='btnK'] >> nth=1
+[2026-11-06T19:06:37.504639] ACTION: TYPE | DETAILS: Session: session_ygb1pdg | Selector: textarea[name='q'], Text Length: 36
+[2026-11-06T19:06:43.596382] ACTION: EXTRACT | DETAILS: Session: session_ygb1pdg | Extracted page content
+[2026-11-06T19:06:44.721535] ACTION: NAVIGATE | DETAILS: Session: session_ygb1pdg | URL: https://www.google.com/search?q=latest+React+documentation+official
+[2026-11-06T19:06:47.889228] ACTION: EXTRACT | DETAILS: Session: session_ygb1pdg | Extracted page content
+[2026-11-06T19:06:49.889475] ACTION: REQUEST_HUMAN_ACTION | DETAILS: Session: session_ygb1pdg | Reason: Google is showing a CAPTCHA / "unusual traffic" verification page
+[2026-11-06T19:06:52.436651] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=50, y=109
+[2026-11-06T19:06:58.476033] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=304, y=322
+[2026-11-06T19:07:03.291508] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=307, y=329
+[2026-11-06T19:07:06.065930] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=327, y=356
+[2026-11-06T19:07:07.872154] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=390, y=220
+[2026-11-06T19:07:09.711365] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=247, y=331
+[2026-11-06T19:07:12.347381] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=295, y=561
+[2026-11-06T19:07:18.575467] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=125, y=343
+[2026-11-06T19:07:20.334808] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=284, y=200
+[2026-11-06T19:07:28.525224] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=419, y=193
+[2026-11-06T19:07:30.958151] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=273, y=206
+[2026-11-06T19:07:36.781130] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=421, y=198
+[2026-11-06T19:07:43.173541] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=399, y=189
+[2026-11-06T19:07:49.657213] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=389, y=566
+[2026-11-06T19:07:52.386418] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=288, y=202
+[2026-11-06T19:07:53.325208] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=399, y=315
+[2026-11-06T19:07:54.323442] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=181, y=450
+[2026-11-06T19:08:00.365451] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=271, y=191
+[2026-11-06T19:08:01.144094] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=410, y=343
+[2026-11-06T19:08:08.388548] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=410, y=330
+[2026-11-06T19:08:15.117470] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=406, y=562
+[2026-11-06T19:08:23.438389] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=322, y=294
+[2026-11-06T19:08:23.950463] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=256, y=296
+[2026-11-06T19:08:24.602895] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=243, y=371
+[2026-11-06T19:08:25.050483] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=326, y=352
+[2026-11-06T19:08:26.112371] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=451, y=581
+[2026-11-06T19:08:28.019875] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=149, y=283
+[2026-11-06T19:08:29.610611] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=125, y=345
+[2026-11-06T19:08:30.170690] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=219, y=281
+[2026-11-06T19:08:30.652359] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=322, y=354
+[2026-11-06T19:08:31.045810] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=337, y=294
+[2026-11-06T19:08:31.499604] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=412, y=294
+[2026-11-06T19:08:31.882905] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=408, y=356
+[2026-11-06T19:08:32.846222] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=404, y=573
+[2026-11-06T19:08:35.475339] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=344, y=247
+[2026-11-06T19:08:35.938986] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=429, y=262
+[2026-11-06T19:08:36.404127] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=436, y=217
+[2026-11-06T19:08:36.915439] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=344, y=185
+[2026-11-06T19:08:37.633643] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=444, y=303
+[2026-11-06T19:08:38.122233] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=444, y=303
+[2026-11-06T19:08:39.126877] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=408, y=560
+[2026-11-06T19:08:41.876326] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=230, y=305
+[2026-11-06T19:08:42.314985] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=153, y=292
+[2026-11-06T19:08:42.715432] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=149, y=371
+[2026-11-06T19:08:43.129712] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=198, y=382
+[2026-11-06T19:08:43.626694] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=301, y=365
+[2026-11-06T19:08:44.007212] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=303, y=279
+[2026-11-06T19:08:44.445082] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=414, y=285
+[2026-11-06T19:08:44.862388] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=401, y=384
+[2026-11-06T19:08:45.266375] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=350, y=468
+[2026-11-06T19:08:45.642820] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=399, y=485
+[2026-11-06T19:08:46.346111] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=427, y=585
+[2026-11-06T19:08:59.118648] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=440, y=568
+[2026-11-06T19:09:01.459490] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=131, y=350
+[2026-11-06T19:09:01.882406] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=215, y=382
+[2026-11-06T19:09:02.390228] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=320, y=384
+[2026-11-06T19:09:02.834118] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=236, y=453
+[2026-11-06T19:09:03.234146] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=125, y=468
+[2026-11-06T19:09:03.882735] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=245, y=279
+[2026-11-06T19:09:04.707612] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=416, y=573
+[2026-11-06T19:09:09.634840] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=108, y=596
+[2026-11-06T19:09:11.089463] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=232, y=247
+[2026-11-06T19:09:11.466299] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=251, y=206
+[2026-11-06T19:09:11.878157] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=339, y=202
+[2026-11-06T19:09:12.265992] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=339, y=264
+[2026-11-06T19:09:12.876349] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=249, y=350
+[2026-11-06T19:09:14.181815] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=434, y=560
+[2026-11-06T19:09:16.827446] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=108, y=395
+[2026-11-06T19:09:17.240948] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=131, y=288
+[2026-11-06T19:09:18.118901] ACTION: MANUAL_CLICK | DETAILS: Session: session_ygb1pdg | x=425, y=555
+[2026-11-06T19:12:43.872057] ACTION: NAVIGATE | DETAILS: Session: session_o2a4cry | URL: https://www.google.com
+[2026-11-06T19:12:46.762369] ACTION: EXTRACT | DETAILS: Session: session_o2a4cry | Extracted page content
+[2026-11-06T19:12:47.913194] ACTION: TYPE | DETAILS: Session: session_o2a4cry | Selector: textarea[name='q'], input[name='q'], Text Length: 26
+[2026-11-06T19:12:49.024731] ACTION: CLICK | DETAILS: Session: session_o2a4cry | Selector: [name='btnK']
+[2026-11-06T19:12:51.202768] ACTION: EXTRACT | DETAILS: Session: session_o2a4cry | Extracted page content
+[2026-11-06T19:34:41.862686] ACTION: NAVIGATE | DETAILS: Session: session_xr4yj73 | URL: https://www.google.com
+[2026-11-06T19:34:44.723686] ACTION: EXTRACT | DETAILS: Session: session_xr4yj73 | Extracted page content
+[2026-11-06T19:34:46.026254] ACTION: TYPE | DETAILS: Session: session_xr4yj73 | Selector: textarea[name='q'], input[name='q'], Text Length: 26
+[2026-11-06T19:34:46.896726] ACTION: CLICK | DETAILS: Session: session_xr4yj73 | Selector: [name='btnK']
+[2026-11-06T19:34:53.089428] ACTION: NAVIGATE | DETAILS: Session: session_xr4yj73 | URL: https://www.google.com/search?q=latest+React+documentation
+[2026-11-06T19:34:56.451916] ACTION: EXTRACT | DETAILS: Session: session_xr4yj73 | Extracted page content
+[2026-11-06T19:34:58.062316] ACTION: NAVIGATE | DETAILS: Session: session_xr4yj73 | URL: https://react.dev
+[2026-11-06T19:35:01.090825] ACTION: EXTRACT | DETAILS: Session: session_xr4yj73 | Extracted page content
+[2026-11-06T19:35:02.431289] ACTION: NAVIGATE | DETAILS: Session: session_xr4yj73 | URL: https://react.dev/blog
+[2026-11-06T19:35:03.864148] ACTION: EXTRACT | DETAILS: Session: session_xr4yj73 | Extracted page content
+[2026-11-06T19:35:05.277317] ACTION: CLICK | DETAILS: Session: session_xr4yj73 | Selector: text='React 19.3 September 9, 2026  React 19.3'
+[2026-11-06T19:35:11.876063] ACTION: NAVIGATE | DETAILS: Session: session_xr4yj73 | URL: https://react.dev/blog/2026/09/09/react-19-3
+[2026-11-06T19:35:14.513627] ACTION: EXTRACT | DETAILS: Session: session_xr4yj73 | Extracted page content
+[2026-11-06T19:35:16.150854] ACTION: NAVIGATE | DETAILS: Session: session_xr4yj73 | URL: https://react.dev/blog/2026/09/09/react-19-3#fragment-refs
+[2026-11-06T19:35:17.442925] ACTION: EXTRACT | DETAILS: Session: session_xr4yj73 | Extracted page content
+[2026-11-13T11:38:23.082511] ACTION: NAVIGATE | DETAILS: Session: session_22btygm | URL: https://www.spotify.com/account/overview/
+[2026-11-13T11:38:26.050972] ACTION: EXTRACT | DETAILS: Session: session_22btygm | Extracted page content
+[2026-11-13T11:38:27.740212] ACTION: REQUEST_HUMAN_ACTION | DETAILS: Session: session_22btygm | Reason: Spotify requires you to log in to view your account details. Please sign in directly in the live window (email/password or your preferred login method), then click "Resume agent" when you're done.
+[2026-11-13T11:38:36.071250] ACTION: MANUAL_CLICK | DETAILS: Session: session_22btygm | x=605, y=461
+[2026-11-13T11:38:37.918629] ACTION: MANUAL_CLICK | DETAILS: Session: session_22btygm | x=693, y=299
+[2026-11-13T11:38:43.475825] ACTION: MANUAL_CLICK | DETAILS: Session: session_22btygm | x=643, y=295
+[2026-11-13T11:38:44.560909] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:38:45.084270] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:38:45.446849] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:38:45.594441] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:38:46.726707] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:38:46.899838] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:38:47.334512] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:38:47.557762] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:38:48.681849] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:38:48.871659] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:38:55.825362] ACTION: MANUAL_CLICK | DETAILS: Session: session_22btygm | x=651, y=359
+[2026-11-13T11:45:56.400696] ACTION: NAVIGATE | DETAILS: Session: session_22btygm | URL: https://www.spotify.com/account/overview/
+[2026-11-13T11:46:04.783683] ACTION: EXTRACT | DETAILS: Session: session_22btygm | Extracted page content
+[2026-11-13T11:46:06.218449] ACTION: REQUEST_HUMAN_ACTION | DETAILS: Session: session_22btygm | Reason: Spotify requires you to log in to view your account details.
+[2026-11-13T11:46:09.909056] ACTION: MANUAL_CLICK | DETAILS: Session: session_22btygm | x=631, y=465
+[2026-11-13T11:46:11.287323] ACTION: MANUAL_CLICK | DETAILS: Session: session_22btygm | x=667, y=300
+[2026-11-13T11:46:13.436035] ACTION: MANUAL_CLICK | DETAILS: Session: session_22btygm | x=691, y=282
+[2026-11-13T11:46:14.549551] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:14.747609] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:15.027990] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:15.205303] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:15.828821] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:15.989198] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:16.343463] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:16.463084] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:17.140116] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:17.348478] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:18.677668] ACTION: MANUAL_CLICK | DETAILS: Session: session_22btygm | x=631, y=353
+[2026-11-13T11:46:29.931139] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:30.166915] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:31.736836] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:32.007154] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:32.402643] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:46:32.619808] ACTION: MANUAL_KEY | DETAILS: Session: session_22btygm | user typed a key (content not logged)
+[2026-11-13T11:47:31.245436] ACTION: EXTRACT | DETAILS: Session: session_22btygm | Extracted page content
+[2026-11-13T11:50:22.077507] ACTION: SEMANTIC_GUARD_BLOCKED | DETAILS: Session: session_22btygm | URL: https://stake.com | Reason: stake.com is an online gambling/casino and betting site, which is prohibited.
+[2026-11-13T12:02:52.183851] ACTION: NAVIGATE | DETAILS: Session: session_jjifajs | URL: https://www.spotify.com/account/overview/
+[2026-11-13T12:02:57.118233] ACTION: EXTRACT | DETAILS: Session: session_jjifajs | Extracted page content
+[2026-11-13T12:02:58.909097] ACTION: REQUEST_HUMAN_ACTION | DETAILS: Session: session_jjifajs | Reason: Spotify requires you to log in to view your account plan details.
+[2026-11-13T12:03:04.920295] ACTION: MANUAL_CLICK | DETAILS: Session: session_jjifajs | x=672, y=443
+[2026-11-13T12:03:05.307794] ACTION: MANUAL_CLICK | DETAILS: Session: session_jjifajs | x=668, y=465
+[2026-11-13T12:03:07.062038] ACTION: MANUAL_CLICK | DETAILS: Session: session_jjifajs | x=597, y=454
+[2026-11-13T12:03:08.144373] ACTION: MANUAL_CLICK | DETAILS: Session: session_jjifajs | x=673, y=292
+[2026-11-13T12:03:09.295575] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:09.479685] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:09.652186] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:09.828345] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:10.754208] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:10.898174] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:11.089037] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:11.200551] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:11.413054] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:11.591911] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:12.951895] ACTION: MANUAL_CLICK | DETAILS: Session: session_jjifajs | x=655, y=348
+[2026-11-13T12:03:28.253722] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:28.851751] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:32.622896] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:32.865677] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:33.137888] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:33.872072] ACTION: MANUAL_KEY | DETAILS: Session: session_jjifajs | user typed a key (content not logged)
+[2026-11-13T12:03:43.930539] ACTION: EXTRACT | DETAILS: Session: session_jjifajs | Extracted page content
+[2026-11-13T16:00:19.350754] ACTION: NAVIGATE | DETAILS: Session: session_txa8oo2 | URL: https://www.booking.com/searchresults.html?ss=Srisailam&checkin=2026-11-29&checkout=2026-12-01&group_adults=2&no_rooms=1&group_children=0 | Attempt: 1
+[2026-11-13T16:00:25.448022] ACTION: EXTRACT | DETAILS: Session: session_txa8oo2 | Extracted page content
+[2026-11-13T16:21:15.052172] ACTION: NAVIGATE | DETAILS: Session: test_booking_takeover_session | URL: https://www.booking.com | Attempt: 1
+[2026-11-13T16:21:21.038125] ACTION: REQUEST_HUMAN_ACTION | DETAILS: Session: test_booking_takeover_session | Reason: Booking.com is open and ready for you to enter your own search and booking details.
+[2026-11-13T16:31:36.520335] ACTION: NAVIGATE | DETAILS: Session: session_uzvxxsu | URL: https://www.booking.com/searchresults.html?ss=Puducherry+Railway+Station&checkin=2025-06-21&checkout=2025-06-23&group_adults=4&no_rooms=1&group_children=0&nflt=price%3DINR-min-2500-1 | Attempt: 1
+[2026-11-13T16:31:41.982286] ACTION: EXTRACT | DETAILS: Session: session_uzvxxsu | Extracted page content
+[2026-11-13T16:31:44.915128] ACTION: EXTRACT | DETAILS: Session: session_uzvxxsu | Extracted page content
+[2026-11-13T16:31:47.743329] ACTION: NAVIGATE | DETAILS: Session: session_uzvxxsu | URL: https://www.booking.com/searchresults.html?ss=Puducherry&checkin=2025-06-21&checkout=2025-06-23&group_adults=4&no_rooms=1&group_children=0&order=price | Attempt: 1
+[2026-11-13T16:31:52.712887] ACTION: EXTRACT | DETAILS: Session: session_uzvxxsu | Extracted page content
+[2026-11-13T16:32:01.379326] ACTION: CLICK | DETAILS: Session: session_uzvxxsu | Selector: role=button[name='Dismiss sign-in info.']
+[2026-11-13T16:32:10.800477] ACTION: EXTRACT | DETAILS: Session: session_uzvxxsu | Extracted page content
+[2026-11-13T16:35:10.713837] ACTION: NAVIGATE | DETAILS: Session: session_uzvxxsu | URL: https://www.makemytrip.com/hotels/super_collection_o_puducherry_railway_station_formerly_peace_residecy-details-pondicherry.html | Attempt: 1
+[2026-11-13T16:35:11.827526] ACTION: NAVIGATE | DETAILS: Session: session_uzvxxsu | URL: https://www.makemytrip.com/hotels/super_collection_o_puducherry_railway_station_formerly_peace_residecy-details-pondicherry.html | Attempt: 2
+[2026-11-13T16:35:13.302627] ACTION: NAVIGATE | DETAILS: Session: session_uzvxxsu | URL: https://www.booking.com/searchresults.html?ss=Super+Collection+O+Puducherry+Railway+Station&checkin=2025-11-21&checkout=2025-11-23&group_adults=4&no_rooms=2&group_children=0 | Attempt: 1
+[2026-11-13T16:35:17.738532] ACTION: EXTRACT | DETAILS: Session: session_uzvxxsu | Extracted page content
+[2026-11-13T16:35:20.454377] ACTION: EXTRACT | DETAILS: Session: session_uzvxxsu | Extracted page content
+[2026-11-13T16:36:20.728362] ACTION: NAVIGATE | DETAILS: Session: session_uzvxxsu | URL: https://www.booking.com/searchresults.html?ss=Super+Collection+O+Puducherry+Railway+Station&checkin=2025-11-21&checkout=2025-11-23&group_adults=4&no_rooms=2&group_children=0 | Attempt: 1
+[2026-11-13T16:36:24.810901] ACTION: EXTRACT | DETAILS: Session: session_uzvxxsu | Extracted page content
+[2026-11-13T16:36:26.439399] ACTION: EXTRACT | DETAILS: Session: session_uzvxxsu | Extracted page content
+[2026-11-13T16:36:28.521999] ACTION: REQUEST_HUMAN_ACTION | DETAILS: Session: session_uzvxxsu | Reason: Booking.com search results for Super Collection O Puducherry Railway Station (21–23 Nov 2025, 4 adults, 2 rooms) are loaded. Please select the property, choose the 2 rooms, and complete the guest details (lead guest: Vasu) and payment yourself. I cannot enter payment or personal details.
+[2026-11-13T16:37:21.900371] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=679, y=396
+[2026-11-13T16:37:23.676071] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=686, y=397
+[2026-11-13T16:37:24.891905] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=686, y=397
+[2026-11-13T16:37:26.237522] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=581, y=167
+[2026-11-13T16:37:27.368775] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=586, y=165
+[2026-11-13T16:37:29.540841] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=682, y=402
+[2026-11-13T16:37:30.963832] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=688, y=388
+[2026-11-13T16:37:34.320079] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=572, y=440
+[2026-11-13T16:37:35.795323] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=688, y=384
+[2026-11-13T16:37:37.675836] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=560, y=453
+[2026-11-13T16:37:39.577787] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=682, y=389
+[2026-11-13T16:37:40.116575] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=682, y=389
+[2026-11-13T16:37:40.744539] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=682, y=389
+[2026-11-13T16:37:41.470323] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=587, y=163
+[2026-11-13T16:37:42.296182] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=575, y=163
+[2026-11-13T16:37:43.800054] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=579, y=156
+[2026-11-13T16:37:45.162443] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=688, y=389
+[2026-11-13T16:37:46.084192] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=683, y=390
+[2026-11-13T16:37:46.274945] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=683, y=390
+[2026-11-13T16:37:46.451741] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=683, y=390
+[2026-11-13T16:37:46.583894] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=683, y=390
+[2026-11-13T16:37:47.680623] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=577, y=446
+[2026-11-13T16:37:49.894222] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=565, y=446
+[2026-11-13T16:37:52.198608] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=574, y=433
+[2026-11-13T16:37:52.893182] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=572, y=435
+[2026-11-13T16:37:54.232793] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=685, y=386
+[2026-11-13T16:37:54.798558] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=684, y=390
+[2026-11-13T16:37:55.534651] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=684, y=390
+[2026-11-13T16:37:55.739889] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=684, y=390
+[2026-11-13T16:37:56.720471] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=691, y=395
+[2026-11-13T16:37:57.648123] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=699, y=385
+[2026-11-13T16:37:59.748954] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=576, y=446
+[2026-11-13T16:38:01.254010] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=573, y=444
+[2026-11-13T16:38:02.595998] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=567, y=440
+[2026-11-13T16:38:03.436478] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=567, y=440
+[2026-11-13T16:38:03.599680] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=567, y=440
+[2026-11-13T16:38:03.769413] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=567, y=440
+[2026-11-13T16:38:03.927626] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=567, y=440
+[2026-11-13T16:38:04.506161] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=567, y=440
+[2026-11-13T16:38:05.527456] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=576, y=430
+[2026-11-13T16:38:06.939632] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=692, y=396
+[2026-11-13T16:38:11.644321] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=569, y=440
+[2026-11-13T16:38:13.932957] ACTION: MANUAL_CLICK | DETAILS: Session: session_uzvxxsu | x=571, y=445
+[2026-11-13T16:45:58.124100] ACTION: NAVIGATE | DETAILS: Session: session_uzvxxsu | URL: https://www.booking.com/searchresults.html?ss=Super+Collection+O+Puducherry+Railway+Station&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2 | Attempt: 1
+[2026-11-13T16:46:06.116606] ACTION: EXTRACT | DETAILS: Session: session_uzvxxsu | Extracted page content
+[2026-11-13T16:46:09.676495] ACTION: EXTRACT | DETAILS: Session: session_uzvxxsu | Extracted page content
+[2026-11-13T16:46:14.798916] ACTION: NAVIGATE | DETAILS: Session: session_uzvxxsu | URL: https://www.booking.com/hotel/in/super-collection-o-puducherry-railway-station.html?checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2 | Attempt: 1
+[2026-11-13T16:46:16.950490] ACTION: NAVIGATE | DETAILS: Session: session_dfn5igu | URL: https://www.booking.com/searchresults.en-us.html?ss=Super+Collection+O+Puducherry+Railway+Station&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2 | Attempt: 1
+[2026-11-13T16:46:20.198673] ACTION: EXTRACT | DETAILS: Session: session_uzvxxsu | Extracted page content
+[2026-11-13T16:46:22.042197] ACTION: NAVIGATE | DETAILS: Session: session_uzvxxsu | URL: https://www.booking.com/searchresults.html?ss=Super+Collection+O+Puducherry+Railway+Station&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&selected_currency=INR | Attempt: 1
+[2026-11-13T16:46:24.683767] ACTION: EXTRACT | DETAILS: Session: session_dfn5igu | Extracted page content
+[2026-11-13T16:46:28.722503] ACTION: EXTRACT | DETAILS: Session: session_uzvxxsu | Extracted page content
+[2026-11-13T16:46:29.911756] ACTION: EXTRACT | DETAILS: Session: session_dfn5igu | Extracted page content
+[2026-11-13T16:46:32.028723] ACTION: CLICK | DETAILS: Session: session_uzvxxsu | Selector: role=link[name*='Super Collection O Puducherry Railway Station']
+[2026-11-13T16:46:33.985085] ACTION: EXTRACT | DETAILS: Session: session_uzvxxsu | Extracted page content
+[2026-11-13T16:46:40.656013] ACTION: NAVIGATE | DETAILS: Session: session_dfn5igu | URL: https://www.booking.com/hotel/in/super-collection-o-puducherry-railway-station.en-us.html?checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2 | Attempt: 1
+[2026-11-13T16:46:40.734972] ACTION: REQUEST_HUMAN_ACTION | DETAILS: Session: session_uzvxxsu | Reason: Booking.com property page for Super Collection O Puducherry Railway Station is not rendering cleanly in the automated session (direct URL 404s, search results truncate). Please take over the live window to select the 2 rooms, enter guest details (lead: Vasu), and complete payment.
+[2026-11-13T16:46:46.248008] ACTION: EXTRACT | DETAILS: Session: session_dfn5igu | Extracted page content
+[2026-11-13T16:46:48.168695] ACTION: NAVIGATE | DETAILS: Session: session_dfn5igu | URL: https://www.booking.com/searchresults.en-us.html?ss=Super+Collection+O+Puducherry+Railway+Station&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&selected_currency=INR | Attempt: 1
+[2026-11-13T16:46:54.220357] ACTION: EXTRACT | DETAILS: Session: session_dfn5igu | Extracted page content
+[2026-11-13T16:46:57.426351] ACTION: CLICK | DETAILS: Session: session_dfn5igu | Selector: text='Super Collection O Puducherry Railway Station'
+[2026-11-13T17:32:34.530779] ACTION: NAVIGATE | DETAILS: Session: session_u9q1yju | URL: https://www.makemytrip.com/hotels/super_collection_o_puducherry_railway_station_formerly_peace_residecy-details-pondicherry.html | Attempt: 1
+[2026-11-13T17:32:35.791400] ACTION: NAVIGATE | DETAILS: Session: session_u9q1yju | URL: https://www.makemytrip.com/hotels/super_collection_o_puducherry_railway_station_formerly_peace_residecy-details-pondicherry.html | Attempt: 2
+[2026-11-13T17:32:38.111539] ACTION: NAVIGATE | DETAILS: Session: session_u9q1yju | URL: https://www.oyorooms.com/44817 | Attempt: 1
+[2026-11-13T17:32:50.827127] ACTION: EXTRACT | DETAILS: Session: session_u9q1yju | Extracted page content
+[2026-11-13T17:32:54.188762] ACTION: CLICK | DETAILS: Session: session_u9q1yju | Selector: text='Fri, 13 Nov – Sat, 14 Nov'
+[2026-11-13T17:33:04.397292] ACTION: EXTRACT | DETAILS: Session: session_u9q1yju | Extracted page content
+[2026-11-13T17:33:07.570565] ACTION: NAVIGATE | DETAILS: Session: session_u9q1yju | URL: https://www.oyorooms.com/44817?checkin=21-11-2026&checkout=23-11-2026&rooms=2&adults=4 | Attempt: 1
+[2026-11-13T17:33:12.486702] ACTION: EXTRACT | DETAILS: Session: session_u9q1yju | Extracted page content
+[2026-11-13T17:33:15.850029] ACTION: CLICK | DETAILS: Session: session_u9q1yju | Selector: text='Fri, 13 Nov – Sat, 14 Nov'
+[2026-11-13T17:33:25.858265] ACTION: CLICK | DETAILS: Session: session_u9q1yju | Selector: text='Near me'
+[2026-11-13T17:33:27.398225] ACTION: EXTRACT | DETAILS: Session: session_u9q1yju | Extracted page content
+[2026-11-13T17:33:29.109141] ACTION: EXTRACT | DETAILS: Session: session_u9q1yju | Extracted page content
+[2026-11-13T17:33:30.740304] ACTION: NAVIGATE | DETAILS: Session: session_u9q1yju | URL: https://www.makemytrip.com/hotels/super_collection_o_puducherry_railway_station_formerly_peace_residecy-details-pondicherry.html | Attempt: 1
+[2026-11-13T17:33:31.827468] ACTION: NAVIGATE | DETAILS: Session: session_u9q1yju | URL: https://www.makemytrip.com/hotels/super_collection_o_puducherry_railway_station_formerly_peace_residecy-details-pondicherry.html | Attempt: 2
+[2026-11-13T17:33:33.468954] ACTION: NAVIGATE | DETAILS: Session: session_u9q1yju | URL: https://www.oyorooms.com/44817 | Attempt: 1
+[2026-11-13T17:33:37.466571] ACTION: CLICK | DETAILS: Session: session_u9q1yju | Selector: text='1 Room, 1 Guest'
+[2026-11-13T17:33:39.075626] ACTION: EXTRACT | DETAILS: Session: session_u9q1yju | Extracted page content
+[2026-11-13T17:33:40.820834] ACTION: CLICK | DETAILS: Session: session_u9q1yju | Selector: button "Add Room"
+[2026-11-13T17:33:43.004794] ACTION: EXTRACT | DETAILS: Session: session_u9q1yju | Extracted page content
+[2026-11-13T17:33:44.258826] ACTION: CLICK | DETAILS: Session: session_u9q1yju | Selector: text='2 Rooms, 2 Guests'
+[2026-11-13T17:39:13.064493] ACTION: NAVIGATE | DETAILS: Session: session_h520d17 | URL: https://www.makemytrip.com/hotels/super_collection_o_puducherry_railway_station_formerly_peace_residecy-details-pondicherry.html | Attempt: 1
+[2026-11-13T17:39:21.125136] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:39:22.341729] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:39:24.133293] ACTION: NAVIGATE | DETAILS: Session: session_h520d17 | URL: https://www.makemytrip.com/hotels/super_collection_o_puducherry_railway_station_formerly_peace_residecy-details-pondicherry.html?checkin=11212026&checkout=11232026&roomStayQualifier=2e0e&country=IN&currency=INR | Attempt: 1
+[2026-11-13T17:39:27.894051] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:39:30.225885] ACTION: NAVIGATE | DETAILS: Session: session_h520d17 | URL: https://www.oyorooms.com/44817?checkin=21-11-2026&checkout=23-11-2026&guests=4&rooms=2 | Attempt: 1
+[2026-11-13T17:39:36.972002] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:39:40.104234] ACTION: CLICK | DETAILS: Session: session_h520d17 | Selector: text='Fri, 13 Nov – Sat, 14 Nov'
+[2026-11-13T17:39:50.096345] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:39:51.660298] ACTION: CLICK | DETAILS: Session: session_h520d17 | Selector: text='2 Rooms, 4 Guests'
+[2026-11-13T17:39:53.692727] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:39:55.200673] ACTION: CLICK | DETAILS: Session: session_h520d17 | Selector: text='Fri, 13 Nov – Sat, 14 Nov'
+[2026-11-13T17:40:05.661265] ACTION: CLICK | DETAILS: Session: session_h520d17 | Selector: text='Fri, 13 Nov'
+[2026-11-13T17:40:07.291050] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:40:09.040225] ACTION: CLICK | DETAILS: Session: session_h520d17 | Selector: role=cell[name='21']
+[2026-11-13T17:40:10.979447] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:40:14.122254] ACTION: NAVIGATE | DETAILS: Session: session_h520d17 | URL: https://www.oyorooms.com/44817 | Attempt: 1
+[2026-11-13T17:40:20.977473] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:40:25.525573] ACTION: CLICK | DETAILS: Session: session_h520d17 | Selector: text='Fri, 13 Nov'
+[2026-11-13T17:40:27.263527] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:40:28.901899] ACTION: CLICK | DETAILS: Session: session_h520d17 | Selector: role=cell[name='21']
+[2026-11-13T17:40:30.908789] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:40:33.130574] ACTION: NAVIGATE | DETAILS: Session: session_h520d17 | URL: https://www.makemytrip.com/hotels/super_collection_o_puducherry_railway_station_formerly_peace_residecy-details-pondicherry.html?checkin=2026-11-21&checkout=2026-11-23&rooms=2&adults=4&children=0 | Attempt: 1
+[2026-11-13T17:40:41.700638] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:42:49.246108] ACTION: NAVIGATE | DETAILS: Session: session_h520d17 | URL: https://www.oyorooms.com/44817?checkin=2026-11-21&checkout=2026-11-23&rooms=2&adults=4 | Attempt: 1
+[2026-11-13T17:43:00.703253] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:43:04.084010] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:43:07.309580] ACTION: CLICK | DETAILS: Session: session_h520d17 | Selector: button "Search"
+[2026-11-13T17:43:10.826418] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:43:14.605106] ACTION: NAVIGATE | DETAILS: Session: session_h520d17 | URL: https://www.oyorooms.com/44817/?checkin=2026-11-21&checkout=2026-11-23&rooms=2&adults=4&guests=4 | Attempt: 1
+[2026-11-13T17:43:19.109779] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:43:20.615661] ACTION: CLICK | DETAILS: Session: session_h520d17 | Selector: text='Choose your room'
+[2026-11-13T17:43:22.450257] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:43:31.796710] ACTION: CLICK | DETAILS: Session: session_h520d17 | Selector: text='Choose your room'
+[2026-11-13T17:43:33.296483] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:43:35.092136] ACTION: CLICK | DETAILS: Session: session_h520d17 | Selector: role=button[name='SELECT']
+[2026-11-13T17:43:45.436848] ACTION: CLICK | DETAILS: Session: session_h520d17 | Selector: text='Classic'
+[2026-11-13T17:43:47.490654] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:43:50.670861] ACTION: NAVIGATE | DETAILS: Session: session_h520d17 | URL: https://www.oyorooms.com/44817/?checkin=2026-11-21&checkout=2026-11-23&rooms=2&adults=4&guests=4 | Attempt: 1
+[2026-11-13T17:44:02.052641] ACTION: EXTRACT | DETAILS: Session: session_h520d17 | Extracted page content
+[2026-11-13T17:44:06.652519] ACTION: REQUEST_HUMAN_ACTION | DETAILS: Session: session_h520d17 | Reason: Room selection & guest details / payment
+[2026-11-13T17:44:35.233112] ACTION: MANUAL_CLICK | DETAILS: Session: session_h520d17 | x=868, y=569
+[2026-11-13T17:44:46.796024] ACTION: MANUAL_CLICK | DETAILS: Session: session_h520d17 | x=274, y=119
+[2026-11-13T18:16:53.355970] ACTION: NAVIGATE | DETAILS: Session: session_sr240ob | URL: https://www.makemytrip.com/hotels/hotel-listing/?checkin=11212026&checkout=11232026&city=CTPondicherry&country=IN&locusId=CTPondicherry&locusType=city&roomStayQualifier=2e0e&searchText=Pondicherry&_uCurrency=INR | Attempt: 1
+[2026-11-13T18:17:01.086363] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:17:02.526643] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:17:04.597008] ACTION: NAVIGATE | DETAILS: Session: session_sr240ob | URL: https://www.makemytrip.com/hotels/hotel-listing/?checkin=11212026&checkout=11232026&city=CTPondicherry&country=IN&locusId=CTPondicherry&locusType=city&roomStayQualifier=2e0e&searchText=Pondicherry&_uCurrency=INR&nearby=Puducherry%20Railway%20Station | Attempt: 1
+[2026-11-13T18:17:08.772242] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:17:11.528971] ACTION: NAVIGATE | DETAILS: Session: session_sr240ob | URL: https://www.booking.com/landmark/in/pondicherry-railway-station.html?checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&group_children=0&selected_currency=INR | Attempt: 1
+[2026-11-13T18:17:18.762024] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:17:21.467031] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:17:38.239378] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:17:41.087983] ACTION: NAVIGATE | DETAILS: Session: session_sr240ob | URL: https://www.agoda.com/en-in/hotels-near-puducherry-railway-station/attractions/pondicherry-in.html?checkIn=2026-11-21&los=2&adults=4&rooms=2&currency=INR | Attempt: 1
+[2026-11-13T18:17:54.335096] ACTION: NAVIGATE | DETAILS: Session: session_sr240ob | URL: https://www.agoda.com/en-in/hotels-near-puducherry-railway-station/attractions/pondicherry-in.html?checkIn=2026-11-21&los=2&adults=4&rooms=2&currency=INR | Attempt: 1
+[2026-11-13T18:18:05.011744] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:18:08.420847] ACTION: CLICK | DETAILS: Session: session_sr240ob | Selector: gridcell "Sat Nov 21 2026"
+[2026-11-13T18:18:10.279539] ACTION: CLICK | DETAILS: Session: session_sr240ob | Selector: role=gridcell[name='Sat Nov 21 2026']
+[2026-11-13T18:18:12.243517] ACTION: CLICK | DETAILS: Session: session_sr240ob | Selector: role=gridcell[name='Mon Nov 23 2026']
+[2026-11-13T18:18:14.515524] ACTION: CLICK | DETAILS: Session: session_sr240ob | Selector: text=2 adults 1 room
+[2026-11-13T18:18:56.370575] ACTION: NAVIGATE | DETAILS: Session: session_sr240ob | URL: https://www.agoda.com/en-in/hotels-near-puducherry-railway-station/attractions/pondicherry-in.html?checkIn=2026-11-21&checkOut=2026-11-23&adults=4&rooms=2&currency=INR | Attempt: 1
+[2026-11-13T18:19:08.160930] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:19:11.122900] ACTION: CLICK | DETAILS: Session: session_sr240ob | Selector: role=gridcell[name='Sat Nov 21 2026']
+[2026-11-13T18:19:13.365303] ACTION: CLICK | DETAILS: Session: session_sr240ob | Selector: role=gridcell[name='Mon Nov 23 2026']
+[2026-11-13T18:19:15.698662] ACTION: CLICK | DETAILS: Session: session_sr240ob | Selector: role=button[name='SEARCH']
+[2026-11-13T18:19:21.041406] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:19:33.063261] ACTION: CLICK | DETAILS: Session: session_sr240ob | Selector: role=button[name='Guests and rooms 2 adults 1 room']
+[2026-11-13T18:19:36.586434] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:19:39.663135] ACTION: CLICK | DETAILS: Session: session_sr240ob | Selector: role=button[name='Add Room']
+[2026-11-13T18:19:43.009073] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:19:46.201940] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:19:49.456944] ACTION: CLICK | DETAILS: Session: session_sr240ob | Selector: role=button[name='Add Adult']
+[2026-11-13T18:19:58.138581] ACTION: NAVIGATE | DETAILS: Session: session_sr240ob | URL: https://www.agoda.com/en-in/hotels-near-puducherry-railway-station/attractions/pondicherry-in.html?checkIn=2026-11-21&los=2&adults=4&rooms=2&currency=INR&cid=1844104 | Attempt: 1
+[2026-11-13T18:20:08.360041] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:20:11.964200] ACTION: CLICK | DETAILS: Session: session_sr240ob | Selector: role=gridcell[name='Sat Nov 21 2026']
+[2026-11-13T18:20:14.329210] ACTION: CLICK | DETAILS: Session: session_sr240ob | Selector: role=gridcell[name='Mon Nov 23 2026']
+[2026-11-13T18:20:16.506521] ACTION: CLICK | DETAILS: Session: session_sr240ob | Selector: role=button[name='SEARCH']
+[2026-11-13T18:20:22.094938] ACTION: EXTRACT | DETAILS: Session: session_sr240ob | Extracted page content
+[2026-11-13T18:53:57.277008] ACTION: NAVIGATE | DETAILS: Session: session_zyi1vc8 | URL: https://www.booking.com/searchresults.en-us.html?ss=Pondicherry%20Railway%20Station&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&selected_currency=INR | Attempt: 1
+[2026-11-13T18:54:07.154306] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T18:54:10.487345] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T18:54:15.062276] ACTION: NAVIGATE | DETAILS: Session: session_zyi1vc8 | URL: https://www.google.com/travel/hotels/Puducherry?q=hotels%20near%20Puducherry%20railway%20station&dates=2026-11-21,2026-11-23&adults=4 | Attempt: 1
+[2026-11-13T18:54:22.564020] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T18:54:24.997905] ACTION: CLICK | DETAILS: Session: session_zyi1vc8 | Selector: role=button[name='Close']
+[2026-11-13T18:54:26.801753] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T18:54:28.618806] ACTION: CLICK | DETAILS: Session: session_zyi1vc8 | Selector: role=textbox[name='Check-in']
+[2026-11-13T18:54:30.926371] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T18:54:33.203937] ACTION: NAVIGATE | DETAILS: Session: session_zyi1vc8 | URL: https://www.google.com/travel/search?q=hotels%20near%20Puducherry%20railway%20station&checkin=2026-11-21&checkout=2026-11-23&adults=4&hl=en-IN&gl=IN&curr=INR | Attempt: 1
+[2026-11-13T18:54:39.513895] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T18:54:41.541823] ACTION: CLICK | DETAILS: Session: session_zyi1vc8 | Selector: role=textbox[name='Check-in']
+[2026-11-13T18:54:43.515753] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T18:54:45.306759] ACTION: NAVIGATE | DETAILS: Session: session_zyi1vc8 | URL: https://www.booking.com/searchresults.html?ss=Pondicherry+Railway+Station%2C+Puducherry&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&selected_currency=INR&nflt=free_cancellation%3D1 | Attempt: 1
+[2026-11-13T18:54:51.710297] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T18:54:54.818705] ACTION: PRESS_KEY | DETAILS: Session: session_zyi1vc8 | Key: End
+[2026-11-13T18:54:57.982968] ACTION: NAVIGATE | DETAILS: Session: session_zyi1vc8 | URL: https://www.booking.com/searchresults.html?ss=Pondicherry+Railway+Station%2C+Puducherry&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&selected_currency=INR&nflt=free_cancellation%3D1 | Attempt: 1
+[2026-11-13T18:55:03.565033] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T18:55:13.346012] ACTION: NAVIGATE | DETAILS: Session: session_zyi1vc8 | URL: https://www.google.com/travel/search?q=FabExpress%20Santhi%20Inn%20Puducherry&checkin=2026-11-21&checkout=2026-11-23&adults=4&hl=en-IN&gl=IN&curr=INR | Attempt: 1
+[2026-11-13T18:55:21.390598] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T19:01:43.615457] ACTION: NAVIGATE | DETAILS: Session: session_zyi1vc8 | URL: https://www.google.com/travel/hotels/Puducherry?q=FabExpress%20Santhi%20Inn&dates=2026-11-21,2026-11-23&adults=4 | Attempt: 1
+[2026-11-13T19:01:51.266322] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T19:01:54.340971] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T19:01:56.266407] ACTION: NAVIGATE | DETAILS: Session: session_zyi1vc8 | URL: https://www.booking.com/searchresults.en-us.html?ss=FabExpress+Santhi+Inn+Puducherry&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2 | Attempt: 1
+[2026-11-13T19:02:01.509047] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T19:02:07.175787] ACTION: PRESS_KEY | DETAILS: Session: session_zyi1vc8 | Key: Tab
+[2026-11-13T19:02:09.693142] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T19:02:17.131481] ACTION: NAVIGATE | DETAILS: Session: session_zyi1vc8 | URL: https://www.booking.com/hotel/in/fabexpress-s-inn-near-promenade-beach.html?checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&selected_currency=INR | Attempt: 1
+[2026-11-13T19:02:25.389358] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T19:04:36.711156] ACTION: NAVIGATE | DETAILS: Session: session_zyi1vc8 | URL: https://www.booking.com/searchresults.en-us.html?ss=FabExpress+Santhi+Inn+Puducherry&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&group_children=0 | Attempt: 1
+[2026-11-13T19:04:41.667627] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
+[2026-11-13T19:04:48.069634] ACTION: REQUEST_HUMAN_ACTION | DETAILS: Session: session_zyi1vc8 | Reason: Live booking takeover — FabExpress Santhi Inn, 2 rooms, 21–23 Nov 2026, lead guest Vasu

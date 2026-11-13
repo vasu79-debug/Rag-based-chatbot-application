@@ -6,3 +6,6 @@ data/chroma_db/
 data/uploads/
 .pytest_cache/
 data/chat_history.db
+data/checkpoints.db
+evidence/
+audit.log

@@ -29,12 +29,12 @@ export default function Header({ activeTab, onNavigate, onNewChat, healthData, s
         <div>
           <h1 className="brand-title">
             {isAdmin ? (
-              "Subscription Administration"
+              "Travel Administration"
             ) : (
               <>
-                Subscription Assistant
+                Travel & Booking Assistant
                 <span className="brand-subtitle">
-                  · Intelligent Subscription Tracking & Optimization
+                  · Intelligent Trip Planning & Autonomous Booking
                 </span>
               </>
             )}

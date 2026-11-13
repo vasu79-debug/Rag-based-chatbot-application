@@ -100,3 +100,41 @@ def get_chat_model(temperature: float = None, max_tokens: int = 1500) -> BaseCha
             max_tokens=max_tokens,
         )
 
+
+def get_guard_model() -> BaseChatModel:
+    """Returns a fast, deterministic model instance dedicated for security/content guardrail verification."""
+    provider = (settings.AI_PROVIDER or "deepseek").lower()
+
+    if provider == "groq":
+        from langchain_groq import ChatGroq
+        # Llama 3.1 8B Instant is optimized for low-latency guardrail checks (~150ms)
+        return ChatGroq(
+            model="llama-3.1-8b-instant",
+            groq_api_key=settings.GROQ_API_KEY,
+            temperature=0.0,
+            max_tokens=100,
+        )
+
+    elif provider == "deepseek":
+        from langchain_openai import ChatOpenAI
+        return ChatOpenAI(
+            model=settings.AI_DEFAULT_MODEL or "deepseek-chat",
+            openai_api_key=settings.DEEPSEEK_API_KEY,
+            openai_api_base="https://api.deepseek.com/v1",
+            temperature=0.0,
+            max_tokens=100,
+        )
+
+    elif provider == "openai":
+        from langchain_openai import ChatOpenAI
+        return ChatOpenAI(
+            model="gpt-4o-mini",
+            openai_api_key=settings.OPENAI_API_KEY,
+            temperature=0.0,
+            max_tokens=100,
+        )
+
+    else:
+        return get_chat_model(temperature=0.0, max_tokens=100)
+
+

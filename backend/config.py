@@ -70,8 +70,7 @@ class Settings(BaseSettings):
         "For payments, bookings, or sensitive actions, always guide the user and request human approval or takeover."
     )
     OUT_OF_SCOPE_MESSAGE: str = (
-        "I am a dedicated travel planning and booking assistant. I specialize only in trips, itineraries, flights, and hotels. "
-        "I cannot assist with general shopping, consumer electronics, or retail purchases."
+        "I am a specialized travel planning and booking assistant. I can only assist with trips, itineraries, flights, hotels, and travel recommendations. I cannot answer or assist with topics outside of travel."
     )
 
     # Tools that require Human-in-the-Loop (HITL) approval before execution

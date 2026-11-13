@@ -69,7 +69,10 @@ class Settings(BaseSettings):
         "When comparing options, clearly list prices, departure times, durations, and ratings. "
         "For payments, bookings, or sensitive actions, always guide the user and request human approval or takeover."
     )
-    OUT_OF_SCOPE_MESSAGE: str = "I am a dedicated travel planning and booking assistant. I specialize in trips, itineraries, flights, and hotels."
+    OUT_OF_SCOPE_MESSAGE: str = (
+        "I am a dedicated travel planning and booking assistant. I specialize only in trips, itineraries, flights, and hotels. "
+        "I cannot assist with general shopping, consumer electronics, or retail purchases."
+    )
 
     # Tools that require Human-in-the-Loop (HITL) approval before execution
     WRITE_TOOLS: str = ""

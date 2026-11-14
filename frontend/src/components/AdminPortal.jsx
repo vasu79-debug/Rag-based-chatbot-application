@@ -154,16 +154,7 @@ export default function AdminPortal({ documents, onUpload, onIngestUrl, onDelete
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder="https://example.com/about-us"
               disabled={uploading}
-              style={{
-                flex: 1,
-                padding: "8px 12px",
-                borderRadius: "8px",
-                background: "rgba(255, 255, 255, 0.06)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                color: "#fff",
-                fontSize: "13px",
-                outline: "none",
-              }}
+              className="text-input"
             />
             <button
               type="submit"
@@ -195,15 +186,15 @@ export default function AdminPortal({ documents, onUpload, onIngestUrl, onDelete
           
           {/* List of Connected Servers */}
           {mcpServers.length > 0 && (
-            <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: "8px", padding: "12px", border: "1px solid rgba(255,255,255,0.1)" }}>
-              <div style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "8px", fontWeight: "600" }}>Connected Servers ({mcpServers.length})</div>
+            <div className="mcp-box">
+              <div style={{ fontSize: "12px", color: "var(--text-2)", marginBottom: "8px", fontWeight: "600" }}>Connected Servers ({mcpServers.length})</div>
               {mcpServers.map((url, idx) => (
-                <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(0,0,0,0.2)", padding: "8px 12px", borderRadius: "6px", marginBottom: "6px" }}>
+                <div key={idx} className="mcp-row">
                   <span style={{ fontSize: "13px", color: "var(--org-emerald)", fontFamily: "monospace" }}>✓ {url}</span>
                   <button
                     onClick={() => handleDisconnectMcp(url)}
                     disabled={savingMcp}
-                    style={{ background: "transparent", border: "none", color: "#f87171", cursor: "pointer", fontSize: "14px" }}
+                    style={{ background: "transparent", border: "none", color: "var(--danger)", cursor: "pointer", fontSize: "14px" }}
                     title="Disconnect Server"
                   >
                     🗑️
@@ -221,16 +212,7 @@ export default function AdminPortal({ documents, onUpload, onIngestUrl, onDelete
               onChange={(e) => setMcpUrl(e.target.value)}
               placeholder="http://127.0.0.1:8001/sse"
               disabled={savingMcp}
-              style={{
-                flex: 1,
-                padding: "8px 12px",
-                borderRadius: "8px",
-                background: "rgba(255, 255, 255, 0.06)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                color: "#fff",
-                fontSize: "13px",
-                outline: "none",
-              }}
+              className="text-input"
             />
             <button
               onClick={handleSaveMcp}
@@ -244,38 +226,20 @@ export default function AdminPortal({ documents, onUpload, onIngestUrl, onDelete
         </div>
 
         {mcpStatus && (
-          <div style={{ marginTop: "12px", fontSize: "12px", color: mcpStatus.startsWith("✓") ? "var(--org-emerald)" : (mcpStatus.startsWith("ℹ️") ? "#9ca3af" : "#f87171") }}>
+          <div style={{ marginTop: "12px", fontSize: "12px", color: mcpStatus.startsWith("✓") ? "var(--org-emerald)" : (mcpStatus.startsWith("ℹ️") ? "var(--text-2)" : "var(--danger)") }}>
             {mcpStatus}
           </div>
         )}
       </div>
 
       {uploadError && (
-        <div style={{
-          padding: "12px 16px",
-          borderRadius: "8px",
-          background: "rgba(239, 68, 68, 0.12)",
-          border: "1px solid rgba(239, 68, 68, 0.3)",
-          color: "#f87171",
-          fontSize: "13px",
-          marginBottom: "20px",
-          fontWeight: "600"
-        }}>
+        <div className="notice error">
           ⚠️ {uploadError}
         </div>
       )}
 
       {urlStatus && (
-        <div style={{
-          padding: "12px 16px",
-          borderRadius: "8px",
-          background: "rgba(16, 185, 129, 0.12)",
-          border: "1px solid rgba(16, 185, 129, 0.3)",
-          color: "#34d399",
-          fontSize: "13px",
-          marginBottom: "20px",
-          fontWeight: "600"
-        }}>
+        <div className="notice success">
           {urlStatus}
         </div>
       )}

@@ -34,6 +34,26 @@ class Settings(BaseSettings):
     # Browser Sandbox (Docker / Remote Browserless endpoint)
     # e.g., "ws://localhost:3000" or "ws://browser-sandbox:3000"
     BROWSER_WS_ENDPOINT: Optional[str] = None
+    # Token for the Browserless container (docker-compose TOKEN). Appended as ?token=...
+    BROWSERLESS_TOKEN: Optional[str] = None
+    # Allow an UNSANDBOXED local Chromium when the Docker sandbox is unreachable.
+    # None = only when ENVIRONMENT=development.
+    ALLOW_LOCAL_BROWSER_FALLBACK: Optional[bool] = None
+    # Semantic URL guard (small LLM) timeout; it fails closed.
+    GUARD_TIMEOUT_SECONDS: float = 6.0
+    # Evidence screenshots older than this are deleted by the reaper.
+    EVIDENCE_RETENTION_HOURS: int = 24
+    # browser-use 1.x sub-agent runs model-written Python as this server's OS user.
+    # Keep OFF unless the backend runs in a locked-down container without secrets on disk.
+    # Max browser tool calls per user message (browser_use_task counts as 5). Keeps the agent
+    # well below LangGraph's recursion_limit so it can stop and summarize instead of failing.
+    BROWSER_ACTION_BUDGET: int = 25
+    ENABLE_BROWSER_USE_TASK: bool = True
+    BROWSER_USE_MODEL: str = "deepseek-flash"
+    BROWSER_USE_TIMEOUT_SECONDS: int = 180
+    # MCP servers: only http(s) URLs by default. JSON configs can start local
+    # processes (stdio commands) - allow only if you trust every caller of the API.
+    ALLOW_MCP_STDIO_CONFIG: bool = False
 
     # Storage Paths
     BASE_DIR: Path = Path(__file__).resolve().parent

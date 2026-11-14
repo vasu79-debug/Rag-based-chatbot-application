@@ -1,32 +1,48 @@
 # Demo 7B Architecture: Browser Agent with Transparency
 
-This document outlines the architectural patterns used to achieve safe and observable web browsing using LangGraph and Playwright.
+Safe, observable web browsing with LangGraph + Playwright, built the way production browser agents work:
+**observe → act by element number → verify → gate risky steps → contain the browser.**
 
-## 1. The Core Data Flow
+## 1. Core data flow
 
-When a user requests a web-based action (e.g., "Go to Hacker News and read the top story"), the system uses a ReAct agent to orchestrate a browser.
+1. **User request** in chat, e.g. "Find FabExpress Santhi Inn in Puducherry for 21–23 Nov 2026, 4 adults, 2 rooms".
+2. **Main agent** (`graph/mcp_graph.py`, LangGraph ReAct). Laya prunes MCP tools that are clearly not needed;
+   browser, search and knowledge tools are always available. Past turns are reduced to a 3-turn window.
+3. **Browser loop** (`browser_tools.py`):
+   - `navigate(url)` – URL policy (scheme, SSRF, category, blocklist, semantic guard) then open a pre-filled search URL.
+   - `get_page_content()` – page text excerpt + a **numbered list of interactive elements** (`[12] link "FabExpress Santhi Inn"`).
+   - `find_on_page("words")` – searches the **whole** page, so long result lists are never cut off.
+   - `click(index)`, `type_text(index, text, press_enter)`, `select_option(index, option)`, `press_key`, `scroll`, `go_back`.
+   - Every action reports **what changed** (navigated / content changed / new tab / no change). Repeating the same
+     no-op twice is refused (loop detection). JS dialogs are auto-dismissed and reported.
+4. **Approval gate** – clicks / Enter that book, reserve, pay, confirm, buy or submit a payment / personal-details form
+   call LangGraph `interrupt()`; the chat shows an approval card. Rejected → the agent must not retry.
+5. **Human takeover** – `request_human_action` for login, OTP, CAPTCHA, passwords, card details and guest details.
+   The agent **cannot** type into password / card / CVV / OTP fields (refused in code).
+6. **Live view** – `/ws/sandbox/{session_id}` streams JPEG frames of the session's page (~4 fps) to the chat UI.
 
-1. **User Request:** The user submits a natural language request.
-2. **Tool Selection:** The LangGraph ReAct agent determines which browser action to take (e.g., `navigate(url)`).
-3. **Browser Automation:** The agent calls a tool in `browser_tools.py`. Playwright executes the action in a **headful** (visible) browser window.
-4. **Evidence Collection:** Before and after any interaction (`click` or `type_text`), Playwright takes a screenshot of the DOM state and saves it to the `evidence/` directory.
-5. **Auditing:** Every action is securely logged to `audit.log`.
-6. **Observation:** The result (or the extracted text) is returned to the agent, which then formulates the next step or the final answer.
+## 2. Sandbox & containment
 
-## 2. Playwright Integration (`browser_tools.py`)
+- One isolated browser context per chat session, connected over CDP to the Browserless container
+  (`docker-compose.yml`, bound to `127.0.0.1:3000`, `TOKEN` required).
+- If the container is unreachable, an **unsandboxed local Chromium is used only when `ENVIRONMENT=development`**
+  (override with `ALLOW_LOCAL_BROWSER_FALLBACK`). Otherwise the tool fails.
+- **Network guard**: every request from the page (navigations, XHR, images, iframes) is checked; private / loopback /
+  link-local / metadata IPs are aborted. The final URL after redirects is re-checked and the page is closed if it is
+  not allowed. Known limit: DNS is resolved by the backend, not inside the browser, so DNS-rebinding is not fully covered.
+- **Prompt injection**: page content is returned inside `<untrusted_web_content>` and the system prompt forbids following
+  instructions from web pages. MCP tools declaring `[operation: write]` always need approval.
+- Audit log (`audit.log`, rotated at 5 MB, typed text and personal data never logged) and evidence screenshots
+  (`evidence/`, deleted after `EVIDENCE_RETENTION_HOURS`).
 
-Instead of making silent API calls, the Browser Agent physically controls a Chromium instance - but it no longer does this as a visible window on the server's own desktop. It runs **headless, one isolated browser/context/page per chat session**, and streams what it sees into the chat UI itself as a live "sandbox window" - the same idea as ChatGPT's agent mode.
+## 3. Optional: `browser_use_task` (off by default)
 
-Key architectural decisions:
-- **Headless + Per-Session Sandbox:** `_sessions: Dict[session_id, {browser, context, page}]` replaces the old single global `_page`/`_browser`. Each chat session gets its own isolated Chromium sandbox, so concurrent chats never share a browser, and the backend has no dependency on a display (it can run on a headless server/container).
-- **Session binding via contextvar:** The LLM-facing tools (`navigate`, `click`, `type_text`, ...) take no `session_id` argument - the agent graph (`graph/mcp_graph.py`) calls `set_current_session(session_id)` once per turn before invoking the tools, and a `contextvars.ContextVar` carries that binding through to whichever sandbox the tool call should act on.
-- **Live view over WebSocket:** `main.py` exposes `GET /ws/sandbox/{session_id}`, which polls `get_latest_screenshot_base64()` roughly every 250ms and pushes JPEG frames (plus the current page URL) to the frontend's `SandboxPanel.jsx`. This is a continuous live view, not just the one still-frame-per-tool-call that used to show up inline in the chat transcript.
+`ENABLE_BROWSER_USE_TASK=true` adds a read-only research sub-agent built on browser-use 1.x. browser-use 1.x executes
+model-written Python as the backend's OS user and drives its own browser connection (not shown in the live view, not
+covered by the per-action gates). Enable it only when the backend runs in a locked-down container with no secrets on disk.
 
-## 3. Human-in-the-Loop & Security Controls
+## 4. Not done yet
 
-Web agents pose a high security risk. This architecture mitigates risks through:
-
-- **Visibility:** The sandbox window shows the agent's live view continuously, so the user can monitor its progress even though the browser itself is headless.
-- **Credential Safety:** The agent is instructed via system prompt NOT to type passwords.
-- **Emergency Kill Switch:** `main.py` exposes `POST /api/kill?session_id=...`, used by both the header's "Emergency Stop" button and the sandbox panel's own "Stop" button. It tears down that session's sandbox browser context immediately.
-- **Known gap - human takeover:** `request_human_action` still injects a "Resume" button into the page DOM and waits for it to be clicked, which only worked when the browser was a real window on the presenter's own screen. Now that the browser is headless and only visible as a screenshot stream, nobody can click that injected button - mouse/keyboard input forwarding from the sandbox panel into Playwright (`page.mouse` / `page.keyboard`, driven by events captured on the live-view `<img>`) is a deliberate follow-up, not yet built. Until it ships, login/OTP/CAPTCHA pauses will time out after 5 minutes rather than actually letting the user complete them in-sandbox.
+- Authentication / per-user session ownership for chat, WebSocket and sandbox endpoints.
+- CDP screencast instead of screenshot polling for the live view.
+- Postgres/Redis for checkpoints and session state (needed for more than one backend worker).

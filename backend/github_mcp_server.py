@@ -10,9 +10,15 @@ logger = logging.getLogger(__name__)
 # Initialize FastMCP Server
 mcp = FastMCP("GitHub Server")
 
-# Initialize PyGithub client using the user's PAT
-# Using the token provided by the user (partially masked token shouldn't be hardcoded if they provided the full one in env)
-GITHUB_TOKEN = os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN", "github_pat_11CMOD35Y0X4xxxew_GL2DDJnUndrelRZc3cc3kKY3IlBrmFrt8gTEhg4mxxxQbEYy3")
+# Initialize PyGithub client using environment variable only
+GITHUB_TOKEN = os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+if not GITHUB_TOKEN:
+    logger.critical("CRITICAL: GITHUB_PERSONAL_ACCESS_TOKEN environment variable is not set. Refusing to start server.")
+    raise ValueError(
+        "CRITICAL SECURITY CONFIGURATION: 'GITHUB_PERSONAL_ACCESS_TOKEN' environment variable is required. "
+        "Do not hardcode tokens in the codebase. Please set it in your .env file or environment."
+    )
+
 g = Github(GITHUB_TOKEN)
 
 @mcp.tool()

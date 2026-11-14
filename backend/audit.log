@@ -524,3 +524,413 @@
 [2026-11-13T19:04:36.711156] ACTION: NAVIGATE | DETAILS: Session: session_zyi1vc8 | URL: https://www.booking.com/searchresults.en-us.html?ss=FabExpress+Santhi+Inn+Puducherry&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&group_children=0 | Attempt: 1
 [2026-11-13T19:04:41.667627] ACTION: EXTRACT | DETAILS: Session: session_zyi1vc8 | Extracted page content
 [2026-11-13T19:04:48.069634] ACTION: REQUEST_HUMAN_ACTION | DETAILS: Session: session_zyi1vc8 | Reason: Live booking takeover — FabExpress Santhi Inn, 2 rooms, 21–23 Nov 2026, lead guest Vasu
+[2026-11-14T12:22:04.793648] ACTION: BROWSER_USE_TASK | DETAILS: Session: session_3nm3lq3 | goal length 476
+[2026-11-14T12:23:44.527217] ACTION: NAVIGATE | DETAILS: Session: session_3nm3lq3 | URL: https://www.google.com/travel/hotels/Puducherry?q=hotels%20near%20Puducherry%20railway%20station&dates=2026-11-21,2026-11-23&adults=4 | Attempt: 1
+[2026-11-14T12:23:53.570677] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 168 elements
+[2026-11-14T12:23:54.831069] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [12] input
+[2026-11-14T12:23:57.003397] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 400 elements
+[2026-11-14T12:23:58.306828] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [32] div
+[2026-11-14T12:24:00.358973] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 204 elements
+[2026-11-14T12:24:01.982760] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [23] div
+[2026-11-14T12:24:04.013582] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 400 elements
+[2026-11-14T12:24:05.694147] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [357] button
+[2026-11-14T12:24:08.773581] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 167 elements
+[2026-11-14T12:24:10.160914] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [18] div
+[2026-11-14T12:24:12.660726] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 172 elements
+[2026-11-14T12:24:14.115420] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [20] button
+[2026-11-14T12:24:16.177203] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 172 elements
+[2026-11-14T12:24:17.486918] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [20] button
+[2026-11-14T12:24:19.794162] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 172 elements
+[2026-11-14T12:24:22.296500] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [24] button
+[2026-11-14T12:24:24.702243] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 166 elements
+[2026-11-14T12:24:26.234019] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [21] button
+[2026-11-14T12:24:28.540541] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 168 elements
+[2026-11-14T12:24:29.769148] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [21] button
+[2026-11-14T12:24:31.930191] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 165 elements
+[2026-11-14T12:24:33.466738] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [21] button
+[2026-11-14T12:24:35.742434] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 167 elements
+[2026-11-14T12:24:36.999198] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [21] button
+[2026-11-14T12:24:39.655870] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 165 elements
+[2026-11-14T12:24:40.992435] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [21] button
+[2026-11-14T12:24:42.948746] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 167 elements
+[2026-11-14T12:24:46.046342] ACTION: NAVIGATE | DETAILS: Session: session_3nm3lq3 | URL: https://www.google.com/travel/search?q=hotels%20near%20Puducherry%20railway%20station&dates=2026-11-21,2026-11-23&adults=4 | Attempt: 1
+[2026-11-14T12:24:54.156795] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 168 elements
+[2026-11-14T12:24:55.654169] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [12] input
+[2026-11-14T12:24:58.434926] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 400 elements
+[2026-11-14T12:24:59.774851] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [32] div
+[2026-11-14T12:25:02.063482] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 204 elements
+[2026-11-14T12:25:03.541758] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [23] div
+[2026-11-14T12:25:05.649861] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 400 elements
+[2026-11-14T13:40:47.562861] ACTION: BROWSER_USE_TASK | DETAILS: Session: session_3nm3lq3 | goal length 419
+[2026-11-14T13:41:49.535597] ACTION: NAVIGATE | DETAILS: Session: session_3nm3lq3 | URL: https://www.google.com/travel/hotels/Puducherry?q=hotels%20near%20Puducherry%20railway%20station&dates=2026-11-21,2026-11-23 | Attempt: 1
+[2026-11-14T13:41:58.487661] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 169 elements
+[2026-11-14T13:42:00.010472] ACTION: NAVIGATE | DETAILS: Session: session_3nm3lq3 | URL: https://www.google.com/travel/search?q=hotels%20near%20Puducherry%20railway%20station&dates=2026-11-21,2026-11-23&adults=4&hl=en-IN&curr=INR | Attempt: 1
+[2026-11-14T13:42:07.926161] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 168 elements
+[2026-11-14T13:42:08.990007] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [12] input
+[2026-11-14T13:42:11.498560] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 400 elements
+[2026-11-14T13:42:13.285815] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [31] div
+[2026-11-14T13:42:15.584721] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 204 elements
+[2026-11-14T13:42:17.075019] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [23] div
+[2026-11-14T13:42:19.388980] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 400 elements
+[2026-11-14T13:42:20.904938] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [357] button
+[2026-11-14T13:42:23.775070] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 168 elements
+[2026-11-14T13:42:25.275753] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [18] div
+[2026-11-14T13:42:27.941879] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 172 elements
+[2026-11-14T13:42:29.318918] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [20] button
+[2026-11-14T13:42:33.482689] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 172 elements
+[2026-11-14T13:42:35.006321] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [20] button
+[2026-11-14T13:42:38.638816] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 172 elements
+[2026-11-14T13:42:41.774010] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [18] div
+[2026-11-14T13:42:48.911359] ACTION: PRESS_KEY | DETAILS: Session: session_3nm3lq3 | Key: Escape
+[2026-11-14T13:42:52.666450] ACTION: NAVIGATE | DETAILS: Session: session_3nm3lq3 | URL: https://www.google.com/travel/search?q=hotels%20near%20Puducherry%20railway%20station&dates=2026-11-21,2026-11-23&adults=4&hl=en-IN&curr=INR | Attempt: 1
+[2026-11-14T13:43:00.852483] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 168 elements
+[2026-11-14T13:43:02.732511] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [12] input
+[2026-11-14T13:43:05.479395] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 400 elements
+[2026-11-14T13:43:06.999296] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [31] div
+[2026-11-14T13:43:09.112739] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 204 elements
+[2026-11-14T13:43:10.638957] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [23] div
+[2026-11-14T13:43:12.897659] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 400 elements
+[2026-11-14T13:43:14.568814] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [357] button
+[2026-11-14T13:43:17.409079] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 168 elements
+[2026-11-14T13:43:19.037411] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [18] div
+[2026-11-14T13:43:21.601150] ACTION: EXTRACT | DETAILS: Session: session_3nm3lq3 | 172 elements
+[2026-11-14T13:43:23.106542] ACTION: CLICK | DETAILS: Session: session_3nm3lq3 | Element: [20] button
+[2026-11-14T13:54:02.842873] ACTION: IDLE_SESSION_REAPED | DETAILS: Session: session_3nm3lq3 | Inactive timeout reached
+[2026-11-14T16:51:22.841216] ACTION: BROWSER_USE_TASK | DETAILS: Session: session_eg4e7y2 | goal length 455
+[2026-11-14T16:52:48.858067] ACTION: NAVIGATE | DETAILS: Session: session_eg4e7y2 | URL: https://www.oyorooms.com/search/?location=Pondicherry%2C+Puducherry%2C+India&city=Pondicherry&searchType=city&checkin=21%2F11%2F2026&checkout=23%2F11%2F2026&rooms=2&guests=4&roomConfig%5B%5D=2 | Attempt: 1
+[2026-11-14T16:53:00.177903] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 77 elements
+[2026-11-14T16:53:01.924109] ACTION: FIND_ON_PAGE | DETAILS: Session: session_eg4e7y2 | 8 element hits
+[2026-11-14T16:53:03.189754] ACTION: FIND_ON_PAGE | DETAILS: Session: session_eg4e7y2 | 0 element hits
+[2026-11-14T16:53:06.132095] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 77 elements
+[2026-11-14T16:53:07.737899] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [2] button
+[2026-11-14T16:53:12.170484] ACTION: NAVIGATE | DETAILS: Session: session_eg4e7y2 | URL: https://www.oyorooms.com/search/?checkin=21%2F11%2F2026&checkout=23%2F11%2F2026&city=Pondicherry&filters%5Bcity_id%5D=68&guests=4&location=Pondicherry%2C+Puducherry%2C+India&rooms=2&searchType=city | Attempt: 1
+[2026-11-14T16:53:21.028713] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 77 elements
+[2026-11-14T16:53:22.299462] ACTION: FIND_ON_PAGE | DETAILS: Session: session_eg4e7y2 | 0 element hits
+[2026-11-14T16:53:23.839194] ACTION: FIND_ON_PAGE | DETAILS: Session: session_eg4e7y2 | 0 element hits
+[2026-11-14T16:53:25.550250] ACTION: FIND_ON_PAGE | DETAILS: Session: session_eg4e7y2 | 1 element hits
+[2026-11-14T16:58:17.752829] ACTION: NAVIGATE | DETAILS: Session: session_eg4e7y2 | URL: https://www.oyorooms.com/search?location=Puducherry&checkin=2026-11-21&checkout=2026-11-23&rooms=2&adults=4 | Attempt: 1
+[2026-11-14T16:58:26.210545] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 3 elements
+[2026-11-14T16:58:27.554636] ACTION: TYPE | DETAILS: Session: session_eg4e7y2 | [1] text length 10
+[2026-11-14T16:58:32.849055] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 4 elements
+[2026-11-14T16:58:34.192162] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [3] button
+[2026-11-14T16:58:39.838060] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 4 elements
+[2026-11-14T16:58:41.109830] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [1] input
+[2026-11-14T16:58:46.786538] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 4 elements
+[2026-11-14T16:58:47.994272] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [3] button
+[2026-11-14T16:58:53.689223] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 4 elements
+[2026-11-14T16:58:55.240482] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [1] input
+[2026-11-14T16:59:00.308819] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 4 elements
+[2026-11-14T16:59:01.675859] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [3] button
+[2026-11-14T16:59:07.333126] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 4 elements
+[2026-11-14T16:59:08.334224] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [1] input
+[2026-11-14T16:59:13.552789] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 4 elements
+[2026-11-14T16:59:14.560345] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [3] button
+[2026-11-14T16:59:19.755440] ACTION: NAVIGATE | DETAILS: Session: session_eg4e7y2 | URL: https://www.oyorooms.com/hotels-in-puducherry/?checkin=2026-11-21&checkout=2026-11-23&rooms=2&adults=4 | Attempt: 1
+[2026-11-14T16:59:27.525026] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 3 elements
+[2026-11-14T16:59:28.730255] ACTION: TYPE | DETAILS: Session: session_eg4e7y2 | [1] text length 10
+[2026-11-14T16:59:34.797315] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 4 elements
+[2026-11-14T16:59:36.183885] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [3] button
+[2026-11-14T16:59:41.787572] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 4 elements
+[2026-11-14T16:59:43.347430] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [1] input
+[2026-11-14T16:59:48.528376] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 4 elements
+[2026-11-14T16:59:49.735710] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [3] button
+[2026-11-14T16:59:55.452805] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 4 elements
+[2026-11-14T16:59:56.478721] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [1] input
+[2026-11-14T17:00:01.587112] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 4 elements
+[2026-11-14T17:00:02.639848] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [3] button
+[2026-11-14T17:00:08.650675] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 4 elements
+[2026-11-14T17:00:09.767106] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [2] button
+[2026-11-14T17:00:13.418723] ACTION: CLICK | DETAILS: Session: session_eg4e7y2 | Element: [1] input
+[2026-11-14T17:00:16.953153] ACTION: TYPE | DETAILS: Session: session_eg4e7y2 | [1] text length 10
+[2026-11-14T17:00:21.356255] ACTION: NAVIGATE | DETAILS: Session: session_eg4e7y2 | URL: https://www.oyorooms.com/hotels-in-puducherry/ | Attempt: 1
+[2026-11-14T17:00:28.935038] ACTION: EXTRACT | DETAILS: Session: session_eg4e7y2 | 3 elements
+[2026-11-14T17:10:28.318047] ACTION: NAVIGATE | DETAILS: Session: session_ix82bsd | URL: https://www.booking.com/searchresults.en-us.html?ss=Puducherry&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&group_children=0 | Attempt: 1
+[2026-11-14T17:10:41.570677] ACTION: EXTRACT | DETAILS: Session: session_ix82bsd | 235 elements
+[2026-11-14T17:10:44.286768] ACTION: FIND_ON_PAGE | DETAILS: Session: session_ix82bsd | 0 element hits
+[2026-11-14T17:10:46.006897] ACTION: FIND_ON_PAGE | DETAILS: Session: session_ix82bsd | 0 element hits
+[2026-11-14T17:10:48.715345] ACTION: EXTRACT | DETAILS: Session: session_ix82bsd | 244 elements
+[2026-11-14T17:10:50.315134] ACTION: SCROLL | DETAILS: Session: session_ix82bsd | down
+[2026-11-14T17:10:53.348423] ACTION: EXTRACT | DETAILS: Session: session_ix82bsd | 244 elements
+[2026-11-14T17:10:55.218146] ACTION: SCROLL | DETAILS: Session: session_ix82bsd | down
+[2026-11-14T17:10:58.365804] ACTION: EXTRACT | DETAILS: Session: session_ix82bsd | 244 elements
+[2026-11-14T17:11:00.564441] ACTION: BROWSER_USE_TASK | DETAILS: Session: session_ix82bsd | goal length 625
+[2026-11-14T18:00:57.892117] ACTION: NAVIGATE | DETAILS: Session: session_h3ucl95 | URL: https://www.booking.com/searchresults.en-us.html?ss=Puducherry&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=1&group_children=0 | Attempt: 1
+[2026-11-14T18:01:09.749772] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 299 elements
+[2026-11-14T18:01:11.001146] ACTION: PRESS_KEY | DETAILS: Session: session_h3ucl95 | Key: Escape
+[2026-11-14T18:01:14.216347] ACTION: FIND_ON_PAGE | DETAILS: Session: session_h3ucl95 | 0 element hits
+[2026-11-14T18:01:15.410917] ACTION: FIND_ON_PAGE | DETAILS: Session: session_h3ucl95 | 0 element hits
+[2026-11-14T18:01:18.282789] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 297 elements
+[2026-11-14T18:01:20.150176] ACTION: CLICK | DETAILS: Session: session_h3ucl95 | Element: [30] button
+[2026-11-14T18:01:23.981793] ACTION: FIND_ON_PAGE | DETAILS: Session: session_h3ucl95 | 2 element hits
+[2026-11-14T18:01:25.467209] ACTION: CLICK | DETAILS: Session: session_h3ucl95 | Element: [299] button
+[2026-11-14T18:01:30.799850] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 278 elements
+[2026-11-14T18:01:31.985819] ACTION: FIND_ON_PAGE | DETAILS: Session: session_h3ucl95 | 0 element hits
+[2026-11-14T18:01:32.965975] ACTION: FIND_ON_PAGE | DETAILS: Session: session_h3ucl95 | 10 element hits
+[2026-11-14T18:01:34.063251] ACTION: FIND_ON_PAGE | DETAILS: Session: session_h3ucl95 | 1 element hits
+[2026-11-14T18:01:35.359873] ACTION: FIND_ON_PAGE | DETAILS: Session: session_h3ucl95 | 5 element hits
+[2026-11-14T18:03:02.011031] ACTION: NAVIGATE | DETAILS: Session: session_h3ucl95 | URL: https://www.oyorooms.com/search?city=Puducherry&checkin=2026-11-21&checkout=2026-11-23&adults=4&rooms=1 | Attempt: 1
+[2026-11-14T18:03:02.174950] ACTION: NAVIGATE | DETAILS: Session: session_h3ucl95 | URL: https://www.agoda.com/search?city=17405&checkIn=2026-11-21&los=2&adults=4&rooms=1&children=0 | Attempt: 1
+[2026-11-14T18:03:03.187379] ACTION: NAVIGATE | DETAILS: Session: session_h3ucl95 | URL: https://www.oyorooms.com/search?city=Puducherry&checkin=2026-11-21&checkout=2026-11-23&adults=4&rooms=1 | Attempt: 2
+[2026-11-14T18:03:18.352979] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 3 elements
+[2026-11-14T18:03:19.747724] ACTION: TYPE | DETAILS: Session: session_h3ucl95 | [1] text length 10
+[2026-11-14T18:03:23.301983] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 4 elements
+[2026-11-14T18:03:24.336432] ACTION: FIND_ON_PAGE | DETAILS: Session: session_h3ucl95 | 0 element hits
+[2026-11-14T18:03:26.958915] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 4 elements
+[2026-11-14T18:03:28.202802] ACTION: CLICK | DETAILS: Session: session_h3ucl95 | Element: [3] button
+[2026-11-14T18:03:33.474663] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 4 elements
+[2026-11-14T18:03:34.914667] ACTION: TYPE | DETAILS: Session: session_h3ucl95 | [1] text length 11
+[2026-11-14T18:03:38.650148] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 4 elements
+[2026-11-14T18:03:39.904750] ACTION: CLICK | DETAILS: Session: session_h3ucl95 | Element: [3] button
+[2026-11-14T18:03:45.260488] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 4 elements
+[2026-11-14T18:03:46.984648] ACTION: NAVIGATE | DETAILS: Session: session_h3ucl95 | URL: https://www.oyorooms.com/hotels-in-pondicherry/?checkin=2026-11-21&checkout=2026-11-23&adults=4&rooms=1 | Attempt: 1
+[2026-11-14T18:03:56.299268] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 165 elements
+[2026-11-14T18:03:58.309486] ACTION: SCROLL | DETAILS: Session: session_h3ucl95 | down
+[2026-11-14T18:04:01.026687] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 165 elements
+[2026-11-14T18:04:02.485542] ACTION: NAVIGATE | DETAILS: Session: session_h3ucl95 | URL: https://www.agoda.com/search?city=17405&checkIn=2026-11-21&los=2&adults=4&rooms=1&children=0 | Attempt: 1
+[2026-11-14T18:04:13.745339] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 52 elements
+[2026-11-14T18:04:15.403714] ACTION: TYPE | DETAILS: Session: session_h3ucl95 | [11] text length 10
+[2026-11-14T18:04:17.614014] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 58 elements
+[2026-11-14T18:04:18.742383] ACTION: CLICK | DETAILS: Session: session_h3ucl95 | Element: [12] li
+[2026-11-14T18:04:20.275241] ACTION: CLICK | DETAILS: Session: session_h3ucl95 | Element: [21] button
+[2026-11-14T18:04:38.621960] ACTION: EXTRACT | DETAILS: Session: session_h3ucl95 | 143 elements
+[2026-11-14T18:29:07.035396] ACTION: NAVIGATE | DETAILS: Session: session_brq5pw0 | URL: https://www.booking.com/searchresults.en-us.html?ss=Electronic+City%2C+Bengaluru&checkin=2026-12-10&checkout=2026-12-12&group_adults=2&no_rooms=1&group_children=0 | Attempt: 1
+[2026-11-14T18:29:14.549181] ACTION: EXTRACT | DETAILS: Session: session_brq5pw0 | 248 elements
+[2026-11-14T18:29:16.651260] ACTION: TYPE | DETAILS: Session: session_brq5pw0 | [14] text length 26
+[2026-11-14T18:29:20.714980] ACTION: EXTRACT | DETAILS: Session: session_brq5pw0 | 302 elements
+[2026-11-14T18:29:21.594003] ACTION: CLICK | DETAILS: Session: session_brq5pw0 | Element: [300] button
+[2026-11-14T18:29:27.098365] ACTION: EXTRACT | DETAILS: Session: session_brq5pw0 | 300 elements
+[2026-11-14T18:29:28.410535] ACTION: TYPE | DETAILS: Session: session_brq5pw0 | [14] text length 15
+[2026-11-14T18:29:32.576563] ACTION: EXTRACT | DETAILS: Session: session_brq5pw0 | 305 elements
+[2026-11-14T18:29:33.520739] ACTION: CLICK | DETAILS: Session: session_brq5pw0 | Element: [16] li
+[2026-11-14T18:29:39.142145] ACTION: EXTRACT | DETAILS: Session: session_brq5pw0 | 300 elements
+[2026-11-14T18:29:40.762410] ACTION: FIND_ON_PAGE | DETAILS: Session: session_brq5pw0 | 15 element hits
+[2026-11-14T18:29:41.711920] ACTION: FIND_ON_PAGE | DETAILS: Session: session_brq5pw0 | 0 element hits
+[2026-11-14T18:29:43.216974] ACTION: FIND_ON_PAGE | DETAILS: Session: session_brq5pw0 | 15 element hits
+[2026-11-14T18:29:44.474472] ACTION: FIND_ON_PAGE | DETAILS: Session: session_brq5pw0 | 15 element hits
+[2026-11-14T18:29:45.478218] ACTION: FIND_ON_PAGE | DETAILS: Session: session_brq5pw0 | 1 element hits
+[2026-11-14T18:29:46.245511] ACTION: FIND_ON_PAGE | DETAILS: Session: session_brq5pw0 | 15 element hits
+[2026-11-14T18:29:47.503229] ACTION: FIND_ON_PAGE | DETAILS: Session: session_brq5pw0 | 15 element hits
+[2026-11-14T18:29:48.646669] ACTION: FIND_ON_PAGE | DETAILS: Session: session_brq5pw0 | 1 element hits
+[2026-11-14T18:29:49.942805] ACTION: FIND_ON_PAGE | DETAILS: Session: session_brq5pw0 | 15 element hits
+[2026-11-14T18:29:51.630112] ACTION: FIND_ON_PAGE | DETAILS: Session: session_brq5pw0 | 15 element hits
+[2026-11-14T18:50:36.148458] ACTION: NAVIGATE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | URL: https://www.booking.com/searchresults.en-us.html?ss=Puducherry+railway+station&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&group_children=0 | Attempt: 1
+[2026-11-14T18:50:42.927853] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 322 elements
+[2026-11-14T18:50:44.746603] ACTION: SCROLL | DETAILS: Session: bench_deepseekchat_T5_1794662431 | down
+[2026-11-14T18:50:48.543121] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 324 elements
+[2026-11-14T18:50:50.463841] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T5_1794662431 | Element: [322] button
+[2026-11-14T18:50:54.334511] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 0 element hits
+[2026-11-14T18:50:55.328886] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 15 element hits
+[2026-11-14T18:50:56.447975] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 0 element hits
+[2026-11-14T18:50:57.561170] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 13 element hits
+[2026-11-14T18:50:58.383743] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 15 element hits
+[2026-11-14T18:50:59.649982] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 1 element hits
+[2026-11-14T18:51:00.660757] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 15 element hits
+[2026-11-14T18:51:02.377735] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 1 element hits
+[2026-11-14T18:51:03.651618] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 15 element hits
+[2026-11-14T18:51:04.991913] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 1 element hits
+[2026-11-14T18:51:06.601175] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 13 element hits
+[2026-11-14T18:51:08.001764] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T5_1794662431 | Element: [79] a
+[2026-11-14T18:51:13.388453] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 0 element hits
+[2026-11-14T18:51:14.932192] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 0 element hits
+[2026-11-14T18:51:18.927417] ACTION: GO_BACK | DETAILS: Session: bench_deepseekchat_T5_1794662431
+[2026-11-14T18:51:20.675298] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 0 element hits
+[2026-11-14T18:51:22.118054] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 15 element hits
+[2026-11-14T18:51:23.805300] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 0 element hits
+[2026-11-14T18:51:25.262303] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 0 element hits
+[2026-11-14T18:51:27.879635] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 6 element hits
+[2026-11-14T18:51:29.350559] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 1 element hits
+[2026-11-14T18:51:30.845227] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 6 element hits
+[2026-11-14T18:51:32.784825] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T5_1794662431 | Element: [47] a
+[2026-11-14T18:51:42.177033] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 0 element hits
+[2026-11-14T18:51:46.990183] ACTION: GO_BACK | DETAILS: Session: bench_deepseekchat_T5_1794662431
+[2026-11-14T18:51:50.138697] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 0 element hits
+[2026-11-14T18:51:51.756946] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 15 element hits
+[2026-11-14T18:51:53.216108] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T5_1794662431 | Element: [81] a
+[2026-11-14T18:52:05.559644] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 0 element hits
+[2026-11-14T18:52:07.191158] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T5_1794662431 | 14 element hits
+[2026-11-14T18:52:16.227765] ACTION: NAVIGATE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | URL: https://www.booking.com/searchresults.en-us.html?ss=FabExpress+Santhi+Inn+Puducherry&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&group_children=0 | Attempt: 1
+[2026-11-14T18:52:22.773608] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 340 elements
+[2026-11-14T18:52:24.155681] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 0 element hits
+[2026-11-14T18:52:27.151961] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 342 elements
+[2026-11-14T18:52:28.596252] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T6_1794662532 | Element: [340] button
+[2026-11-14T18:52:32.819301] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 0 element hits
+[2026-11-14T18:52:35.649998] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 347 elements
+[2026-11-14T18:52:37.062926] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 0 element hits
+[2026-11-14T18:52:39.509096] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 347 elements
+[2026-11-14T18:52:40.755147] ACTION: TYPE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | [14] text length 21
+[2026-11-14T18:52:48.600938] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 5 element hits
+[2026-11-14T18:52:52.651388] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 5 element hits
+[2026-11-14T18:52:54.587989] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T6_1794662532 | Element: [30] a
+[2026-11-14T18:53:04.060180] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 0 element hits
+[2026-11-14T18:53:05.600211] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 0 element hits
+[2026-11-14T18:53:08.670415] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 162 elements
+[2026-11-14T18:53:10.014624] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 3 element hits
+[2026-11-14T18:53:11.579310] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 2 element hits
+[2026-11-14T18:53:13.013697] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 0 element hits
+[2026-11-14T18:53:14.776301] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 0 element hits
+[2026-11-14T18:53:15.789458] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T6_1794662532 | 0 element hits
+[2026-11-14T18:53:23.261863] ACTION: NAVIGATE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | URL: https://www.booking.com/searchresults.en-us.html?ss=Puducherry&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&group_children=0 | Attempt: 1
+[2026-11-14T18:53:30.958377] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 247 elements
+[2026-11-14T18:53:32.543944] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T7_1794662599 | Element: [245] button
+[2026-11-14T18:53:37.844779] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 252 elements
+[2026-11-14T18:53:39.288262] ACTION: SCROLL | DETAILS: Session: bench_deepseekchat_T7_1794662599 | down
+[2026-11-14T18:53:42.078667] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 252 elements
+[2026-11-14T18:53:44.602844] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 15 element hits
+[2026-11-14T18:53:47.366989] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 252 elements
+[2026-11-14T18:53:49.534312] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 2 element hits
+[2026-11-14T18:53:52.313654] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 252 elements
+[2026-11-14T18:53:53.951476] ACTION: SCROLL | DETAILS: Session: bench_deepseekchat_T7_1794662599 | down
+[2026-11-14T18:53:56.771708] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 252 elements
+[2026-11-14T18:53:59.552829] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 15 element hits
+[2026-11-14T18:54:01.525766] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 0 element hits
+[2026-11-14T18:54:02.994775] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 1 element hits
+[2026-11-14T18:54:05.853653] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 0 element hits
+[2026-11-14T18:54:07.281067] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 15 element hits
+[2026-11-14T18:54:10.491266] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 3 element hits
+[2026-11-14T18:54:14.701897] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 2 element hits
+[2026-11-14T18:54:16.825022] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 0 element hits
+[2026-11-14T18:54:18.702017] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 0 element hits
+[2026-11-14T18:54:19.773732] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 0 element hits
+[2026-11-14T18:54:22.060557] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 0 element hits
+[2026-11-14T18:54:23.227135] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 0 element hits
+[2026-11-14T18:54:24.264960] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 1 element hits
+[2026-11-14T18:54:25.203032] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 0 element hits
+[2026-11-14T18:54:26.282970] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 0 element hits
+[2026-11-14T18:54:27.706905] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T7_1794662599 | 0 element hits
+[2026-11-14T18:54:34.891184] ACTION: NAVIGATE | DETAILS: Session: bench_deepseekchat_T8_1794662670 | URL: https://www.agoda.com/search?city=17051&checkIn=2026-11-21&checkOut=2026-11-23&adults=4&rooms=1&children=0 | Attempt: 1
+[2026-11-14T18:54:47.190077] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 48 elements
+[2026-11-14T18:54:48.331799] ACTION: TYPE | DETAILS: Session: bench_deepseekchat_T8_1794662670 | [11] text length 10
+[2026-11-14T18:54:51.085018] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 54 elements
+[2026-11-14T18:54:52.166508] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T8_1794662670 | Element: [12] li
+[2026-11-14T18:54:54.129380] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 116 elements
+[2026-11-14T18:54:55.525420] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T8_1794662670 | Element: [83] button
+[2026-11-14T18:55:04.566864] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 83 elements
+[2026-11-14T18:55:07.189251] ACTION: SCROLL | DETAILS: Session: bench_deepseekchat_T8_1794662670 | down
+[2026-11-14T18:55:10.445370] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 146 elements
+[2026-11-14T18:55:11.817685] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 0 element hits
+[2026-11-14T18:55:13.753374] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 1 element hits
+[2026-11-14T18:55:16.472421] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T8_1794662670 | Element: [57] button
+[2026-11-14T18:55:19.494130] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 9 element hits
+[2026-11-14T18:55:20.734018] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T8_1794662670 | Element: [148] li
+[2026-11-14T18:55:30.113341] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 127 elements
+[2026-11-14T18:55:31.916589] ACTION: SCROLL | DETAILS: Session: bench_deepseekchat_T8_1794662670 | down
+[2026-11-14T18:55:33.598271] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 134 elements
+[2026-11-14T18:55:34.799564] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 3 element hits
+[2026-11-14T18:55:35.861309] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 6 element hits
+[2026-11-14T18:55:37.131912] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 3 element hits
+[2026-11-14T18:55:38.524517] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 6 element hits
+[2026-11-14T18:55:39.921556] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 2 element hits
+[2026-11-14T18:55:41.464926] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T8_1794662670 | 3 element hits
+[2026-11-14T18:55:49.139462] ACTION: NAVIGATE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | URL: https://www.booking.com/searchresults.en-us.html?ss=Puducherry+railway+station&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&group_children=0 | Attempt: 1
+[2026-11-14T18:55:56.992615] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 323 elements
+[2026-11-14T18:56:00.382015] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 13 element hits
+[2026-11-14T18:56:01.639999] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T9_1794662745 | Element: [36] button
+[2026-11-14T18:56:07.870828] ACTION: PRESS_KEY | DETAILS: Session: bench_deepseekchat_T9_1794662745 | Key: Escape
+[2026-11-14T18:56:10.812853] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 13 element hits
+[2026-11-14T18:56:11.877531] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T9_1794662745 | Element: [36] button
+[2026-11-14T18:56:15.840738] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 3 element hits
+[2026-11-14T18:56:16.570634] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T9_1794662745 | Element: [325] button
+[2026-11-14T18:56:22.039006] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 296 elements
+[2026-11-14T18:56:23.383392] ACTION: SCROLL | DETAILS: Session: bench_deepseekchat_T9_1794662745 | down
+[2026-11-14T18:56:26.191340] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 296 elements
+[2026-11-14T18:56:28.561592] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 15 element hits
+[2026-11-14T18:56:29.808433] ACTION: SCROLL | DETAILS: Session: bench_deepseekchat_T9_1794662745 | down
+[2026-11-14T18:56:32.812387] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 296 elements
+[2026-11-14T18:56:34.094553] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 2 element hits
+[2026-11-14T18:56:35.540395] ACTION: SCROLL | DETAILS: Session: bench_deepseekchat_T9_1794662745 | down
+[2026-11-14T18:56:38.583779] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 296 elements
+[2026-11-14T18:56:39.753050] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 5 element hits
+[2026-11-14T18:56:41.084621] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 2 element hits
+[2026-11-14T18:56:42.730267] ACTION: SCROLL | DETAILS: Session: bench_deepseekchat_T9_1794662745 | up
+[2026-11-14T18:56:45.601004] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 296 elements
+[2026-11-14T18:56:47.251787] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 0 element hits
+[2026-11-14T18:56:48.225552] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 4 element hits
+[2026-11-14T18:56:49.519451] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 15 element hits
+[2026-11-14T18:56:51.389119] ACTION: SCROLL | DETAILS: Session: bench_deepseekchat_T9_1794662745 | up
+[2026-11-14T18:56:54.233738] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 296 elements
+[2026-11-14T18:56:55.773756] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 6 element hits
+[2026-11-14T18:56:58.314250] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 15 element hits
+[2026-11-14T18:56:59.684734] ACTION: CLICK | DETAILS: Session: bench_deepseekchat_T9_1794662745 | Element: [44] a
+[2026-11-14T18:57:04.722349] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 2 element hits
+[2026-11-14T18:57:06.543387] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 6 element hits
+[2026-11-14T18:57:08.118951] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 0 element hits
+[2026-11-14T18:57:11.819925] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 121 elements
+[2026-11-14T18:57:14.585823] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 0 element hits
+[2026-11-14T18:57:21.192548] ACTION: NAVIGATE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | URL: https://www.booking.com/hotel/in/sri-krishna-guest-house.html?checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2 | Attempt: 1
+[2026-11-14T18:57:31.144948] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 121 elements
+[2026-11-14T18:57:33.363861] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 2 element hits
+[2026-11-14T18:57:36.470992] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 155 elements
+[2026-11-14T18:57:37.953069] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T9_1794662745 | 1 element hits
+[2026-11-14T18:57:46.355425] ACTION: NAVIGATE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | URL: https://www.booking.com/searchresults.en-us.html?ss=Puducherry+Railway+Station&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&group_children=0 | Attempt: 1
+[2026-11-14T18:57:57.831398] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 281 elements
+[2026-11-14T18:57:59.095558] ACTION: PRESS_KEY | DETAILS: Session: bench_deepseekchat_T10_1794662862 | Key: Escape
+[2026-11-14T18:58:02.503323] ACTION: SCROLL | DETAILS: Session: bench_deepseekchat_T10_1794662862 | down
+[2026-11-14T18:58:05.533230] ACTION: EXTRACT | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 279 elements
+[2026-11-14T18:58:06.553947] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:07.456836] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 15 element hits
+[2026-11-14T18:58:09.415223] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 1 element hits
+[2026-11-14T18:58:10.543588] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 15 element hits
+[2026-11-14T18:58:12.727426] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 2 element hits
+[2026-11-14T18:58:13.809769] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:14.931002] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 15 element hits
+[2026-11-14T18:58:15.790554] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 1 element hits
+[2026-11-14T18:58:16.896941] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 15 element hits
+[2026-11-14T18:58:18.022617] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:19.431754] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:20.741306] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 15 element hits
+[2026-11-14T18:58:21.904436] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 1 element hits
+[2026-11-14T18:58:23.495656] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 15 element hits
+[2026-11-14T18:58:24.893240] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:26.108808] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:27.414038] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 1 element hits
+[2026-11-14T18:58:28.976478] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:30.436043] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:31.624942] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:32.773949] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:34.122766] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:35.423263] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:36.712975] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:37.857232] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:38.921998] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:39.976659] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:41.575925] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:42.901966] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:44.175047] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T18:58:46.029192] ACTION: FIND_ON_PAGE | DETAILS: Session: bench_deepseekchat_T10_1794662862 | 0 element hits
+[2026-11-14T19:26:26.302563] ACTION: NAVIGATE | DETAILS: Session: session_n2s4bnv | URL: https://www.booking.com/searchresults.en-us.html?ss=Puducherry&checkin=2026-11-21&checkout=2026-11-23&group_adults=2&no_rooms=1&group_children=0&nflt=price%3DINR-min-3000-1 | Attempt: 1
+[2026-11-14T19:26:33.219902] ACTION: EXTRACT | DETAILS: Session: session_n2s4bnv | 289 elements
+[2026-11-14T19:26:34.640856] ACTION: CLICK | DETAILS: Session: session_n2s4bnv | Element: [31] button
+[2026-11-14T19:26:42.742255] ACTION: PRESS_KEY | DETAILS: Session: session_n2s4bnv | Key: Escape
+[2026-11-14T19:26:45.792970] ACTION: CLICK | DETAILS: Session: session_n2s4bnv | Element: [31] button
+[2026-11-14T19:26:51.289045] ACTION: EXTRACT | DETAILS: Session: session_n2s4bnv | 307 elements
+[2026-11-14T19:26:52.724120] ACTION: CLICK | DETAILS: Session: session_n2s4bnv | Element: [300] button
+[2026-11-14T19:26:58.282366] ACTION: EXTRACT | DETAILS: Session: session_n2s4bnv | 283 elements
+[2026-11-14T19:26:59.622303] ACTION: SCROLL | DETAILS: Session: session_n2s4bnv | down
+[2026-11-14T19:27:02.529728] ACTION: EXTRACT | DETAILS: Session: session_n2s4bnv | 283 elements
+[2026-11-14T19:27:03.723782] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:04.657540] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:05.791110] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:06.922513] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:08.366394] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:09.732714] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:10.948450] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:12.359458] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:13.640552] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:15.170136] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:16.974360] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:18.236530] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:19.593201] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:20.803343] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:22.018739] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:23.234764] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:25.170648] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:26.483640] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:28.075849] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:29.314963] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:30.328612] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:31.432337] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:32.724175] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:34.758540] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:36.783471] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:37.799465] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-14T19:27:39.269344] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits

@@ -3,6 +3,13 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import InlineSandbox from "./InlineSandbox";
 
+const SUGGESTIONS = [
+  { title: "Plan a 2-day trip", sub: "Relaxed Puducherry itinerary for 4 friends", text: "We are 4 friends visiting Puducherry from 21 to 23 Nov. Plan a relaxed 2-day itinerary." },
+  { title: "Find live hotel prices", sub: "Booking.com, near the railway station", text: "Find 3 hotels near Puducherry railway station on Booking.com for 21-23 Nov, 4 adults, 2 rooms, with total prices." },
+  { title: "Compare booking sites", sub: "Booking.com vs Agoda prices", text: "Compare hotel prices in Puducherry for 21-23 Nov, 4 adults, on Booking.com and Agoda." },
+  { title: "Trains and timings", sub: "Morning trains Chennai to Puducherry", text: "Is there a morning train from Chennai to Puducherry? Give train names and timings." },
+];
+
 export default function ChatView({ messages, onSendMessage, onResume, onStop, loading, currentStage, onSelectCitation, sessionId }) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
@@ -28,7 +35,21 @@ export default function ChatView({ messages, onSendMessage, onResume, onStop, lo
       <div className="messages-list">
         {messages.length === 0 ? (
           <div className="welcome-hero">
+            <div className="welcome-badge" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
+            </div>
             <h2 className="hero-title">Where do you want to travel next?</h2>
+            <p className="hero-subtext">Plan trips, check live prices on booking sites and watch the agent browse for you. You approve every booking step.</p>
+            <div className="suggestions">
+              {SUGGESTIONS.map((s) => (
+                <button key={s.title} className="suggestion-chip" onClick={() => onSendMessage(s.text)} disabled={loading}>
+                  <span className="chip-title">{s.title}</span>
+                  <span className="chip-sub">{s.sub}</span>
+                </button>
+              ))}
+            </div>
           </div>
         ) : (
           messages.map((msg, index) => {
@@ -64,50 +85,36 @@ export default function ChatView({ messages, onSendMessage, onResume, onStop, lo
                     </svg>
                   </div>
                   <div className="bot-response-container">
-                    <div className="knowledge-card unified" style={{ borderColor: "#f59e0b", background: "rgba(245, 158, 11, 0.05)" }}>
-                      <div className="card-header unified" style={{ background: "rgba(245, 158, 11, 0.15)", borderBottom: "1px solid rgba(245, 158, 11, 0.2)" }}>
-                        <span style={{ display: "flex", alignItems: "center", gap: "6px", color: "#fbbf24" }}>
-                          ⚠️ Action Approval Required
-                        </span>
+                    <div className="approval-card">
+                      <div className="approval-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                        Your approval is needed
                       </div>
-                      <div className="card-body" style={{ padding: "12px" }}>
-                        <p style={{ margin: "0 0 10px 0", color: "#e5e7eb", fontSize: "13px" }}>
-                          The agent wants to execute <strong>{data.tool}</strong>. Please review the details below:
+                      <div className="approval-body">
+                        <p className="approval-text">
+                          The agent wants to run <strong>{data.tool}</strong>. Review the details before it continues.
                         </p>
-                        
                         {payload.image && (
-                          <div style={{ marginBottom: "12px", textAlign: "center" }}>
-                            <img src={`data:image/jpeg;base64,${payload.image}`} alt="Browser Action Screen" style={{ maxWidth: '100%', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)' }} />
-                          </div>
+                          <img className="approval-image" src={`data:image/jpeg;base64,${payload.image}`} alt="Browser screen at this step" />
                         )}
-
-                        <div style={{ marginBottom: "12px", borderRadius: "6px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
-                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", background: "rgba(0,0,0,0.2)" }}>
-                            <tbody>
-                              {Object.entries(data.args || {}).map(([key, val], i) => (
-                                <tr key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                                  <td style={{ padding: "6px 10px", color: "#a78bfa", width: "40%", borderRight: "1px solid rgba(255,255,255,0.05)", fontWeight: "600" }}>{key}</td>
-                                  <td style={{ padding: "6px 10px", color: "#e5e7eb" }}>{String(val)}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-
-                        <div style={{ display: "flex", gap: "8px" }}>
-                          <button 
-                            onClick={() => onResume && onResume("approved")}
-                            disabled={loading}
-                            style={{ flex: 1, padding: "8px", background: "var(--org-emerald)", color: "#000", border: "none", borderRadius: "6px", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}
-                          >
-                            ✓ Approve
+                        <table className="approval-table">
+                          <tbody>
+                            {Object.entries(data.args || {}).map(([key, val], i) => (
+                              <tr key={i}>
+                                <td>{key.replace(/_/g, " ")}</td>
+                                <td>{String(val)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        <div className="approval-actions">
+                          <button className="btn-approve" onClick={() => onResume && onResume("approved")} disabled={loading}>
+                            Approve
                           </button>
-                          <button 
-                            onClick={() => onResume && onResume("rejected")}
-                            disabled={loading}
-                            style={{ flex: 1, padding: "8px", background: "rgba(239, 68, 68, 0.2)", color: "#f87171", border: "1px solid rgba(239, 68, 68, 0.4)", borderRadius: "6px", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}
-                          >
-                            ✕ Reject
+                          <button className="btn-reject" onClick={() => onResume && onResume("rejected")} disabled={loading}>
+                            Reject
                           </button>
                         </div>
                       </div>
@@ -172,8 +179,8 @@ export default function ChatView({ messages, onSendMessage, onResume, onStop, lo
         )}
 
         {loading && (
-          <div className="chatgpt-status-row" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", alignItems: "center" }}>
+          <div className="chatgpt-status-row">
+            <div className="chatgpt-status-line">
               <span className="chatgpt-status-icon">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10"></circle>
@@ -185,7 +192,7 @@ export default function ChatView({ messages, onSendMessage, onResume, onStop, lo
                 {currentStage?.label || "Planning your trip..."}
               </span>
             </div>
-            <div style={{ marginTop: "12px", alignSelf: "center", width: "100%", maxWidth: "600px" }}>
+            <div className="sandbox-slot">
               <InlineSandbox sessionId={sessionId} active={loading} onStop={onStop} />
             </div>
           </div>
@@ -205,7 +212,7 @@ export default function ChatView({ messages, onSendMessage, onResume, onStop, lo
                 handleSubmit(e);
               }
             }}
-            placeholder="Ask a question..."
+            placeholder="Ask about trips, hotels, trains..."
             className="chat-input"
             rows={1}
           />
@@ -216,6 +223,7 @@ export default function ChatView({ messages, onSendMessage, onResume, onStop, lo
             </svg>
           </button>
         </form>
+        <p className="composer-hint">The agent can make mistakes. Bookings and payments always need your approval.</p>
       </div>
     </div>
   );

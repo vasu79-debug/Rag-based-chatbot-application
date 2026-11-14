@@ -14,7 +14,7 @@ export default function CitationsDrawer({ citation, onClose }) {
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           <div>
             <span style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: "700" }}>Document Source</span>
-            <p style={{ fontSize: "15px", fontWeight: "700", color: "#fff" }}>{citation.source}</p>
+            <p style={{ fontSize: "15px", fontWeight: "700", color: "var(--text)" }}>{citation.source}</p>
           </div>
 
           <div style={{ display: "flex", gap: "20px" }}>
@@ -28,7 +28,7 @@ export default function CitationsDrawer({ citation, onClose }) {
             </div>
             <div>
               <span style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: "700" }}>Rerank Relevance</span>
-              <p style={{ fontSize: "14px", color: "#fbbf24", fontWeight: "600" }}>{Math.round(citation.score * 100)}%</p>
+              <p style={{ fontSize: "14px", color: "var(--warning)", fontWeight: "600" }}>{Math.round(citation.score * 100)}%</p>
             </div>
           </div>
         </div>

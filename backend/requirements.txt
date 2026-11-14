@@ -44,3 +44,4 @@ aiosqlite>=0.20.0
 
 # Browser Automation
 playwright
+browser-use==1.0.4  # 1.x API differs completely from 0.x; upgrade deliberately

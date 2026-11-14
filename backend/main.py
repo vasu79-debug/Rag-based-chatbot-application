@@ -20,6 +20,8 @@ from langchain.mcp import MCPAdapter
 import sys
 import os
 import asyncio
+import logging
+import re
 import json
 
 MCP_SERVERS_FILE = os.path.join(os.path.dirname(__file__), "data", "mcp_servers.json")
@@ -28,6 +30,37 @@ mcp_state = {
     "connections": {}, # keyed by url, value: {"session": session}
     "tasks": {} # keyed by url, value: asyncio.Task
 }
+
+class _SecretRedactingFilter(logging.Filter):
+    """Masks API keys/tokens in query strings (e.g. Tavily MCP URL ?tavilyApiKey=...) in every log line."""
+    _pattern = re.compile(r"((?:api[_-]?key|apikey|token|key|secret)=)[^&\s\"']+", re.IGNORECASE)
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        try:
+            msg = record.getMessage()
+            red = self._pattern.sub(r"\1***", msg)
+            if red != msg:
+                record.msg, record.args = red, ()
+        except Exception:
+            pass
+        return True
+
+
+def _install_log_redaction() -> None:
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    f = _SecretRedactingFilter()
+    for name in ("", "uvicorn", "uvicorn.error", "uvicorn.access", "httpx", "mcp"):
+        lg = logging.getLogger(name)
+        lg.addFilter(f)
+        for h in lg.handlers:
+            h.addFilter(f)
+
+
+def _redact(url: str) -> str:
+    from graph.mcp_graph import _redact_url
+    return _redact_url(url)
+
 
 def save_mcp_servers():
     os.makedirs(os.path.dirname(MCP_SERVERS_FILE), exist_ok=True)
@@ -67,7 +100,7 @@ async def mcp_connection_worker(url: str, ready_event: asyncio.Event):
         # Normal disconnect flow
         pass
     except Exception as e:
-        print(f"MCP connection error for {url}: {e}")
+        print(f"MCP connection error for {_redact(url)}: {e}")
     finally:
         # Cleanup state if the connection drops or is closed
         if url in mcp_state["connections"]:
@@ -75,7 +108,23 @@ async def mcp_connection_worker(url: str, ready_event: asyncio.Event):
         if url in mcp_state["tasks"]:
             del mcp_state["tasks"][url]
 
+def validate_mcp_target(url: str) -> None:
+    """Only http(s) MCP endpoints by default. A JSON config can describe a stdio server,
+    i.e. a local command this backend would execute - that is remote code execution
+    for anyone who can reach /api/settings/mcp, so it is opt-in."""
+    target = (url or "").strip()
+    if target.startswith("{"):
+        if not settings.ALLOW_MCP_STDIO_CONFIG:
+            raise ValueError("JSON/stdio MCP configs are disabled (set ALLOW_MCP_STDIO_CONFIG=true to allow).")
+        return
+    from urllib.parse import urlparse
+    parsed = urlparse(target)
+    if parsed.scheme not in ("http", "https") or not parsed.hostname:
+        raise ValueError("MCP server must be an http(s) URL, e.g. http://127.0.0.1:8001/sse")
+
+
 async def connect_mcp(url: str):
+    validate_mcp_target(url)
     if url in mcp_state["connections"]:
         return # Already connected
         
@@ -83,8 +132,17 @@ async def connect_mcp(url: str):
     task = asyncio.create_task(mcp_connection_worker(url, ready_event))
     mcp_state["tasks"][url] = task
     
-    # Wait for the worker to successfully initialize the session
-    await ready_event.wait()
+    # Wait for the worker to initialize the session. Bounded: if the server is down
+    # the worker exits without ever setting ready_event, which used to hang forever
+    # (and blocked app startup when a saved MCP server was offline).
+    waiter = asyncio.create_task(ready_event.wait())
+    done, _ = await asyncio.wait({waiter, task}, timeout=15, return_when=asyncio.FIRST_COMPLETED)
+    if waiter not in done:
+        waiter.cancel()
+        if not task.done():
+            task.cancel()
+        mcp_state["tasks"].pop(url, None)
+        raise ConnectionError(f"MCP server {url} did not become ready")
     save_mcp_servers()
 
 async def disconnect_mcp(url: str):
@@ -98,13 +156,14 @@ async def disconnect_mcp(url: str):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    _install_log_redaction()
     # Connect to all saved servers on startup
     saved_servers = load_mcp_servers()
     for url in saved_servers:
         try:
             await connect_mcp(url)
         except Exception as e:
-            print(f"Warning: Could not connect to MCP server {url}: {e}")
+            print(f"Warning: Could not connect to MCP server {_redact(url)}: {e}")
 
     # Start the browser session idle reaper background worker
     from browser_tools import browser_session_reaper, close_browser
@@ -133,7 +192,9 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list + ["*"],
+    # Explicit origins only; regex allows ngrok and cloudflare tunnels cleanly
+    allow_origins=settings.cors_origins_list,
+    allow_origin_regex=r"https://.*\.ngrok-free\.app|https://.*\.ngrok\.io|https://.*\.trycloudflare\.com",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -210,6 +271,8 @@ async def connect_mcp_endpoint(payload: dict):
     try:
         await connect_mcp(url)
         return {"status": "success", "url": url}
+    except ValueError as ve:
+        raise HTTPException(400, str(ve))
     except Exception as e:
         raise HTTPException(500, f"Failed to connect to MCP Server at {url}: {str(e)}")
 
@@ -298,7 +361,8 @@ async def chat_stream_endpoint(request: ChatRequest):
                     final_out = {
                         "route": "API",
                         "answer": final_message,
-                        "general_section": {"label": "AI Agent Response", "content": final_message}
+                        "general_section": {"label": "AI Agent Response", "content": final_message},
+                        "usage": event.get("usage"),
                     }
                     yield f"data: {json.dumps({'type': 'complete', 'result': final_out})}\n\n"
                     
@@ -345,7 +409,8 @@ async def chat_resume_endpoint(request: ResumeRequest):
                     final_out = {
                         "route": "API",
                         "answer": final_message,
-                        "general_section": {"label": "AI Agent Response", "content": final_message}
+                        "general_section": {"label": "AI Agent Response", "content": final_message},
+                        "usage": event.get("usage"),
                     }
                     yield f"data: {json.dumps({'type': 'complete', 'result': final_out})}\n\n"
         except asyncio.CancelledError:

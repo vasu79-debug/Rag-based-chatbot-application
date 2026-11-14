@@ -227,10 +227,10 @@ export default function InlineSandbox({ sessionId, active, onStop }) {
           onContextMenu={(e) => manualControl && e.preventDefault()}
         />
       ) : (
-        <div style={{ padding: "48px 16px", textAlign: "center", color: "#9ca3af", background: "rgba(0,0,0,0.4)", borderRadius: "0 0 8px 8px" }}>
-          <div style={{ fontSize: "24px", marginBottom: "8px" }}>🌐</div>
-          <div style={{ fontSize: "13px", fontWeight: "600", color: "#e5e7eb" }}>Opening live browser session...</div>
-          <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "4px" }}>{pageUrl || "Connecting to sandbox Chromium..."}</div>
+        <div className="inline-sandbox-placeholder">
+          <div className="ph-icon">🌐</div>
+          <div className="ph-title">Opening live browser session...</div>
+          <div className="ph-sub">{pageUrl || "Connecting to sandbox browser..."}</div>
         </div>
       )}
     </div>

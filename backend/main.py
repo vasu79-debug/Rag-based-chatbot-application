@@ -668,7 +668,7 @@ async def sandbox_live_feed(websocket: WebSocket, session_id: str):
                 "manual_control_reason": control["reason"] if has_real_page else "",
                 "manual_control_details": control["details"] if has_real_page else "",
             })
-            await asyncio.sleep(0.25)
+            await asyncio.sleep(0.10)
     except WebSocketDisconnect:
         pass
     except Exception as e:

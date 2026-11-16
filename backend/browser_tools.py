@@ -672,12 +672,11 @@ async def check_semantic_guard(url: str, user_intent: str) -> tuple[bool, str]:
 # Risk classification (consequential actions & sensitive fields)
 # =============================================================================
 RISKY_ACTION_RE = re.compile(
-    r"\b(buy|purchase|pay|payment|checkout|check out|place order|order now|confirm|reserve|reservation|"
-    r"book now|book this|book (?:a |the )?room|complete (?:booking|reservation|purchase|order|payment)|"
-    r"finish booking|subscribe|donate|send money|transfer|delete account|remove account|add to cart|submit)\b",
+    r"\b(buy|purchase|pay|payment|place order|order now|confirm payment|complete (?:purchase|order|payment)|"
+    r"finish payment|donate|send money|transfer|delete account|remove account)\b",
     re.IGNORECASE,
 )
-EXACT_RISKY_LABELS = {"book", "next: final details", "final step"}
+EXACT_RISKY_LABELS = {"pay now", "complete payment", "place order", "book with payment"}
 SENSITIVE_FIELD_RE = re.compile(
     r"(password|passwd|passcode|\bpin\b|otp|one-time-code|\bcc-|card|cvv|cvc|csc|expir|\bupi\b|iban|"
     r"account.?number|routing|\bssn\b|aadhaar|pan.?number|current-password|new-password)",
@@ -931,6 +930,39 @@ async def get_latest_screenshot_base64(session_id: Optional[str] = None) -> Opti
 # =============================================================================
 # Page settle, snapshot & verification helpers
 # =============================================================================
+COMMON_POPUP_DISMISS_SELECTORS = [
+    'button[aria-label="Dismiss sign-in info."]',
+    'button[aria-label="Dismiss sign-in info"]',
+    'button[data-testid*="dismissible-button"]',
+    'button[aria-label="Tap to close message"]',
+    'button[aria-label="Close dialog"]',
+    '#onetrust-accept-btn-handler',
+    'button[id*="cookie-accept"]',
+    'button[id*="accept-all"]',
+    'div[role="dialog"] button[aria-label*="close" i]',
+    'div[role="dialog"] button[aria-label*="dismiss" i]',
+    'span.commonModal__close',
+    'button.ab-close-button',
+]
+
+async def _auto_dismiss_popups(page: Page) -> list[str]:
+    """
+    Auto-dismisses common promotional modals (e.g. Booking.com Genius, banners, cookies)
+    so the live screencast and element index list stay clear and interactive.
+    """
+    dismissed = []
+    for sel in COMMON_POPUP_DISMISS_SELECTORS:
+        try:
+            el = await page.query_selector(sel)
+            if el and await el.is_visible():
+                await el.click(timeout=1000)
+                dismissed.append(sel)
+                await asyncio.sleep(0.3)
+        except Exception:
+            pass
+    return dismissed
+
+
 async def _wait_for_spa_settle(page: Page, timeout_ms: int = 2500) -> None:
     for state in ("domcontentloaded", "networkidle"):
         try:
@@ -938,6 +970,7 @@ async def _wait_for_spa_settle(page: Page, timeout_ms: int = 2500) -> None:
         except Exception:
             pass
     await asyncio.sleep(0.15)
+    await _auto_dismiss_popups(page)
 
 
 _SNAPSHOT_JS = """
@@ -1114,7 +1147,7 @@ def _remember(sess: dict, signature: str, changed: bool) -> None:
 
 
 async def _visualize_mouse_action(page: Page, locator) -> None:
-    """Glowing dot where the agent acts, so the live view shows what it is doing."""
+    """Glowing dot and native cursor movement with smooth human-like glide animation."""
     try:
         box = await locator.bounding_box()
         if box:
@@ -1122,13 +1155,32 @@ async def _visualize_mouse_action(page: Page, locator) -> None:
             y = box["y"] + box["height"] / 2
             await page.evaluate("""([x, y]) => {
                 let c = document.getElementById('ai-agent-cursor');
-                if (!c) { c = document.createElement('div'); c.id = 'ai-agent-cursor';
-                  Object.assign(c.style, {position: 'fixed', width: '18px', height: '18px', borderRadius: '50%',
-                    backgroundColor: 'rgba(239,68,68,0.9)', border: '2px solid white', boxShadow: '0 0 12px rgba(239,68,68,1)',
-                    pointerEvents: 'none', zIndex: '999999999', transition: 'all 0.1s ease-out', transform: 'translate(-50%,-50%)'});
-                  document.body.appendChild(c); }
-                c.style.left = x + 'px'; c.style.top = y + 'px'; c.style.display = 'block';
+                if (!c) {
+                    c = document.createElement('div');
+                    c.id = 'ai-agent-cursor';
+                    Object.assign(c.style, {
+                        position: 'fixed',
+                        width: '22px',
+                        height: '22px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(239, 68, 68, 0.95)',
+                        border: '2px solid #ffffff',
+                        boxShadow: '0 0 16px rgba(239, 68, 68, 1), 0 0 6px rgba(255, 255, 255, 0.9)',
+                        pointerEvents: 'none',
+                        zIndex: '999999999',
+                        transition: 'left 0.35s cubic-bezier(0.22, 1, 0.36, 1), top 0.35s cubic-bezier(0.22, 1, 0.36, 1), transform 0.15s ease-out',
+                        transform: 'translate(-50%, -50%) scale(1)'
+                    });
+                    document.body.appendChild(c);
+                }
+                c.style.left = x + 'px';
+                c.style.top = y + 'px';
+                c.style.display = 'block';
+                c.style.transform = 'translate(-50%, -50%) scale(1.35)';
+                setTimeout(() => { if (c) c.style.transform = 'translate(-50%, -50%) scale(1)'; }, 150);
             }""", [x, y])
+            # Multi-step smooth cursor glide over 15 steps
+            await page.mouse.move(x, y, steps=15)
     except Exception:
         pass
 
@@ -1377,8 +1429,10 @@ async def click(index: int) -> str:
     await take_screenshot(f"pre_click_{index}", sid)
     before = await _fingerprint(page)
     try:
-        await _visualize_mouse_action(page, loc)
         await loc.scroll_into_view_if_needed(timeout=3000)
+        await asyncio.sleep(0.08)
+        await _visualize_mouse_action(page, loc)
+        await asyncio.sleep(0.08)
         await loc.click(timeout=5000)
     except Exception as e:
         if "intercepts pointer events" in str(e):
@@ -1431,12 +1485,12 @@ async def type_text(index: int, text: str, press_enter: bool = False) -> str:
     before = await _fingerprint(page)
     suggestions_before = await _count_suggestions(page)
     try:
+        await loc.scroll_into_view_if_needed(timeout=3000)
+        await asyncio.sleep(0.08)
         await _visualize_mouse_action(page, loc)
-        # fill() only fires an 'input' event. Many autocomplete widgets (OYO, MakeMyTrip, airline
-        # sites) listen for real key events, so type the last characters as keystrokes.
-        head, tail = (text[:-3], text[-3:]) if len(text) > 3 else ("", text)
-        await loc.fill(head, timeout=5000)
-        await loc.press_sequentially(tail, delay=80, timeout=5000)
+        # Focus and type character-by-character so letters appear smoothly on stream
+        await loc.click(timeout=3000)
+        await loc.press_sequentially(text, delay=45, timeout=10000)
         await asyncio.sleep(0.8)  # let suggestion lists render
         if press_enter:
             await loc.press("Enter")

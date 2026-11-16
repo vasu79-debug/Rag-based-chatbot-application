@@ -934,3 +934,47 @@
 [2026-11-14T19:27:36.783471] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
 [2026-11-14T19:27:37.799465] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
 [2026-11-14T19:27:39.269344] ACTION: FIND_ON_PAGE | DETAILS: Session: session_n2s4bnv | 15 element hits
+[2026-11-16T15:57:34.384231] ACTION: NAVIGATE | DETAILS: Session: session_9jwnoma | URL: https://www.booking.com/searchresults.en-us.html?ss=FabExpress+Santhi+Inn+Puducherry&checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&group_children=0 | Attempt: 1
+[2026-11-16T15:57:46.309735] ACTION: EXTRACT | DETAILS: Session: session_9jwnoma | 367 elements
+[2026-11-16T15:57:47.086416] ACTION: FIND_ON_PAGE | DETAILS: Session: session_9jwnoma | 0 element hits
+[2026-11-16T15:57:49.592801] ACTION: EXTRACT | DETAILS: Session: session_9jwnoma | 367 elements
+[2026-11-16T15:57:50.828663] ACTION: FIND_ON_PAGE | DETAILS: Session: session_9jwnoma | 0 element hits
+[2026-11-16T15:57:52.217222] ACTION: SCROLL | DETAILS: Session: session_9jwnoma | down
+[2026-11-16T15:57:55.375407] ACTION: EXTRACT | DETAILS: Session: session_9jwnoma | 367 elements
+[2026-11-16T15:57:56.462093] ACTION: FIND_ON_PAGE | DETAILS: Session: session_9jwnoma | 0 element hits
+[2026-11-16T15:57:59.175310] ACTION: EXTRACT | DETAILS: Session: session_9jwnoma | 367 elements
+[2026-11-16T15:58:00.271405] ACTION: FIND_ON_PAGE | DETAILS: Session: session_9jwnoma | 0 element hits
+[2026-11-16T15:58:01.773313] ACTION: SCROLL | DETAILS: Session: session_9jwnoma | top
+[2026-11-16T15:58:05.092317] ACTION: EXTRACT | DETAILS: Session: session_9jwnoma | 367 elements
+[2026-11-16T15:58:07.070894] ACTION: NAVIGATE | DETAILS: Session: session_9jwnoma | URL: https://www.booking.com/hotel/in/fabexpress-santhi-inn.en-us.html?checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&group_children=0 | Attempt: 1
+[2026-11-16T15:58:13.108205] ACTION: EXTRACT | DETAILS: Session: session_9jwnoma | 68 elements
+[2026-11-16T15:58:19.100886] ACTION: NAVIGATE | DETAILS: Session: session_9jwnoma | URL: https://www.booking.com/hotel/in/fabexpress-s-inn-near-promenade-beach.en-us.html?checkin=2026-11-21&checkout=2026-11-23&group_adults=4&no_rooms=2&group_children=0&selected_currency=INR | Attempt: 1
+[2026-11-16T15:58:28.261881] ACTION: EXTRACT | DETAILS: Session: session_9jwnoma | 160 elements
+[2026-11-16T15:58:30.221579] ACTION: FIND_ON_PAGE | DETAILS: Session: session_9jwnoma | 7 element hits
+[2026-11-16T15:58:33.228402] ACTION: EXTRACT | DETAILS: Session: session_9jwnoma | 160 elements
+[2026-11-16T15:58:34.456811] ACTION: FIND_ON_PAGE | DETAILS: Session: session_9jwnoma | 0 element hits
+[2026-11-16T15:58:37.583863] ACTION: EXTRACT | DETAILS: Session: session_9jwnoma | 160 elements
+[2026-11-16T15:58:39.267669] ACTION: CLICK | DETAILS: Session: session_9jwnoma | Element: [50] button
+[2026-11-16T15:58:43.760580] ACTION: FIND_ON_PAGE | DETAILS: Session: session_9jwnoma | 0 element hits
+[2026-11-16T15:58:45.164192] ACTION: FIND_ON_PAGE | DETAILS: Session: session_9jwnoma | 5 element hits
+[2026-11-16T15:58:46.472449] ACTION: SELECT | DETAILS: Session: session_9jwnoma | [61]
+[2026-11-16T15:58:51.369602] ACTION: EXTRACT | DETAILS: Session: session_9jwnoma | 160 elements
+[2026-11-16T15:58:52.545777] ACTION: CLICK | DETAILS: Session: session_9jwnoma | Element: [66] button
+[2026-11-16T15:59:02.181870] ACTION: EXTRACT | DETAILS: Session: session_9jwnoma | 37 elements
+[2026-11-16T15:59:03.805438] ACTION: TYPE | DETAILS: Session: session_9jwnoma | [14] text length 4
+[2026-11-16T15:59:07.902359] ACTION: EXTRACT | DETAILS: Session: session_9jwnoma | 37 elements
+[2026-11-16T15:59:10.078179] ACTION: REQUEST_HUMAN_ACTION | DETAILS: Session: session_9jwnoma | reason length 88
+[2026-11-16T15:59:46.687058] ACTION: MANUAL_CLICK | DETAILS: Session: session_9jwnoma | x=811, y=391
+[2026-11-16T15:59:52.121610] ACTION: MANUAL_KEY | DETAILS: Session: session_9jwnoma | user typed a key (content not logged)
+[2026-11-16T15:59:55.950489] ACTION: MANUAL_CLICK | DETAILS: Session: session_9jwnoma | x=864, y=388
+[2026-11-16T16:00:04.753689] ACTION: MANUAL_KEY | DETAILS: Session: session_9jwnoma | user typed a key (content not logged)
+[2026-11-16T16:00:04.872812] ACTION: MANUAL_KEY | DETAILS: Session: session_9jwnoma | user typed a key (content not logged)
+[2026-11-16T16:00:04.996944] ACTION: MANUAL_KEY | DETAILS: Session: session_9jwnoma | user typed a key (content not logged)
+[2026-11-16T16:00:05.488953] ACTION: MANUAL_KEY | DETAILS: Session: session_9jwnoma | user typed a key (content not logged)
+[2026-11-16T16:00:05.681145] ACTION: MANUAL_KEY | DETAILS: Session: session_9jwnoma | user typed a key (content not logged)
+[2026-11-16T16:00:06.177298] ACTION: MANUAL_KEY | DETAILS: Session: session_9jwnoma | user typed a key (content not logged)
+[2026-11-16T16:00:06.288518] ACTION: MANUAL_KEY | DETAILS: Session: session_9jwnoma | user typed a key (content not logged)
+[2026-11-16T16:00:06.407591] ACTION: MANUAL_KEY | DETAILS: Session: session_9jwnoma | user typed a key (content not logged)
+[2026-11-16T16:00:06.586107] ACTION: MANUAL_KEY | DETAILS: Session: session_9jwnoma | user typed a key (content not logged)
+[2026-11-16T16:00:06.695108] ACTION: MANUAL_KEY | DETAILS: Session: session_9jwnoma | user typed a key (content not logged)
+[2026-11-16T16:00:08.902873] ACTION: MANUAL_CLICK | DETAILS: Session: session_9jwnoma | x=592, y=181

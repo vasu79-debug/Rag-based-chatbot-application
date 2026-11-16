@@ -720,7 +720,17 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 .inline-sandbox-expand:hover { color: var(--text); border-color: var(--border-strong); }
 .inline-sandbox-stop { background: var(--danger-soft); color: var(--danger); border: 1px solid var(--danger-border); }
 .inline-sandbox-stop:hover { background: var(--danger); color: #fff; }
-.inline-sandbox-frame { display: block; width: 100%; max-height: 440px; object-fit: contain; background: var(--sandbox-bg); outline: none; }
+.inline-sandbox-frame { 
+  display: block; 
+  width: 100%; 
+  max-height: 440px; 
+  object-fit: contain; 
+  background: var(--sandbox-bg); 
+  outline: none; 
+  image-rendering: auto;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
 .inline-sandbox-frame.interactive { cursor: crosshair; }
 .inline-sandbox-placeholder { padding: 44px 16px; text-align: center; background: var(--surface-2); }
 .inline-sandbox-placeholder .ph-icon { font-size: 22px; margin-bottom: 6px; }

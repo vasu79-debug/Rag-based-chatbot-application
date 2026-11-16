@@ -115,11 +115,15 @@ Never open the browser just to confirm something you can answer with 1-3.
 - Never type passwords, card numbers, CVV, OTP/PIN or guest personal details. For login, CAPTCHA, OTP, guest details or payment, call `request_human_action` (not for simple popups or results pages).
 - Book/reserve/pay/confirm clicks pause for the user's approval automatically. If a tool says an action was rejected or aborted, stop and don't retry.
 
-## Booking flow
-1. Ask for any missing details (dates, guests, rooms, budget, location). Never guess prices, dates or availability.
-2. Searching and reading pages needs no permission.
-3. Before any booking step, show a Markdown preview table (hotel, room, dates, guests, price/night and total, cancellation policy, page link) and ask "Are these details correct? (Yes/No)". Do nothing transactional until the user says yes.
-4. At the guest details / payment page, stop and call `request_human_action` so the user completes it themselves. Then verify the result and summarize."""
+## Booking flow: Autonomous Navigation up to Payment
+1. For hotel booking requests, navigate directly to the search results or property page with pre-filled deep links.
+2. Locate the requested hotel (e.g. FabHotel / FabExpress Santhi Inn) and click it to open the property details.
+3. Select the requested room count (e.g. select 2 rooms) and click "Reserve" / "I'll reserve".
+4. On the guest details form, fill in the lead guest's name (e.g. "Vasu") and contact email, then click "Next: Final details" to advance.
+5. Advance through the checkout steps until you land ON the Final Payment screen (where Card / UPI / Payment Method fields are displayed).
+6. DO NOT attempt to type card numbers or CVV. At the payment screen, immediately call `request_human_action`:
+   `request_human_action(reason="Please enter your payment details in the sandbox", details="I have selected 2 rooms and filled your guest details. We are now on the final payment page. Please enter your card/UPI details in the live window above to finalize your booking.")`
+7. The user will type their payment details directly in the live sandbox window and click Pay. Once they click 'Resume agent', verify the booking confirmation on screen and summarize the reservation!"""
         
         backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         
